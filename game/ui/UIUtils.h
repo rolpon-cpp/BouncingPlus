@@ -20,7 +20,7 @@ class UIAssets
     Texture2D YTImg;
 
     Texture2D RolponPFPImg;
-    Texture2D JayPFPImg;
+    Texture2D EggPFPImg;
     Texture2D CozPFPImg;
     Texture2D InkyPFPImg;
 

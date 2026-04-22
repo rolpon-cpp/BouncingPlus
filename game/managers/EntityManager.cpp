@@ -99,7 +99,7 @@ void EntityManager::Clear()
     for (int e = 0; e < End; e++) {
         std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
         for (int i = 0; i < array->size(); i++) {
-            if (shared_ptr<Entity> entity = array->at(i); entity != nullptr) {
+            if (shared_ptr<Entity>& entity = array->at(i); entity != nullptr) {
                 entity->OnDelete();
                 entity.reset();
             }

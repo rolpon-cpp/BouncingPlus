@@ -7,7 +7,7 @@
 #include <iostream>
 #include <raymath.h>
 
-#include "../Weapons.h"
+#include "../systems/Weapons.h"
 #include "../../game/Game.h"
 
 Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.GameResources.Textures["turret"],

@@ -35,6 +35,8 @@ class Menu {
 
     float MenuMusicLevel = 0.0f;
 
+    int CurrentLevelsPage;
+
     void LevelSelect();
     void Credits();
 

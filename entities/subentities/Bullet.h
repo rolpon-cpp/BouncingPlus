@@ -15,7 +15,6 @@ class Bullet : public Entity {
     float ExistenceTimer;
     float Damage;
     bool DD=false;
-    bool RewardedScore=false;
 
     std::pair<bool,vector<Vector2>> BulletCollision();
 public:

@@ -12,7 +12,7 @@ SoundManager::SoundManager(Game &game) {
     this->game = &game;
 
     MaxSoundPoolSize = 10;
-    #ifndef PLATFORM_WEB
+    #ifdef PLATFORM_WEB
         MaxSoundPoolSize = 1;
     #endif
 
@@ -101,10 +101,11 @@ void SoundManager::Update() {
             UpdateMusicStream(val);
     }
 
+    int i = 0;
     for (auto& [name,value] : CachedAliases) {
         std::erase_if(value, [&](Sound& sound) {
             bool SoundCondition = false;
-            #ifndef PLATFORM_WEB
+            #ifdef PLATFORM_WEB
                 SoundCondition = ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound));
             #else
                 SoundCondition = (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound)));
@@ -116,6 +117,12 @@ void SoundManager::Update() {
             }
             return SoundCondition;
         });
+        std::string dbg_txt = "audio: " + name + ", amount: " + to_string(value.size());
+        if (game->DebugDraw && value.size() > 0)
+        {
+            DrawText(dbg_txt.c_str(), GetRenderWidth()/2 + game->GameCamera.RaylibCamera.target.x, GetRenderHeight()/2 + game->GameCamera.RaylibCamera.target.y + (25*i), 25, GREEN);
+            i++;
+        }
     }
 
 }
@@ -142,6 +149,8 @@ bool SoundManager::IsGameMusicPlaying(std::string MusicName)
 
 void SoundManager::PlayGameMusic(std::string MusicName, bool Transition)
 {
+    if (GetMasterVolume() <= 0.0f)
+        return;
     if (!Musics.count(MusicName))
         return;
     PlayMusicStream(Musics[MusicName]);
@@ -168,6 +177,8 @@ void SoundManager::StopGameMusic(std::string MusicName, bool Transition)
 }
 
 void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float SoundPitch) {
+    if (GetMasterVolume() <= 0.0f)
+        return;
     if (Sounds.count(SoundName) && IsSoundValid(Sounds[SoundName])) {
         for (Sound& CachedSound : CachedAliases[SoundName]) {
             if (IsSoundValid(CachedSound) && !IsSoundPlaying(CachedSound)) {
@@ -177,6 +188,18 @@ void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float
                 return;
             }
         }
+
+        #ifdef PLATFORM_WEB
+        if (CachedAliases[SoundName].size() >= MaxSoundPoolSize)
+        {
+            Sound& CachedSound = CachedAliases[SoundName][0];
+            StopSound(CachedSound);
+            SetSoundVolume(CachedSound, SoundVolume);
+            SetSoundPitch(CachedSound, SoundPitch);
+            PlaySound(CachedSound);
+            return;
+        }
+        #endif
 
         Sound CachedSound = LoadSoundAlias(Sounds[SoundName]);
         SetSoundVolume(CachedSound, SoundVolume);

@@ -10,7 +10,6 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-#include "../entities/bosses/FaceBoss.h"
 #include "../entities/subentities/Enemy.h"
 #include "../game/Game.h"
 #include "../entities/subentities/Spawner.h"
@@ -394,7 +393,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     game->GameEntities.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources.Textures["enemy"], *game));
 }
 
-void TileManager::ProcessTile(const std::string& cell, const int x, const int y, bool* PlayerSpawnFound)
+void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnFound)
 {
     int tile_id = 0;
     if (std::isdigit(cell[0]))
@@ -457,11 +456,13 @@ void TileManager::ProcessTile(const std::string& cell, const int x, const int y,
             break;
         }
     case TileTypeEnd:
-        break;
+        {
+            break;
+        }
     }
 }
 
-void TileManager::ReadMapDataFile(const std::string& FileName) {
+void TileManager::ReadMapDataFile(std::string FileName) {
     int y = 0;
     int x = 0;
 
@@ -507,9 +508,6 @@ void TileManager::ReadMapDataFile(const std::string& FileName) {
 
 void TileManager::Clear()
 {
-    #ifndef PLATFORM_WEB
-        Lines.clear();
-    #endif
     Map.clear();
     Distortions.clear();
     MapWidth = 0;

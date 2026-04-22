@@ -18,7 +18,7 @@
 #include "managers/SoundManager.h"
 #include "../level/TileManager.h"
 #include "ui/UIManager.h"
-#include "../entities/Weapons.h"
+#include "../entities/systems/Weapons.h"
 #include "managers/ResourceManager.h"
 #include "core/SharedManager.h"
 

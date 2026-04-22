@@ -451,7 +451,6 @@ if len(write_path) > 0 and len(tilemap_path) < 1:
       "game": {
         "timer": -1,
         "win": win_cond,
-        "boss": "",
         "mode": gamemode,
         "banned_spawn_weapons": ["Default Gun","Player Gun"]
       },

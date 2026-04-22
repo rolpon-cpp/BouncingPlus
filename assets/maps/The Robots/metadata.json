@@ -22,7 +22,6 @@
   "game": {
     "timer": -1,
     "win": "kill_all_enemies",
-    "boss": "",
     "mode": "default",
     "banned_spawn_weapons": [
       "Default Gun",

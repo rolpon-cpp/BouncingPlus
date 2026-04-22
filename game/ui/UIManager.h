@@ -5,9 +5,7 @@
 #ifndef BOUNCINGPLUS_UI_H
 #define BOUNCINGPLUS_UI_H
 #include <raylib.h>
-#include <string>
 
-#include "Tutorial.h"
 class Game;
 
 Color GetHealthColor(float Percent, float Armor = 0.0f);
@@ -17,7 +15,6 @@ public:
     float StartingBlackScreenTrans = 1.0f;
     float EndBlackScreenTrans = 0.0f;
 
-    Tutorial Tutorial;
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
     RenderTexture2D PauseScreen;

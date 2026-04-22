@@ -5,7 +5,7 @@
 #ifndef BOUNCINGPLUS_ENEMY_H
 #define BOUNCINGPLUS_ENEMY_H
 #include "../Entity.h"
-#include "../Weapons.h"
+#include "../systems/Weapons.h"
 #include "behaviors/EnemyBehavior.h"
 
 

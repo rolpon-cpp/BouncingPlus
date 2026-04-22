@@ -23,14 +23,17 @@ f = open("version",'w')
 f.write(str(version+1))
 f.close()
 
-os.mkdir(dst)
+if not os.path.exists(dst):
+    os.mkdir(dst)
 
-f1 = os.path.getmtime('../cmake-build-release/BouncingPlus.exe')
-f2 = os.path.getmtime('../cmake-build-debug/BouncingPlus.exe')
 p = '../cmake-build-release/BouncingPlus.exe'
 
-if f2 > f1:
-    p = '../cmake-build-debug/BouncingPlus.exe'
+if os.path.exists('../cmake-build-release/BouncingPlus.exe') and os.path.exists('../cmake-build-debug/BouncingPlus.exe'):
+    f1 = os.path.getmtime('../cmake-build-release/BouncingPlus.exe')
+    f2 = os.path.getmtime('../cmake-build-debug/BouncingPlus.exe')
+
+    if f2 > f1:
+        p = '../cmake-build-debug/BouncingPlus.exe'
 
 shutil.copy("../cmake-build-release/BouncingPlus.exe", dst)
 for file in os.listdir("../cmake-build-release"):

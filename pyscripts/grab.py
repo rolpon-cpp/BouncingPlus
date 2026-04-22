@@ -35,7 +35,6 @@ for p in f:
         files.append([p, lf])
     if not p.endswith(".h"):
         g += (str(p).replace("\\","/")+ " ")[2:]
-        g += "^\n"
 print(g)
 
 print(str(lines) + " lines of code")

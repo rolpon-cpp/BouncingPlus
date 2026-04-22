@@ -36,7 +36,7 @@ class TileManager {
 
     void DrawTileMap();
     void RenderForceFields(std::vector<Vector2> ForceFieldPos);
-    void ProcessTile(const std::string& cell, int x, int y, bool* PlayerSpawnFound);
+    void ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnFound);
     void ProcessDistortions();
     void DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_tex);
     void AddEnemy(float bbox_x, float bbox_y, int tile_id);
@@ -63,7 +63,7 @@ class TileManager {
         void SetTileAt(Vector2 coord, int id);
         void Update();
         void DistortArea(Distortion DistortionForArea);
-        void ReadMapDataFile(const std::string& FileName);
+        void ReadMapDataFile(std::string FileName);
         void Clear();
         void Quit();
 };

@@ -8,7 +8,7 @@
 #include "raylib.h"
 #include "string"
 #include "../Entity.h"
-#include "../Weapons.h"
+#include "../systems/Weapons.h"
 
 class Game;
 

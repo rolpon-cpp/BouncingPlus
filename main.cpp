@@ -45,8 +45,7 @@ void loop(void* arg)
             MainGame.ShouldReturn = false;
             MainGame.Clear();
 
-#ifdef PLATFORM_WEB
-#else
+#ifndef PLATFORM_WEB
             ShowCursor();
 #endif
         } else
@@ -56,8 +55,7 @@ void loop(void* arg)
         MainMenu.Update();
         std::string map = MainMenu.LeaveMenu();
         if (!map.empty()) {
-#ifdef PLATFORM_WEB
-#else
+#ifndef PLATFORM_WEB
             HideCursor();
 #endif
             InGame = true;
@@ -68,7 +66,6 @@ void loop(void* arg)
     DrawFPS(0,0);
 
 #ifdef PLATFORM_WEB
-
     // This returns the current size of the WASM heap in bytes
     uint32_t heapSize = EM_ASM_INT({
         return HEAP8.length;
@@ -106,7 +103,7 @@ int main(int argc, char *argv[]) {
     #ifdef PLATFORM_WEB
         SharedManager.FrameRate = 60;
     #else
-        SetWindowMinSize(1000, 800);
+        SetWindowMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
         SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
         SharedManager.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);

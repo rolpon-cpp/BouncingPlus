@@ -21,7 +21,7 @@ void UIAssets::Load()
     YTImg = LoadTexture("assets/ui/youtube.png");
     RolponPFPImg = LoadTexture("assets/ui/rolpon_pfp.png");
     CozPFPImg = LoadTexture("assets/ui/coz_pfp.png");
-    JayPFPImg = LoadTexture("assets/ui/jay_pfp.png");
+    EggPFPImg = LoadTexture("assets/ui/egg_pfp.png");
     InkyPFPImg = LoadTexture("assets/ui/inky_pfp.png");
     MainMenuMusic = LoadMusicStream("assets/ui/main_menu.mp3");
 }
@@ -40,7 +40,7 @@ void UIAssets::Quit()
     UnloadSound(ButtonClick);
     UnloadTexture(RolponPFPImg);
     UnloadTexture(CozPFPImg);
-    UnloadTexture(JayPFPImg);
+    UnloadTexture(EggPFPImg);
     UnloadTexture(InkyPFPImg);
     UnloadTexture(YTImg);
     UnloadMusicStream(MainMenuMusic);
@@ -60,7 +60,8 @@ void Checkmark(Vector2 Position, Vector2 MousePos, Sound& CheckmarkClick,
     Rectangle rec = {Position.x, Position.y,w, h};
 
     DrawRectangleRec({rec.x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
-    DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f), fnt_size, WHITE);
+    if (!Text.empty())
+        DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f), fnt_size, WHITE);
 
     DrawTexturePro(ButtonSmallImg, {0,0,56,56}, {Position.x + tx_size + 32, rec.y + rec.height/2 - 20, 40,40}, {0, 0}, 0, WHITE);
     DrawTexturePro(ButtonSmallImgRed, {0,0,56,56}, {rec.x + rec.width - 56, rec.y + rec.height/2 - 20, 40,40}, {0, 0}, 0, WHITE);
@@ -135,7 +136,8 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
     DrawRectangleRec({rec.x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
     DrawRectangleRec({green_slider_rec.x,green_slider_rec.y,green_slider_rec.width,green_slider_rec.height}, GREEN);
     DrawRectangleRec({red_slider_rec.x,red_slider_rec.y,red_slider_rec.width,red_slider_rec.height}, RED);
-    DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f),fnt_size, WHITE);
+    if (!Text.empty())
+        DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f),fnt_size, WHITE);
 
     float siz = fnt_size + 5;
     if (colliding)
@@ -151,7 +153,7 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
 
 bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, Sound& ButtonClick, std::string Text) {
 
-    int f= 50;
+    int f= ButtonRectangle.height - 6.0f;
     if (CheckCollisionPointRec(MousePos, ButtonRectangle))
     {
         ButtonRectangle.width += 20;
@@ -163,9 +165,13 @@ bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, S
 
     float tx_size = MeasureText(Text.c_str(), f);
     float mul = f / (tx_size / (ButtonRectangle.width-10));
+    mul= std::min(mul,ButtonRectangle.height);
     tx_size = MeasureText(Text.c_str(), mul);
-    DrawTexturePro(ButtonImg, {0,0,(float)ButtonImg.width,(float)ButtonImg.height}, {ButtonRectangle.x, ButtonRectangle.y, ButtonRectangle.width, ButtonRectangle.height}, {0, 0}, 0, WHITE);
-    DrawText(Text.c_str(), ButtonRectangle.x + ButtonRectangle.width/2 - tx_size/2, ButtonRectangle.y + ButtonRectangle.height/2 - (mul/2), mul, WHITE);
+    DrawTexturePro(ButtonImg, {0,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x, ButtonRectangle.y, 7, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonImg, {(float)ButtonImg.width - 7.0f,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x + ButtonRectangle.width - 7, ButtonRectangle.y, (ButtonRectangle.width/ButtonImg.width) * 7.0f, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonImg, {7.0f,0,(float)ButtonImg.width-14.0f,(float)ButtonImg.height}, {ButtonRectangle.x + 7, ButtonRectangle.y, ButtonRectangle.width - 14.0f, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    if (!Text.empty())
+        DrawText(Text.c_str(), ButtonRectangle.x + ButtonRectangle.width/2 - tx_size/2, ButtonRectangle.y + ButtonRectangle.height/2 - (mul/2), mul, WHITE);
 
     if (CheckCollisionPointRec(MousePos, ButtonRectangle)) {
         DrawRectangleLinesEx({ButtonRectangle.x,ButtonRectangle.y,ButtonRectangle.width,ButtonRectangle.height}, 4, WHITE);

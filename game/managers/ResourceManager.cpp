@@ -8,8 +8,8 @@
 #include <iostream>
 
 #include "../Game.h"
-#include "../../entities/Weapons.h"
-#include "../../entities/Powerups.h"
+#include "../../entities/systems/Weapons.h"
+#include "../../entities/systems/Powerups.h"
 #include "filesystem"
 #include "nlohmann/json.hpp"
 namespace fs = std::filesystem;

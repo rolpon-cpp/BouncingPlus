@@ -6,7 +6,7 @@
 #include <iostream>
 #include <raymath.h>
 #include "raylib.h"
-#include "../entities/Weapons.h"
+#include "../entities/systems/Weapons.h"
 #include "ui/UIManager.h"
 #include <filesystem>
 #include "../level/LevelLoader.h"
@@ -511,7 +511,6 @@ void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
     isReturning = false;
-    DisplayProfiler = false;
     GameProfiler.Finish();
     GameTime = 0;
     GameScore = 0;
@@ -529,7 +528,7 @@ void Game::Clear() {
     GameUI.Clear();
     MainPlayer.reset();
 
-    #ifndef PLATFORM_WEB
+    #ifdef PLATFORM_WEB
     GameSounds.ClearCache();
     #endif
 }

@@ -6,8 +6,8 @@
 #define BOUNCINGPLUS_PLAYER_H
 #include "PlayerLogicProcessor.h"
 #include "../Entity.h"
-#include "../Weapons.h"
-#include "../Powerups.h"
+#include "../systems/Weapons.h"
+#include "../systems/Powerups.h"
 
 struct Vector2;
 

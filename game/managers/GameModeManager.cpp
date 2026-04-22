@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-
-#include "../../entities/bosses/FaceBoss.h"
 #include <nlohmann/json.hpp>
 #include "../../entities/subentities/Spawner.h"
 #include "../Game.h"
@@ -32,14 +30,6 @@ void GameModeManager::PrepareGameMode(nlohmann::json Data)
     Clear();
     this->CurrentGameMode = Data["game"]["mode"].get<std::string>();
     this->LevelTimer = Data["game"]["timer"].get<float>();
-    if (this->CurrentGameMode == "boss")
-    {
-        std::shared_ptr<Entity> boss;
-        if (Data["game"]["boss"].get<std::string>() == "face")
-            boss = std::make_shared<FaceBoss>(*game, game->GameTiles.BossSpawnPosition.x, game->GameTiles.BossSpawnPosition.y);
-        if (boss != nullptr)
-            game->GameEntities.AddEntity(BossType, boss);
-    }
 }
 
 void GameModeManager::Update()

@@ -28,7 +28,6 @@ for metadata.json:
   "game": { // game properties
     "timer": -1, // does the level have a timer?
     "win": "kill_all_enemies", // level win condition: kill_all_enemies, nothing
-    "boss": "", // does the level have a boss? bosses: face
     "mode": "default", // what gamemode is the level? current modes: default,wave,boss
     "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons are spawned enemies from spawners NOT allowed to spawn with?
   },

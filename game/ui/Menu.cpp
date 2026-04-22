@@ -49,6 +49,7 @@ void Menu::Reset()
     Offset2 = 0;
     Offset3 = 0;
     isStarting = true;
+    CurrentLevelsPage = 0;
     BlackTransparency= 1.0f;
     MusicLevel = 0.0f;
     MikuOffset = 0.0f;
@@ -73,16 +74,27 @@ void Menu::LevelSelect()
 
     DrawLineEx(Vector2{LevelSelectPanelRectangle.x + 25.0f - CameraX, LevelSelectPanelRectangle.y + 100}, Vector2{LevelSelectPanelRectangle.x + LevelSelectPanelSize.x - 25.0f - CameraX, LevelSelectPanelRectangle.y + 100}, 4, WHITE);
 
-    int i = 0;
+    float rh = 110.0f;
+
+    float ow = LevelSelectPanelRectangle.width - 70 - (GetRenderWidth()-900);
+
+    int fi = 0;
+    int mi = 0;
     for (auto& [name, data] : Shared->LevelData)
     {
-        i = data["order"];
-        Rectangle r = {-710.0f, (float)165 + (140 * i) + LevelSelectPanelRectangle.y, (float)MeasureText(name.c_str(), 90)+20.0f, 110.0f};
+        fi = data["order"];
+        if (fi >= (CurrentLevelsPage + 1) * 3 || fi < CurrentLevelsPage * 3)
+            continue;
+        int i = fi % 3;
+        mi = max(i, mi);
+        float rw = (float)MeasureText(name.c_str(), 90)+20.0f;
+
+        Rectangle r = {LevelSelectPanelRectangle.x + 50+ (GetRenderWidth()-900) + ow/2 - rw/2, (float)165 + (140 * i) + LevelSelectPanelRectangle.y, rw, rh};
         DrawRectangleRec({r.x-CameraX,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));
         Color c = RED;
         if (TargetMap==name) {
             c = GREEN;
-            DrawRectangle(-(GetRenderWidth()-125)-CameraX, 200 + LevelSelectPanelRectangle.y, GetRenderWidth()-900, GetRenderHeight()-450, ColorAlpha(BLACK, 0.5f));
+            DrawRectangle(LevelSelectPanelRectangle.x + 25 -CameraX, 200 + LevelSelectPanelRectangle.y, GetRenderWidth()-900, GetRenderHeight()-450, ColorAlpha(BLACK, 0.5f));
             DrawText(name.c_str(), -(GetRenderWidth()-145)-CameraX, 220 + LevelSelectPanelRectangle.y, 50, WHITE);
 
             std::string description = data["description"];
@@ -116,12 +128,30 @@ void Menu::LevelSelect()
                 MovingToGame = true;
             }
         }
-        DrawText(name.c_str(), -700 - CameraX, 175 + (140 * i) + LevelSelectPanelRectangle.y, 90, c);
+
+        DrawText(name.c_str(), r.x + 10 - CameraX, r.y + 10, 90, c);
         if (CheckCollisionPointRec(MousePos, r)) {
             DrawRectangleLinesEx({r.x-CameraX,r.y,r.width,r.height}, 4, WHITE);
             TargetMap = IsMouseButtonPressed(0) ? (TargetMap != name ? name : "") : TargetMap;
         }
     }
+
+    float rw = 450.0f;
+    Rectangle r = {LevelSelectPanelRectangle.x + 50+ (GetRenderWidth()-900) + ow/2 - rw/2, (float)165 + 140 * (mi+1) + LevelSelectPanelRectangle.y, rw, rh};
+    DrawRectangleRec({r.x-CameraX,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));
+
+    if (Button({r.x + r.width*0.85f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, ">"))
+        CurrentLevelsPage += 1;
+
+    if (Button({r.x + r.width * 0.15f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "<"))
+        CurrentLevelsPage -= 1;
+
+    if (CurrentLevelsPage < 0)
+        CurrentLevelsPage = 0;
+    if (CurrentLevelsPage >= Shared->LevelData.size() / 3)
+        CurrentLevelsPage = Shared->LevelData.size() / 3;
+    std::string pageTxt = "PAGE " + to_string(CurrentLevelsPage + 1);
+    DrawText(pageTxt.c_str(), r.x + r.width / 2 - MeasureText(pageTxt.c_str(), 50)/2 - CameraX, r.y + r.height/2 - 25, 50, WHITE);
 }
 
 void Menu::Credits()
@@ -134,7 +164,7 @@ void Menu::Credits()
     DrawTexture(Shared->UIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 406.0f, WHITE);
 
     DrawTexture(Shared->UIAssets.InkyPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 125.0f, WHITE);
-    DrawTexture(Shared->UIAssets.JayPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, WHITE);
+    DrawTexture(Shared->UIAssets.EggPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, WHITE);
 
     float R = 127.0f + 127.0f * sin(GetTime());
     float G = 127.0f + 127.0f * cos(GetTime());
@@ -146,19 +176,19 @@ void Menu::Credits()
 
     DrawText("inkyrblx", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 125.0f, 45.0f, BROWN);
 
-    DrawText("jaymbermations", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, 45.0f, ORANGE);
+    DrawText("eggjsoto", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, 45.0f, ORANGE);
 
     // rolpon
     DrawText("Owner & Programmer", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 170.0f, 20, WHITE);
 
     // coz
-    DrawText("Game Director", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 451.0f, 20, WHITE);
+    DrawText("Game Director & Playtester", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 451.0f, 20, WHITE);
 
     // inky
     DrawText("Music & SFX Composer", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 170.0f, 20, WHITE);
 
     // jay
-    DrawText("Linux Port", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f + 45, 20, WHITE);
+    DrawText("Artist & Texture Maker", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f + 45, 20, WHITE);
 
     float ThankYouTextWidth = MeasureText("Finally, thank YOU, for playing!", 40);
     DrawText("Finally, thank YOU, for playing!", CreditsPanelRectangle.x + CreditsPanelSize.x/2 - ThankYouTextWidth/2 , CreditsPanelRectangle.y + CreditsPanelSize.y - 50, 40, WHITE);
@@ -193,7 +223,6 @@ void Menu::Update() {
     if (!IsMusicStreamPlaying(Shared->UIAssets.MainMenuMusic))
         PlayMusicStream(Shared->UIAssets.MainMenuMusic);
     UpdateMusicStream(Shared->UIAssets.MainMenuMusic);
-
 
     MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
 

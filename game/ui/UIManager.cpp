@@ -59,9 +59,6 @@ void UIManager::Clear()
 
 void UIManager::GameUI()
 {
-    if (game->CurrentLevelName == "Tutorial")
-        this->Tutorial.ActivateTutorial(this);
-
     RefreshRenderTextures();
 
     BeginTextureMode(WeaponUITexture);
