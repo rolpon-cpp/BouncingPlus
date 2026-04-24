@@ -147,9 +147,9 @@ void Menu::LevelSelect()
         CurrentLevelsPage -= 1;
 
     if (CurrentLevelsPage < 0)
+        CurrentLevelsPage = (int) (Shared->LevelData.size() / 3.0f);
+    if (CurrentLevelsPage > (int) (Shared->LevelData.size() / 3.0f))
         CurrentLevelsPage = 0;
-    if (CurrentLevelsPage >= Shared->LevelData.size() / 3)
-        CurrentLevelsPage = Shared->LevelData.size() / 3;
     std::string pageTxt = "PAGE " + to_string(CurrentLevelsPage + 1);
     DrawText(pageTxt.c_str(), r.x + r.width / 2 - MeasureText(pageTxt.c_str(), 50)/2 - CameraX, r.y + r.height/2 - 25, 50, WHITE);
 }

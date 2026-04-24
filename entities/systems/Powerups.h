@@ -47,6 +47,13 @@ struct ShieldPowerup : Powerup
     void Undo(std::shared_ptr<Player> Owner) override;
 };
 
+struct TankyPowerup : Powerup
+{
+    TankyPowerup();
+    void Complete(std::shared_ptr<Player> Owner) override;
+    void Undo(std::shared_ptr<Player> Owner) override;
+};
+
 class PowerupSystem
 {
     public:

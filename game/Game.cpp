@@ -361,8 +361,6 @@ void Game::Update() {
 
 void Game::DisplayProfilerInfo()
 {
-    if (this->GameControls->IsControlDown("powerup"))
-        WaitTime(1.0f / 60.0f);
     if (this->GameControls->IsControlPressed("debug2"))
         DisplayProfiler = !DisplayProfiler;
 
@@ -534,7 +532,6 @@ void Game::Clear() {
 }
 
 void Game::Reload(std::string MapName) {
-    cout << End << endl;
     Clear();
 
     CurrentLevelName = MapName;
@@ -544,6 +541,10 @@ void Game::Reload(std::string MapName) {
     EnemyRoleWeapons= LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
 
     GameTiles.ReadMapDataFile("assets/maps/" + CurrentLevelName + "/map_data.csv");
+    if (fs::exists(("assets/maps/" + CurrentLevelName + "/entities.csv").c_str()))
+        GameTiles.ReadEntitiesFile("assets/maps/" + CurrentLevelName + "/entities.csv");
+
+
     GameMode.PrepareGameMode(LevelData[MapName]);
 
     MainPlayer = make_shared<Player>(GameTiles.PlayerSpawnPosition.x,

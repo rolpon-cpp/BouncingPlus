@@ -22,7 +22,7 @@ double LastSetWanderPos = 0;
     double ActivationTimer;
     Vector2 WallMovement;
     float Alpha = 0;
-    void Init(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game &game);
+    void Init(float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Game &game);
 public:
     std::unique_ptr<EnemyBehavior> Behavior = nullptr;
     WeaponsSystem weaponsSystem;

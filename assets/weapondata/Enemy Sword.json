@@ -18,7 +18,7 @@
   "HealthGain": 40,
   "Cooldown": 0.65,
   "AngleRange": 45,
-  "Range": 300,
+  "Range": 225,
   "Bullets": -1,
   "Intensity": 0.2,
   "texture": "sword",

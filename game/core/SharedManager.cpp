@@ -62,16 +62,14 @@ void SharedManager::ControlBindings(Vector2 Position, float Offset1, float Offse
 
     ClearBackground(ColorAlpha(BLACK, 0.5f));
 
-    DrawText(("why u put cheese on my chezborgor >:( " + to_string(GetRandomValue(0, (int)GetTime()))).c_str(), 0, 0, 50, RED);
-
     EndTextureMode();
 
-    Rectangle PanelRect = Rectangle{Position.x + 300, Position.y + 175, GetRenderWidth() - 600.0f, GetRenderHeight() - 400.0f};
+    Rectangle PanelRect = Rectangle{Position.x + 300, Position.y + 25, GetRenderWidth() - 400.0f, GetRenderHeight() - 200.0f};
     Panel(PanelRect, "CONTROLS", -(Offset1 + Offset2)/4);
 
     DrawTexturePro(ControlsRenderTexture.texture, {0, 0, (float)ControlsRenderTexture.texture.width, (float)-ControlsRenderTexture.texture.height}, {
         PanelRect.x + PanelRect.width/2 - ControlsRenderTexture.texture.width/2,
-        PanelRect.y + PanelRect.height/2 - ControlsRenderTexture.texture.height/2 + (Offset1 + Offset2)/4 + 10,
+        PanelRect.y + PanelRect.height/2 - ControlsRenderTexture.texture.height/2 + (Offset1 + Offset2)/4 + 25.0f,
         (float)ControlsRenderTexture.texture.width,
         (float)ControlsRenderTexture.texture.height
     }, {0, 0}, 0, WHITE);
@@ -85,7 +83,7 @@ void SharedManager::ControlBindings(Vector2 Position, float Offset1, float Offse
 void SharedManager::Update()
 {
 
-    Vector2 RenderTexSize = {max(GetRenderWidth() - 800.0f, 100.0f), max(GetRenderHeight() - 600.0f, 100.0f)};
+    Vector2 RenderTexSize = {max(GetRenderWidth() - 850.0f, 100.0f), max(GetRenderHeight() - 350.0f, 100.0f)};
 
     if (!IsRenderTextureValid(ControlsRenderTexture) || ControlsRenderTexture.texture.width != RenderTexSize.x || ControlsRenderTexture.texture.height != RenderTexSize.y)
     {

@@ -1,4 +1,3 @@
-import time
 import json
 import pygame
 import os
@@ -24,13 +23,13 @@ def thread1():
     frame = tkinter.Frame()
     frame.pack()
 
-    g = tkinter.Label(frame, text="Map Path")
+    g = tkinter.Label(frame, text="Map Path (leave blank if you are making a new level)")
     g.grid(row=0, column=0)
 
-    h = tkinter.Label(frame, text="Map Width")
+    h = tkinter.Label(frame, text="Map Width (leave blank if you are modding a level)")
     h.grid(row=1, column=0)
 
-    k = tkinter.Label(frame, text="Map Height")
+    k = tkinter.Label(frame, text="Map Height (leave blank if you are modding a level)")
     k.grid(row=2, column=0)
 
     e1 = tkinter.Entry(frame)
@@ -227,7 +226,7 @@ while running:
 
     for y in range(tilemap_height):
         for x in range(tilemap_width):
-            if tilemap[y][x] != -1:
+            if tilemap[y][x] != -1 and images_to_id.get(tilemap[y][x]) != None:
                 tex = images_to_id[tilemap[y][x]]
                 if tex.get_size() != (36, 36):
                     tex = pygame.transform.scale(tex, (36, 36))
@@ -287,8 +286,10 @@ inventory_1 = ""
 inventory_2 = ""
 inventory_3 = ""
 
+n = ""
+
 def thread2():
-    global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3
+    global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, n
 
     import tkinter
 
@@ -355,10 +356,11 @@ def thread2():
     e10.grid(row=9, column=1)
 
     def set_val():
-        global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, tilemap_path
+        global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, tilemap_path, n
 
         try:
             write_path = str(e1.get())
+            n = str(e1.get())
         except ValueError:
             pass
 
@@ -415,21 +417,16 @@ def thread2():
 
     m.mainloop()
 
-write_path = assets_folder_path+"maps\\"+ (tilemap_path if len(write_path) < 1 else write_path)
-if not os.path.exists(write_path):
-    os.mkdir(write_path)
-print(write_path)
-f = open(write_path + "\\map_data.csv", 'w')
-for y in range(tilemap_height):
-    line = ""
-    for x in range(tilemap_width):
-        id = tilemap[y][x]
-        line += str(id)+("," if not (y == tilemap_height - 1 and x == tilemap_width - 1) else "")
-    f.write(line+("\n" if y != tilemap_height - 1 else ""))
-f.close()
+write_path = assets_folder_path + "maps\\" + (write_path if len(write_path) > 0 and len(tilemap_path) < 1 else tilemap_path)
 
 if len(write_path) > 0 and len(tilemap_path) < 1:
     thread2()
+    write_path = assets_folder_path + "maps\\" + (write_path if len(write_path) > 0 and len(tilemap_path) < 1 else tilemap_path)
+    if not os.path.exists(write_path):
+        os.mkdir(write_path)
+        f = open(assets_folder_path+"maps\\LevelOrder.txt", 'a')
+        f.write("\n"+n)
+        f.close()
     json_data = {
       "description": description_lvl,
       "difficulty": 3,
@@ -463,3 +460,13 @@ if len(write_path) > 0 and len(tilemap_path) < 1:
     f=open(write_path + "\\metadata.json", 'w')
     json.dump(json_data, f)
     f.close()
+
+print(write_path)
+f = open(write_path + "\\map_data.csv", 'w')
+for y in range(tilemap_height):
+    line = ""
+    for x in range(tilemap_width):
+        id = tilemap[y][x]
+        line += str(id)+("," if not (y == tilemap_height - 1 and x == tilemap_width - 1) else "")
+    f.write(line+("\n" if y != tilemap_height - 1 else ""))
+f.close()

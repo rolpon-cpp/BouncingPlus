@@ -85,16 +85,19 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     } else { // if they are normal, just damage them normally
         entity->Health -= Damage;
         if (entity->Type == PlayerType)
-        {
             game->MainPlayer->LogicProcessor.DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
-        }
     }
 
     // if entity dies, give owner health and increase kill count for player
     if (entity->Health <= 0) {
         entity->ShouldDelete = true;
         if (owner->Health > 0)
-            owner->Health += HealthGain;
+        {
+            if (owner->Type != PlayerType)
+                owner->Health += HealthGain;
+            else if (!game->MainPlayer->isInvincible)
+                owner->Health += HealthGain;
+        }
         if (owner->Type == PlayerType)
             game->MainPlayer->Kills += 1;
     }

@@ -119,6 +119,33 @@ void FreezePowerup::Undo(std::shared_ptr<Player> Owner)
     Powerup::Undo(Owner);
 }
 
+TankyPowerup::TankyPowerup()
+{
+    Cooldown = 30;
+    Length = 20;
+    Name = "Tank";
+}
+
+void TankyPowerup::Complete(std::shared_ptr<Player> Owner)
+{
+    Owner->ExtraSpeed = -Owner->Speed * 0.75f;
+    Owner->game->GameCamera.QuickZoom(1.5f, 0.1f);
+    if (Owner->MainWeaponsSystem.CurrentWeaponIndex != -1)
+        Owner->MainWeaponsSystem.AttackCooldowns[Owner->MainWeaponsSystem.CurrentWeaponIndex] -= 0.5f * Owner->game->GetGameDeltaTime();
+    if (!Owner->isInvincible)
+        Owner->ToggleInvincibility();
+    Powerup::Complete(Owner);
+}
+
+void TankyPowerup::Undo(std::shared_ptr<Player> Owner)
+{
+    Owner->ExtraSpeed = 0;
+    Owner->SpeedBuff = 250;
+    if (Owner->isInvincible)
+        Owner->ToggleInvincibility();
+    Powerup::Undo(Owner);
+}
+
 void PowerupSystem::Activate()
 {
     auto Player = Owner.lock();

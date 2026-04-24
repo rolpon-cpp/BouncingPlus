@@ -506,6 +506,84 @@ void TileManager::ReadMapDataFile(std::string FileName) {
     PrevFileName = FileName;
 }
 
+void TileManager::CreateFileEntity(FileEntity& NewFileEntity)
+{
+    // TEMPORARY CHECK, SINCE OTHER ENTITIES ARE NOT SUPPORTED
+    if (NewFileEntity.Type != EnemyType)
+        return;
+    // REMOVE THIS IF YOU PLAN TO INCLUDE MORE ENTITY TYPES!
+
+    std::shared_ptr<Entity> NewEntity;
+
+    if (NewFileEntity.Type == EnemyType)
+        NewEntity = make_shared<Enemy>(NewFileEntity.X, NewFileEntity.Y, NewFileEntity.Health, NewFileEntity.Speed, NewFileEntity.Armor, NewFileEntity.Weapon, game->GameResources.Textures["enemy"], *game);
+
+    game->GameEntities.AddEntity(NewEntity->Type, NewEntity);
+}
+
+void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, std::string cell)
+{
+    if (cell.starts_with(" "))
+        cell = cell.substr(1, cell.size() - 1);
+    switch (i)
+    {
+    case 0:
+        ThisFileEntity.Type = (EntityType)std::stoi(cell);
+        break;
+    case 1:
+        ThisFileEntity.X = (float)std::stoi(cell);
+        break;
+    case 2:
+        ThisFileEntity.Y = (float)std::stoi(cell);
+        break;
+    case 3:
+        ThisFileEntity.W = (float)std::stoi(cell);
+        break;
+    case 4:
+        ThisFileEntity.H = (float)std::stoi(cell);
+        break;
+    case 5:
+        ThisFileEntity.Health = (float)std::stoi(cell);
+        break;
+    case 6:
+        ThisFileEntity.Armor = (float)std::stoi(cell);
+        break;
+    case 7:
+        ThisFileEntity.Speed = (float)std::stoi(cell);
+        break;
+    case 8:
+        ThisFileEntity.Weapon = cell;
+        break;
+    }
+}
+
+void TileManager::ReadEntitiesFile(std::string FileName)
+{
+    std::ifstream  data(FileName);
+
+    std::string line;
+    while(std::getline(data,line))
+    {
+        if (line == "Type,X,Y,Width,Height,Health,Armor,Speed,Weapon")
+            continue;
+        std::stringstream lineStream(line);
+        std::string cell;
+
+        FileEntity ThisFileEntity = {DefaultType};
+
+        int i = 0;
+
+        while(std::getline(lineStream,cell,','))
+        {
+            SetPropertiesOfFileEntity(ThisFileEntity,i,cell);
+            i++;
+        }
+
+        if (i > 8)
+            CreateFileEntity(ThisFileEntity);
+    }
+}
+
 void TileManager::Clear()
 {
     Map.clear();

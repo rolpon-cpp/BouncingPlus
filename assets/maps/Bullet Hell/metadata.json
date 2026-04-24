@@ -4,7 +4,7 @@
   "music": "danger",
   "player": {
     "inventory": ["Player Gun"],
-    "powerup": "shield",
+    "powerup": "tank",
     "starting_health": 200,
     "starting_speed": 350,
     "dash_base_power": 2500,

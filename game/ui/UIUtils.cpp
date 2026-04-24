@@ -153,7 +153,7 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
 
 bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, Sound& ButtonClick, std::string Text) {
 
-    int f= ButtonRectangle.height - 6.0f;
+    int f = ButtonRectangle.height - 6.0f;
     if (CheckCollisionPointRec(MousePos, ButtonRectangle))
     {
         ButtonRectangle.width += 20;
@@ -167,9 +167,10 @@ bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, S
     float mul = f / (tx_size / (ButtonRectangle.width-10));
     mul= std::min(mul,ButtonRectangle.height);
     tx_size = MeasureText(Text.c_str(), mul);
-    DrawTexturePro(ButtonImg, {0,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x, ButtonRectangle.y, 7, ButtonRectangle.height}, {0, 0}, 0, WHITE);
-    DrawTexturePro(ButtonImg, {(float)ButtonImg.width - 7.0f,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x + ButtonRectangle.width - 7, ButtonRectangle.y, (ButtonRectangle.width/ButtonImg.width) * 7.0f, ButtonRectangle.height}, {0, 0}, 0, WHITE);
-    DrawTexturePro(ButtonImg, {7.0f,0,(float)ButtonImg.width-14.0f,(float)ButtonImg.height}, {ButtonRectangle.x + 7, ButtonRectangle.y, ButtonRectangle.width - 14.0f, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    float side_w = 7.0f;//(ButtonRectangle.width/ButtonImg.width) * 7.0f;
+    DrawTexturePro(ButtonImg, {0,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x, ButtonRectangle.y, side_w, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonImg, {(float)ButtonImg.width - 7.0f,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x + ButtonRectangle.width - side_w, ButtonRectangle.y, side_w, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonImg, {7.0f,0,(float)ButtonImg.width-14.0f,(float)ButtonImg.height}, {ButtonRectangle.x + side_w, ButtonRectangle.y, ButtonRectangle.width - (side_w * 2), ButtonRectangle.height}, {0, 0}, 0, WHITE);
     if (!Text.empty())
         DrawText(Text.c_str(), ButtonRectangle.x + ButtonRectangle.width/2 - tx_size/2, ButtonRectangle.y + ButtonRectangle.height/2 - (mul/2), mul, WHITE);
 

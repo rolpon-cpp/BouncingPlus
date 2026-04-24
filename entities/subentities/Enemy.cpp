@@ -15,12 +15,12 @@
 #include "../../game/Game.h"
 
 Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
-    Init(X,Y,Health,Speed,Armor,Weapon,make_unique<WeaponBehavior>(*this, game),EnemyTexture,game);
+    Init(Health,Speed,Armor,Weapon,make_unique<WeaponBehavior>(*this, game),game);
 }
 
 Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
 {
-    Init(X,Y,Health,Speed,Armor,Weapon,std::move(EnemyBehavior),EnemyTexture,game);
+    Init(Health,Speed,Armor,Weapon,std::move(EnemyBehavior),game);
 }
 
 Enemy::Enemy() {
@@ -30,8 +30,8 @@ Enemy::Enemy() {
 Enemy::~Enemy() {
 }
 
-void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::string Weapon,
-    std::unique_ptr<EnemyBehavior> behavior, Texture2D& EnemyTexture, Game& game)
+void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
+    std::unique_ptr<EnemyBehavior> behavior, Game& game)
 {
     this->MaxHealth = Health;
     this->Health = Health;
@@ -39,15 +39,15 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->Armor = Armor;
     this->Type = EnemyType;
     this->AngeredRangeBypassTimer = 0;
-    this->AngeredRangeBypassTimerMax = 3;
+    this->AngeredRangeBypassTimerMax = 0.25f;
     this->HealthRegenRate = 0;
     this->AnimatedHealth = 0;
     this->MyWeapon = Weapon;
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = true;
     this->Alpha = 0;
-    WanderingCooldown=GetRandomValue(1,4);
-    LastSetWanderPos = WanderingCooldown;
+    this->WanderingCooldown = GetRandomValue(1,4);
+    this->LastSetWanderPos = WanderingCooldown;
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
     this->WallMovement = {0, 0};

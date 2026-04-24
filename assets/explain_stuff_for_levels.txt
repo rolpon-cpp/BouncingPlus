@@ -5,6 +5,10 @@ levels are two files:
 map_data.csv
 metadata.json
 
+and an optional third one:
+
+entities.csv
+
 for metadata.json:
 
   "description": "A true test!", // level description (in-game, does nothing to gameplay)
@@ -38,6 +42,15 @@ for metadata.json:
 
 for map_data.csv, you need the tiled map editor software and tileset. u can get the tileset from the BouncingPlus github repo
 make a map in tiled. once done, export the map as .csv and save as map_data.csv
+
+for entities.csv:
+c&p this line into your file "Type,X,Y,Width,Height,Health,Armor,Speed,Weapon"
+now, u can add in custom entities
+rn it only supports enemies, so put "1, "
+then put the pixel x and y
+size (also in pixels)
+health, armor, speed, etc
+type weapon name
 
 day 434?876?556?68?63020?e.29402?4500
 

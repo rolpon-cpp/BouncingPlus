@@ -254,7 +254,7 @@ void PlayerLogicProcessor::DashLogic()
     if (DashCooldown > 0)
         DashCooldown -= MyPlayer->game->GetGameDeltaTime();
 
-    if (DashCooldown <= 0 && MyPlayer->game->GameControls->IsControlDown("dash")) {
+    if (DashCooldown <= 0 && MyPlayer->game->GameControls->IsControlDown("dash") && !MyPlayer->isInvincible) {
         if (!MyPlayer->IsPreparingForDash) {
             DashTimeStart = MyPlayer->game->GetGameTime();
             PlayerDashLineThickness = 10;

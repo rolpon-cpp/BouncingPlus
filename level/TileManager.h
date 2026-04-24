@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "TileType.h"
+#include "../entities/EntityType.h"
 
 class Game;
 
@@ -20,6 +21,19 @@ struct Distortion
     float Strength;
     float Radius;
     double SpawnTime;
+};
+
+struct FileEntity
+{
+    EntityType Type = DefaultType;
+    float X = 0;
+    float Y = 0;
+    float W = 0;
+    float H = 0;
+    float Health = 0;
+    float Armor = 0;
+    float Speed = 0;
+    std::string Weapon;
 };
 
 class TileManager {
@@ -40,6 +54,8 @@ class TileManager {
     void ProcessDistortions();
     void DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_tex);
     void AddEnemy(float bbox_x, float bbox_y, int tile_id);
+    void CreateFileEntity(FileEntity &NewFileEntity);
+    void SetPropertiesOfFileEntity(FileEntity &ThisFileEntity, int i, std::string cell);
     void ProcessUniformLocations();
 
     std::vector<std::string> Lines;
@@ -64,6 +80,7 @@ class TileManager {
         void Update();
         void DistortArea(Distortion DistortionForArea);
         void ReadMapDataFile(std::string FileName);
+        void ReadEntitiesFile(std::string FileName);
         void Clear();
         void Quit();
 };
