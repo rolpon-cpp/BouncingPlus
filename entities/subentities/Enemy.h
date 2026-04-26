@@ -19,6 +19,7 @@ double LastSetWanderPos = 0;
     double WanderingCooldown;
     bool weaponsSystemInit = false;
     bool isActive = false;
+    bool LastFreezingState = false;
     double ActivationTimer;
     Vector2 WallMovement;
     float Alpha = 0;

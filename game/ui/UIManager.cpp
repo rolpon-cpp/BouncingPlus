@@ -55,6 +55,8 @@ void UIManager::Clear()
 
     this->StressShakePos = {0,0};
     this->LastChangedStressShakePos = 0;
+    this->RankSideSize = 100.0f;
+    this->RankSizeHeight = 250.0f;
 }
 
 void UIManager::GameUI()
@@ -153,7 +155,21 @@ void UIManager::GameUI()
             UITransparency = 0.0f;
     }
 
+    // text shaking
+    if (game->GetGameTime() - LastChangedStressShakePos >= 0.1f - (game->MainPlayer->LogicProcessor.RankLevel * 0.09f))
+    {
+        StressShakePos = {
+            GetRandomValue(-30, 30) / 10.0f,
+            GetRandomValue(-30, 30) / 10.0f
+        };
+        LastChangedStressShakePos = game->GetGameTime();
+    }
+
+    // top hud
     DisplayTopHUD();
+
+    // rank
+    DisplayRank();
 
     if (game->Paused)
         PauseMenu();
@@ -409,15 +425,6 @@ void UIManager::DisplayTopHUD()
 
         width = MeasureText(txt.c_str(), font_size);
 
-        if (game->GetGameTime() - LastChangedStressShakePos >= 0.1f - (game->MainPlayer->StressLevel * 0.09f))
-        {
-            StressShakePos = {
-                GetRandomValue(-30, 30) / 10.0f,
-                GetRandomValue(-30, 30) / 10.0f
-            };
-            LastChangedStressShakePos = game->GetGameTime();
-        }
-
         rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
         DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.85f));
         DrawText(txt.c_str(), x + StressShakePos.x, y + StressShakePos.y, font_size, ColorAlpha(GetHealthColor(1.0f - game->MainPlayer->StressLevel), UITransparency));
@@ -535,6 +542,70 @@ void UIManager::GameWin()
 
     EndTextureMode();
     DrawTextureRec(GameWinScreen.texture, Rectangle{0, 0, (float)GameWinScreen.texture.width, -(float)GameWinScreen.texture.height}, Vector2{0, (float)GetRenderHeight() - GameWinScreen.texture.height}, ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+}
+
+void UIManager::DisplayRank()
+{
+    float RankLevel = max(min(game->MainPlayer->LogicProcessor.RankLevel, 1.0f), 0.0f);
+
+    std::string RankClassification;
+
+    float ClassSize = 1.0f / static_cast<float>(game->MainPlayer->LogicProcessor.RankClassifications.size());
+
+    float MaxRankClassificationLvl = ceil(RankLevel / ClassSize) * ClassSize;
+    float MinRankClassificationLvl = floor(RankLevel / ClassSize) * ClassSize;
+
+    MaxRankClassificationLvl = max(min(MaxRankClassificationLvl, 1.0f), 0.0f);
+    MinRankClassificationLvl = max(min(MinRankClassificationLvl, 1.0f), 0.0f);
+
+    if (RankLevel >= MinRankClassificationLvl && RankLevel <= MaxRankClassificationLvl)
+        RankClassification = game->MainPlayer->LogicProcessor.RankClassifications[(int) max(min((RankLevel * game->MainPlayer->LogicProcessor.RankClassifications.size()),
+            (float)game->MainPlayer->LogicProcessor.RankClassifications.size()-1.0f), 0.0f)];
+
+    float SizeGoal = static_cast<float>(MeasureText(RankClassification.c_str(), 70)) + 100.0f;
+    float HeightGoal = 130 + game->MainPlayer->ScoreChanges.size() * 25.0f;
+
+    SizeGoal = min(max(SizeGoal, 100.0f), 500.0f);
+    HeightGoal = min(max(HeightGoal, 250.0f), 500.0f);
+
+    RankSideSize = Lerp(RankSideSize, SizeGoal, 10.0f * game->GetGameDeltaTime());
+    RankSizeHeight = Lerp(RankSizeHeight, HeightGoal, 10.0f * game->GetGameDeltaTime());
+
+    Rectangle SideRectangle = {0, 0, RankSideSize, RankSizeHeight};
+    SideRectangle.x = 50.0f;
+    SideRectangle.y = GetRenderHeight() / 2 - SideRectangle.height / 2;
+
+    DrawRectangleRec(SideRectangle, ColorAlpha(BLACK, 0.25f * UITransparency));
+
+    Color OtherColor = Color{
+        (unsigned char) (127.0f + sin(game->GetGameTime()) * 127.0f),
+        (unsigned char) (127.0f + cos(game->GetGameTime()) * 127.0f),
+        (unsigned char) (127.0f + tan(game->GetGameTime()) * 127.0f),
+        255
+    };
+    Color RainbowColor = ColorAlpha(ColorLerp(WHITE, OtherColor, RankLevel), UITransparency);
+
+    if (!RankClassification.empty())
+    {
+        DrawText(RankClassification.c_str(), SideRectangle.x + 15 - StressShakePos.x * 2.5f, SideRectangle.y + 15 - StressShakePos.y * 2.5f, 70, RainbowColor);
+    }
+
+    std::string PercentTxt = to_string((int) (RankLevel * 100.0f)) + "%";
+    Vector2 EndPos ={SideRectangle.x + 15 + (SideRectangle.width - 15 - 15 - MeasureText(PercentTxt.c_str(), 30)) * RankLevel, SideRectangle.y + 15 + 15 + 70};
+    DrawText(PercentTxt.c_str(), EndPos.x, EndPos.y-15.0f, 30, RainbowColor);
+    DrawLineEx({
+        SideRectangle.x + 15, SideRectangle.y + 15 + 15 + 70
+    }, EndPos, 10, RainbowColor);
+
+    for (int i = 0; i < game->MainPlayer->ScoreChanges.size(); i++)
+    {
+        ScoreChange& ScoreChange = game->MainPlayer->ScoreChanges[i];
+        float Trans = 1.0f - (game->GetGameTime() - ScoreChange.Time) / 10.0f;
+        Trans = max(Trans, 0.1f);
+
+        if (Trans > 0.0f)
+            DrawText((ScoreChange.Reason + " (+" + to_string((int)round(ScoreChange.Points)) + ")").c_str(), SideRectangle.x + 15, EndPos.y + 15 + ((game->MainPlayer->ScoreChanges.size() - i - 1) * 25), 25, ColorAlpha(WHITE, Trans * UITransparency));
+    }
 }
 
 void UIManager::Quit() {

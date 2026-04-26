@@ -11,6 +11,13 @@
 
 struct Vector2;
 
+struct ScoreChange
+{
+    std::string Reason;
+    float Points;
+    double Time;
+};
+
 class Player : public Entity {
 
     bool SystemsInitialized = false;
@@ -28,7 +35,12 @@ class Player : public Entity {
 
     double LastTanked;
 
+    double LastKilledAnEnemy;
+    int EnemyCombo;
+
     public:
+
+        std::vector<ScoreChange> ScoreChanges;
 
         float StressLevel = 0;
         float FrameStressLevel = 0;

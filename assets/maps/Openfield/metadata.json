@@ -5,6 +5,7 @@
   "player": {
     "starting_health": 300,
     "starting_speed": 425,
+    "weapon_health_gain_buff": 1.0,
     "inventory": ["Player Gun", "Shotgun", "Sword"],
     "powerup": "shield",
     "dash_base_power": 2500,

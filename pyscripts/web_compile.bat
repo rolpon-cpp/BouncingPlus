@@ -3,9 +3,7 @@ cd ..
 call C:\Emscripten\emsdk\emsdk_env.bat
 if not exist build-web mkdir build-web
 em++ ^
-    entities/bosses/FaceBoss.cpp ^
     entities/Entity.cpp ^
-    entities/Powerups.cpp ^
     entities/subentities/behaviors/CatchBehavior.cpp ^
     entities/subentities/behaviors/EnemyBehavior.cpp ^
     entities/subentities/behaviors/WeaponBehavior.cpp ^
@@ -17,7 +15,9 @@ em++ ^
     entities/subentities/Throwable.cpp ^
     entities/subentities/Turret.cpp ^
     entities/subentities/UpgradeStation.cpp ^
-    entities/Weapons.cpp ^
+    entities/systems/Effects.cpp ^
+    entities/systems/Powerups.cpp ^
+    entities/systems/Weapons.cpp ^
     game/core/Controls.cpp ^
     game/core/Profiler.cpp ^
     game/core/SharedManager.cpp ^
@@ -29,7 +29,6 @@ em++ ^
     game/managers/ResourceManager.cpp ^
     game/managers/SoundManager.cpp ^
     game/ui/Menu.cpp ^
-    game/ui/Tutorial.cpp ^
     game/ui/UIManager.cpp ^
     game/ui/UIUtils.cpp ^
     level/LevelLoader.cpp ^

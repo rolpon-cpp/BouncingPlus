@@ -27,6 +27,8 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->WarningSign = false;
     this->SpeedBuff = 0;
     this->LastTanked = 0;
+    this->EnemyCombo = 0;
+    this->LastKilledAnEnemy = game.GetGameTime();
     this->LastPos = Vector2{0, 0};
     this->InvincibilityResetTimer = 0;
     this->StressLevel = 0;
@@ -248,8 +250,30 @@ void Player::Update()
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
         game->GameSounds.PlayGameSound("death");
-        game->GameScore += 100;
         ExtraSpeed += 14;
+
+        float ComboTime = min(max(4.0f - 3.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.0f), 4.0f);
+
+        std::string KillName = "Kill";
+        float KillPoints = 100.0f;
+        if (StressLevel >= 0.55f)
+        {
+            KillPoints += 25.0f;
+            KillName += ", Stress";
+        }
+
+        if (game->GetGameTime() - LastKilledAnEnemy <= ComboTime)
+        {
+            EnemyCombo++;
+            KillPoints *= 1.0f + (1.0f - static_cast<float>(game->GetGameTime() - LastKilledAnEnemy) / ComboTime) / 2.0f;
+            KillName += ", Combo x"+to_string(EnemyCombo);
+        } else
+            EnemyCombo = 0;
+
+        KillPoints *= 1.0f + static_cast<float>(EnemyCombo) / 10.0f;
+        LogicProcessor.IncreaseScore(KillName, KillPoints);
+
+        LastKilledAnEnemy = game->GetGameTime();
     }
     LastKills = Kills;
     EnemiesDetected = 0;
@@ -270,6 +294,7 @@ void Player::OnDeath()
 
 void Player::OnDelete()
 {
+    ScoreChanges.clear();
     MainWeaponsSystem.Unequip();
     LogicProcessor.Destroy();
     Entity::OnDelete();

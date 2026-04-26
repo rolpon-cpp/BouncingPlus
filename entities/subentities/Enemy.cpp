@@ -39,6 +39,7 @@ void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
     this->Armor = Armor;
     this->Type = EnemyType;
     this->AngeredRangeBypassTimer = 0;
+    this->LastFreezingState = false;
     this->AngeredRangeBypassTimerMax = 0.25f;
     this->HealthRegenRate = 0;
     this->AnimatedHealth = 0;
@@ -175,6 +176,11 @@ void Enemy::Update() {
                 IsTouchingFreezeZone = true;
             }
         }
+
+        if (IsTouchingFreezeZone && !LastFreezingState)
+            game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Frozen", 75);
+
+        LastFreezingState = IsTouchingFreezeZone;
 
         if (!IsTouchingFreezeZone)
         {

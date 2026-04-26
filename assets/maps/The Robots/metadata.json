@@ -5,6 +5,7 @@
   "player": {
     "starting_health": 199,
     "starting_speed": 390,
+    "weapon_health_gain_buff": 1.0,
     "inventory": [
       "Sword",
       "Shotgun"

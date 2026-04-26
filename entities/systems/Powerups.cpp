@@ -154,7 +154,7 @@ void PowerupSystem::Activate()
     if (CurrentPowerup != nullptr && CurrentCooldown <= 0 && CurrentLength <= 0)
     {
         if (Player->Type == PlayerType)
-            game->GameScore += 5;
+            Player->LogicProcessor.IncreaseScore("Powerup Use, " + CurrentPowerup->Name, 25.0f);
         CurrentCooldown = CurrentPowerup->Cooldown;
         CurrentLength = CurrentPowerup->Length;
         PowerupIsActive = true;

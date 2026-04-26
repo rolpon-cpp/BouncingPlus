@@ -7,6 +7,7 @@
     "powerup": "tank",
     "starting_health": 200,
     "starting_speed": 350,
+    "weapon_health_gain_buff": 2.0,
     "dash_base_power": 2500,
     "dash_power_multiplier": 1.25,
     "dash_base_cooldown": 0.8,

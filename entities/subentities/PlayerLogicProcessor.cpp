@@ -20,11 +20,20 @@ PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
     PlayerDashLineThickness = 10;
     DashTimeStart = 0;
     DamageNotifs = std::vector<Vector3>();
+    RankClassifications = std::vector<std::string>();
     DashedEnemies = std::vector<std::weak_ptr<Enemy>>();
     FightMusicLayer = 0;
+    RankLevel = 0;
     FightMusicLayerGoal = 0;
     LayerSwitchCooldown = 0;
     PreviousFightTrack = "";
+
+    RankClassifications.emplace_back("Bad");
+    RankClassifications.emplace_back("Okay");
+    RankClassifications.emplace_back("Decent");
+    RankClassifications.emplace_back("Good");
+    RankClassifications.emplace_back("Great");
+    RankClassifications.emplace_back("BOUNCING!!!");
 }
 
 PlayerLogicProcessor::PlayerLogicProcessor()
@@ -42,12 +51,6 @@ void PlayerLogicProcessor::ProcessStress()
     if (MyPlayer->HealthConcern)
         MyPlayer->FrameStressLevel += 0.5f;
 
-    std::vector<shared_ptr<Entity>> enemyArray = MyPlayer->game->GameEntities.Entities[EnemyType];
-    for (int i = 0; i < enemyArray.size(); i++)
-        if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete)
-            if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 550)
-                MyPlayer->FrameStressLevel += 0.05f;
-
     std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities.Entities[BulletType];
     for (int i = 0; i < bulletArray.size(); i++)
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete)
@@ -60,14 +63,14 @@ void PlayerLogicProcessor::ProcessStress()
             if (entity->CurrentState != LOOKING)
                 MyPlayer->FrameStressLevel += 0.1f;
 
-    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.05f;
+    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.075f;
 
     MyPlayer->FrameStressLevel = min(max(MyPlayer->FrameStressLevel, 0.0f), 1.0f);
 
     if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
         MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
     else
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.1f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.25f * MyPlayer->game->GetGameDeltaTime());
 
 }
 
@@ -135,6 +138,7 @@ void PlayerLogicProcessor::Update()
     DashLogic();
     DisplayDamageNotifs();
     ProcessStress();
+    RankLevelLogic();
     HandleFightMusic();
 }
 
@@ -146,10 +150,35 @@ void PlayerLogicProcessor::PhysicsUpdate()
 void PlayerLogicProcessor::Destroy()
 {
     DashCooldown = 0;
+    RankLevel = 0;
     PlayerDashLineThickness = 10;
     DashTimeStart = 0;
     DamageNotifs.clear();
     DashedEnemies.clear();
+}
+
+void PlayerLogicProcessor::RankLevelLogic()
+{
+    auto MyPlayer = Owner.lock();
+
+    RankLevel -= RankLevel * (1.0f - MyPlayer->StressLevel) * 0.12f * MyPlayer->game->GetGameDeltaTime();
+
+    RankLevel = max(min(RankLevel, 1.0f), 0.0f);
+    std::erase_if(MyPlayer->ScoreChanges, [MyPlayer](ScoreChange& e) {
+        return MyPlayer->game->GetGameTime() - e.Time >= 10;
+        });
+}
+
+void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points)
+{
+    auto MyPlayer = Owner.lock();
+
+    Points *= MyPlayer->StressLevel;
+
+    RankLevel += min(Points / 600.0f, 0.1f);
+
+    MyPlayer->ScoreChanges.push_back({Reason, Points, MyPlayer->game->GetGameTime()});
+    MyPlayer->game->GameScore += Points;
 }
 
 void PlayerLogicProcessor::DamageNotification(Vector2 From)
@@ -192,7 +221,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
             MyPlayer->Health += Damage * 0.1f;
             amount = 950;
             MyPlayer->Kills+=1;
-            MyPlayer->game->GameScore += 25 * ((DashedEnemies.size() + 1.0f) * 1.25f);
+            this->IncreaseScore("Dash Kill", 45 * ((DashedEnemies.size() + 1.0f) * 1.25f));
         }
 
         MyPlayer->game->GameParticles.ParticleEffect({{
@@ -205,7 +234,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
                 PINK
         }, 180-Vector2LineAngle({0,0}, MyPlayer->VelocityMovement)*RAD2DEG, 30, 35);
 
-        MyPlayer->game->GameScore += 5;
+        this->IncreaseScore("Dash", Damage / 1.5f);
         MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
         MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 1.5f);
         MyPlayer->game->GameCamera.QuickZoom(0.95f, 0.05f, false);

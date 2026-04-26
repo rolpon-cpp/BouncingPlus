@@ -38,6 +38,9 @@ public:
     Vector2 StressShakePos = {0,0};
     double LastChangedStressShakePos = 0;
 
+    float RankSideSize = 100.0f;
+    float RankSizeHeight = 250.0f;
+
     Game *game;
     UIManager(Game &game);
     UIManager();
@@ -51,6 +54,7 @@ public:
     void DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight);
     void DisplayKillMeter();
     void DisplayPowerupMeter();
+    void DisplayRank();
     void GameWin();
     void GameUI();
     void Clear();

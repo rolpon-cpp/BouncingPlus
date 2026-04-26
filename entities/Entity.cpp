@@ -10,6 +10,7 @@
 #include <ostream>
 #include <raylib.h>
 #include <raymath.h>
+#include <nlohmann/json.hpp>
 
 #include "subentities/Bullet.h"
 #include "../game/Game.h"
@@ -96,7 +97,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
             if (owner->Type != PlayerType)
                 owner->Health += HealthGain;
             else if (!game->MainPlayer->isInvincible)
-                owner->Health += HealthGain;
+                owner->Health += HealthGain * game->LevelData[game->CurrentLevelName]["player"]["weapon_health_gain_buff"].get<float>();
         }
         if (owner->Type == PlayerType)
             game->MainPlayer->Kills += 1;
