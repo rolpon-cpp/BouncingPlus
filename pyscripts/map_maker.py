@@ -1,4 +1,6 @@
 import json
+import time
+
 import pygame
 import os
 import random
@@ -69,7 +71,6 @@ thread1()
 assets_folder_path = "assets\\"
 if not os.path.exists(assets_folder_path):
     assets_folder_path = "..\\assets\\"
-    print("rebound")
 
 tile_size = 36
 
@@ -83,7 +84,11 @@ running = True
 current_mode = 1
 current_tile = 0
 tilemap = []
+placed_entities = []
+selected_entities = []
 camera = [0, 0]
+
+fnt = pygame.font.SysFont("Consolas",50)
 
 if len(tilemap_path) < 1:
     for y in range(tilemap_height):
@@ -92,6 +97,28 @@ if len(tilemap_path) < 1:
             row.append(-1)
         tilemap.append(row)
 else:
+    with open(os.path.join(assets_folder_path+"maps\\"+tilemap_path+"\\entities.csv")) as ef:
+        content = ef.read()
+        for line in content.splitlines():
+            if line == "Type,X,Y,Width,Height,Health,Armor,Speed,Weapon":
+                continue
+            vals = line.split(",")
+            try:
+                placed_entities.append(
+                    [
+                        int(vals[0]),
+                        float(vals[1]),
+                        float(vals[2]),
+                        float(vals[3]),
+                        float(vals[4]),
+                        float(vals[5]),
+                        float(vals[6]),
+                        float(vals[7]),
+                        str(vals[8])
+                    ]
+                )
+            except:
+                print("failed to read entity")
     with open(os.path.join(assets_folder_path+"maps\\"+tilemap_path+"\\map_data.csv")) as data:
         data = csv.reader(data, delimiter=',')
         for raw_row in data:
@@ -142,6 +169,160 @@ last_s_state = False
 
 hovering_over_selection_box = False
 
+tile_mode = True
+
+entity_selection_rect = pygame.Rect(-1, -1, 0, 0)
+entity_selection_rect_points = [[0,0],[0,0],[0,0],[0,0]]
+selecting_entities = False
+selecting_entities_before = False
+
+entity_num = -1
+entity_x = -1
+entity_y = -1
+entity_w = -1
+entity_h = -1
+entity_health = -1
+entity_armor = -1
+entity_speed = -1
+entity_weapon = ""
+
+def place_entity(x,y):
+    global entity_num
+    global entity_x
+    global entity_y
+    global entity_w
+    global entity_h
+    global entity_health
+    global entity_armor
+    global entity_speed
+    global entity_weapon
+
+    entity_x = x
+    entity_y = y
+
+    import tkinter
+
+    m = tkinter.Tk()
+
+    w = tkinter.Label(m, text="New/Edit Entity")
+    w.pack()
+
+    frame = tkinter.Frame()
+    frame.pack()
+
+    g = tkinter.Label(frame, text="type")
+    g.grid(row=0, column=0)
+
+    h = tkinter.Label(frame, text="w")
+    h.grid(row=1, column=0)
+
+    k = tkinter.Label(frame, text="h")
+    k.grid(row=2, column=0)
+
+    h1 = tkinter.Label(frame, text="health")
+    h1.grid(row=3, column=0)
+
+    k1 = tkinter.Label(frame, text="armor")
+    k1.grid(row=4, column=0)
+
+    k2 = tkinter.Label(frame, text="speed")
+    k2.grid(row=5, column=0)
+
+    k3 = tkinter.Label(frame, text="weapon")
+    k3.grid(row=6, column=0)
+
+    e1 = tkinter.Entry(frame)
+    e2 = tkinter.Entry(frame)
+    e3 = tkinter.Entry(frame)
+    e1.grid(row=0, column=1)
+    e2.grid(row=1, column=1)
+    e3.grid(row=2, column=1)
+
+    e4 = tkinter.Entry(frame)
+    e5 = tkinter.Entry(frame)
+    e6 = tkinter.Entry(frame)
+    e4.grid(row=3, column=1)
+    e5.grid(row=4, column=1)
+    e6.grid(row=5, column=1)
+
+    e7 = tkinter.Entry(frame)
+    e7.grid(row=6, column=1)
+
+    def set_val():
+        global entity_num
+        global entity_x
+        global x
+        global y
+        global entity_y
+        global entity_w
+        global entity_h
+        global entity_health
+        global entity_armor
+        global entity_speed
+        global entity_weapon
+
+        try:
+            entity_num = int(e1.get())
+        except ValueError:
+            pass
+
+        try:
+            entity_w = float(e2.get())
+        except ValueError:
+            pass
+
+        try:
+            entity_h = float(e3.get())
+        except ValueError:
+            pass
+
+        try:
+            entity_health = float(e4.get())
+        except ValueError:
+            pass
+
+        try:
+            entity_armor = float(e5.get())
+        except ValueError:
+            pass
+
+        try:
+            entity_speed = float(e6.get())
+        except ValueError:
+            pass
+
+        try:
+            entity_weapon = str(e7.get())
+        except ValueError:
+            pass
+
+        m.destroy()
+
+    button = tkinter.Button(m, text='Done', width=25, command=set_val)
+    button.pack()
+
+    m.mainloop()
+
+    if entity_num != -1:
+        new_e = [entity_num, entity_x, entity_y, entity_w, entity_h, entity_health, entity_armor, entity_speed, entity_weapon]
+        for e in placed_entities:
+            er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
+            if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
+                placed_entities.remove(e)
+                placed_entities.append(new_e)
+                break
+        entity_num = -1
+        entity_x = -1
+        entity_y = -1
+        entity_w = -1
+        entity_h = -1
+        entity_health = -1
+        entity_armor = -1
+        entity_speed = -1
+        entity_weapon = ""
+
+cool = time.time()
+
 while running:
 
     dt = clock.tick(240) / 1000
@@ -152,9 +333,6 @@ while running:
     last_mouse_pos = mouse_pos
 
     screen.fill((100,100,100))
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
 
     mouse_buttons = pygame.mouse.get_pressed()
     keys = pygame.key.get_pressed()
@@ -165,60 +343,91 @@ while running:
 
     world_mouse_tile_pos = [max(min(int(world_mouse_pos[0] / tile_size), tilemap_width-1),0),max(min(int(world_mouse_pos[1] / tile_size), tilemap_height-1),0)]
 
-    if mouse_buttons[2]:
-        current_mode = 0
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and not tile_mode and keys[pygame.K_r]:
+            place_entity(world_mouse_pos[0]*2,world_mouse_pos[1]*2)
 
-    if keys[pygame.K_c] and not last_c_state:
-        for y in range(tilemap_height):
-            for x in range(tilemap_width):
-                if tilemap[y][x] != -1:
-                    stroke.append([tilemap[y][x], -1, [x,y]])
-                    tilemap[y][x] = -1
-        strokes.append(stroke.copy())
-        stroke.clear()
-    last_c_state = keys[pygame.K_c]
+    if keys[pygame.K_k] and time.time() - cool >= 0.2:
+        tile_mode = not tile_mode
+        cool = time.time()
 
-    if keys[pygame.K_s] and not last_s_state:
-        pygame.image.save(screen, "screenshot" + str(clock.get_time()) + ".png")
-    last_s_state = keys[pygame.K_s]
+    if tile_mode:
+        if current_mode == 1:
+            img = fnt.render("TILE PLACING",True,(0,0,0))
+            screen.blit(img,(screen.get_width()-img.get_width(), 0))
+        elif current_mode == 2:
+            img = fnt.render("TILE ERASE",True,(0,0,0))
+            screen.blit(img,(screen.get_width()-img.get_width(), 0))
 
-    if keys[pygame.K_e] and keys[pygame.K_e] != last_e_state:
-        current_mode = 2 if current_mode == 1 else 1
-    last_e_state = keys[pygame.K_e]
+        if mouse_buttons[2]:
+            current_mode = 0
 
-    drag_state = mouse_buttons[0] and (not hovering_over_selection_box) and current_mode > 0
-    if drag_state:
-        if tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] != (current_tile if current_mode == 1 else -1):
-            stroke.append([tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]], current_tile if current_mode == 1 else -1, world_mouse_tile_pos])
-        tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] = current_tile if current_mode == 1 else -1
-    elif last_drag_state:
-        strokes.append(stroke.copy())
-        stroke.clear()
-    last_drag_state = drag_state
+        if keys[pygame.K_c] and not last_c_state:
+            for y in range(tilemap_height):
+                for x in range(tilemap_width):
+                    if tilemap[y][x] != -1:
+                        stroke.append([tilemap[y][x], -1, [x,y]])
+                        tilemap[y][x] = -1
+            strokes.append(stroke.copy())
+            stroke.clear()
+        last_c_state = keys[pygame.K_c]
 
-    ctrlz_state = keys[pygame.K_z] and keys[pygame.K_LCTRL]
-    if ctrlz_state and len(strokes) > 0 and not last_ctrlz_state:
-        latest_stroke = strokes[len(strokes)-1]
-        for t in latest_stroke:
-            og = t[0]
-            new = t[1]
-            coord = t[2]
-            tilemap[coord[1]][coord[0]] = og
-        strokes.remove(latest_stroke)
-        undo_strokes.append(latest_stroke)
-    last_ctrlz_state = ctrlz_state
+        if keys[pygame.K_e] and keys[pygame.K_e] != last_e_state:
+            current_mode = 2 if current_mode == 1 else 1
+        last_e_state = keys[pygame.K_e]
 
-    ctrly_state = keys[pygame.K_y] and keys[pygame.K_LCTRL]
-    if ctrly_state and len(undo_strokes) > 0 and not last_ctrly_state:
-        latest_stroke = undo_strokes[len(undo_strokes) - 1]
-        for t in latest_stroke:
-            og = t[0]
-            new = t[1]
-            coord = t[2]
-            tilemap[coord[1]][coord[0]] = new
-        undo_strokes.remove(latest_stroke)
-        strokes.append(latest_stroke)
-    last_ctrly_state = ctrly_state
+        drag_state = mouse_buttons[0] and (not hovering_over_selection_box) and current_mode > 0
+        if drag_state:
+            if tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] != (current_tile if current_mode == 1 else -1):
+                stroke.append([tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]], current_tile if current_mode == 1 else -1, world_mouse_tile_pos])
+            tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] = current_tile if current_mode == 1 else -1
+        elif last_drag_state:
+            strokes.append(stroke.copy())
+            stroke.clear()
+        last_drag_state = drag_state
+
+        ctrlz_state = keys[pygame.K_z] and keys[pygame.K_LCTRL]
+        if ctrlz_state and len(strokes) > 0 and not last_ctrlz_state:
+            latest_stroke = strokes[len(strokes)-1]
+            for t in latest_stroke:
+                og = t[0]
+                new = t[1]
+                coord = t[2]
+                tilemap[coord[1]][coord[0]] = og
+            strokes.remove(latest_stroke)
+            undo_strokes.append(latest_stroke)
+        last_ctrlz_state = ctrlz_state
+
+        ctrly_state = keys[pygame.K_y] and keys[pygame.K_LCTRL]
+        if ctrly_state and len(undo_strokes) > 0 and not last_ctrly_state:
+            latest_stroke = undo_strokes[len(undo_strokes) - 1]
+            for t in latest_stroke:
+                og = t[0]
+                new = t[1]
+                coord = t[2]
+                tilemap[coord[1]][coord[0]] = new
+            undo_strokes.remove(latest_stroke)
+            strokes.append(latest_stroke)
+        last_ctrly_state = ctrly_state
+    else:
+        img = fnt.render("ENTITY PLACING",True,(0,0,0))
+        screen.blit(img,(screen.get_width()-img.get_width(), 0))
+        c = False
+        for e in placed_entities:
+            er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
+            if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
+                c=True
+                surf=pygame.Surface((e[3],e[4]),pygame.SRCALPHA,32)
+                surf.fill((0,0,255,150))
+                screen.blit(surf,(e[1]/2-e[4]/2-camera[0],e[2]/2-e[3]/2-camera[1]))
+                break
+        if not c:
+            if keys[pygame.K_r]:
+                surf=pygame.Surface((36,36),pygame.SRCALPHA,32)
+                surf.fill((50,50,255,150))
+                screen.blit(surf,(world_mouse_pos[0]-18-camera[0],world_mouse_pos[1]-18-camera[1]))
 
     if mouse_buttons[1]:
         camera[0] += rel_x
@@ -227,10 +436,33 @@ while running:
     for y in range(tilemap_height):
         for x in range(tilemap_width):
             if tilemap[y][x] != -1 and images_to_id.get(tilemap[y][x]) != None:
-                tex = images_to_id[tilemap[y][x]]
+                tex = images_to_id[tilemap[y][x]].copy()
                 if tex.get_size() != (36, 36):
                     tex = pygame.transform.scale(tex, (36, 36))
-                screen.blit(tex, (x * tile_size - camera[0], y * tile_size - camera[1]))
+                xwp = x * tile_size
+                ywp = y * tile_size
+                if tilemap[y][x] == 2:
+                    tex = pygame.transform.scale(tex, (18, 18))
+                    xwp += 9
+                    ywp += 9
+
+                tex.set_alpha(50 if not tile_mode else 255)
+                screen.blit(tex, (xwp - camera[0], ywp - camera[1]))
+
+    for e in placed_entities:
+        x = e[1] / 2
+        y = e[2] / 2
+        w = e[3]
+        h = e[4]
+        x -= w/4
+        y -= h/4
+        styyy = pygame.transform.scale(images_to_id[2],(w/2,h/2))
+        styyy.set_alpha(50 if tile_mode else 255)
+        if e in selected_entities:
+            surf=pygame.Surface(styyy.get_size(),pygame.SRCALPHA,32)
+            surf.fill((0,0,255,150))
+            styyy.blit(surf,(0,0))
+        screen.blit(styyy,(x - camera[0],y - camera[1]))
 
     for x in range(tilemap_width+1):
         pygame.draw.line(screen, (255,255,255), [x * tile_size - camera[0], - camera[1]],[x * tile_size - camera[0], tilemap_height*tile_size - camera[1]], width=1)
@@ -270,6 +502,65 @@ while running:
                 surf.blit(tex, (x * 36, y * 36))
 
     screen.blit(surf,rect)
+
+    selecting_entities = not tile_mode and not keys[pygame.K_r] and mouse_buttons[0]
+    if selecting_entities and not selecting_entities_before and entity_selection_rect.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
+        selecting_entities = False
+
+    if selecting_entities and not selecting_entities_before:
+        entity_selection_rect_points[0] = world_mouse_pos
+        entity_selection_rect = pygame.Rect(
+            min(entity_selection_rect_points[0][0], min(entity_selection_rect_points[1][0], min(entity_selection_rect_points[2][0], entity_selection_rect_points[3][0]))),
+            min(entity_selection_rect_points[0][1], min(entity_selection_rect_points[1][1], min(entity_selection_rect_points[2][1], entity_selection_rect_points[3][1]))),
+            max(entity_selection_rect_points[0][0], max(entity_selection_rect_points[1][0], max(entity_selection_rect_points[2][0], entity_selection_rect_points[3][0]))),
+            max(entity_selection_rect_points[0][1], max(entity_selection_rect_points[1][1], max(entity_selection_rect_points[2][1], entity_selection_rect_points[3][1])))
+        )
+        entity_selection_rect.w -= entity_selection_rect.x
+        entity_selection_rect.h -= entity_selection_rect.y
+    elif selecting_entities:
+        entity_selection_rect_points[1] = world_mouse_pos
+        entity_selection_rect_points[2] = [entity_selection_rect_points[0][0] + (world_mouse_pos[0]-entity_selection_rect_points[0][0]),entity_selection_rect_points[0][1]]
+        entity_selection_rect_points[3] = [entity_selection_rect_points[0][0],world_mouse_pos[1]]
+        entity_selection_rect = pygame.Rect(
+            min(entity_selection_rect_points[0][0], min(entity_selection_rect_points[1][0], min(entity_selection_rect_points[2][0], entity_selection_rect_points[3][0]))),
+            min(entity_selection_rect_points[0][1], min(entity_selection_rect_points[1][1], min(entity_selection_rect_points[2][1], entity_selection_rect_points[3][1]))),
+            max(entity_selection_rect_points[0][0], max(entity_selection_rect_points[1][0], max(entity_selection_rect_points[2][0], entity_selection_rect_points[3][0]))),
+            max(entity_selection_rect_points[0][1], max(entity_selection_rect_points[1][1], max(entity_selection_rect_points[2][1], entity_selection_rect_points[3][1])))
+        )
+        entity_selection_rect.w -= entity_selection_rect.x
+        entity_selection_rect.h -= entity_selection_rect.y
+
+    if tile_mode:
+        entity_selection_rect = pygame.Rect(-1,-1,0,0)
+    elif entity_selection_rect.w > 0 and entity_selection_rect.h > 0:
+        r = (entity_selection_rect.x -camera[0],
+             entity_selection_rect.y - camera[1],
+             entity_selection_rect.w,entity_selection_rect.h)
+        surf = pygame.Surface(entity_selection_rect.size,pygame.SRCALPHA,32)
+        surf.fill((100,100,255,128))
+        screen.blit(surf,(r[0],r[1]))
+
+    selected_entities = [e for e in placed_entities if entity_selection_rect.collidepoint(e[1]/2, e[2]/2)]
+    if not selecting_entities and len(selected_entities) <= 0:
+        entity_selection_rect = pygame.Rect(-1,-1,0,0)
+
+    if not selecting_entities and mouse_buttons[0]:
+        for e in selected_entities:
+            e[1]-=rel_x*2
+            e[2]-=rel_y*2
+        entity_selection_rect.x -= rel_x
+        entity_selection_rect.y -= rel_y
+
+    if keys[pygame.K_DELETE]:
+        for e in selected_entities:
+            placed_entities.remove(e)
+        selected_entities.clear()
+
+    selecting_entities_before = selecting_entities
+
+    if keys[pygame.K_s] and not last_s_state:
+        pygame.image.save(screen, "screenshot" + str(clock.get_time()) + ".png")
+    last_s_state = keys[pygame.K_s]
 
     pygame.display.update()
 
@@ -461,7 +752,6 @@ if len(write_path) > 0 and len(tilemap_path) < 1:
     json.dump(json_data, f)
     f.close()
 
-print(write_path)
 f = open(write_path + "\\map_data.csv", 'w')
 for y in range(tilemap_height):
     line = ""
@@ -469,4 +759,12 @@ for y in range(tilemap_height):
         id = tilemap[y][x]
         line += str(id)+("," if not (y == tilemap_height - 1 and x == tilemap_width - 1) else "")
     f.write(line+("\n" if y != tilemap_height - 1 else ""))
+f.close()
+
+f = open(write_path + "\\entities.csv", 'w')
+f.write("Type,X,Y,Width,Height,Health,Armor,Speed,Weapon")
+for e in placed_entities:
+    f.write("\n")
+    for ei in e:
+        f.write(str(ei) + ",")
 f.close()

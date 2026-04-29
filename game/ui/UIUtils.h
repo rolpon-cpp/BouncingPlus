@@ -7,6 +7,8 @@
 #include <raylib.h>
 #include <string>
 
+Color GetHealthColor(float Percent, float Armor = 0.0f);
+
 class UIAssets
 {
     public:

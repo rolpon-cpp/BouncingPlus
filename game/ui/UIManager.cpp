@@ -9,18 +9,6 @@
 
 #include "../Game.h"
 
-Color GetHealthColor(float Percent, float Armor) {
-    if (Armor > 0)
-        return BLUE;
-    if (Percent >= 0.5f) {
-        return ColorLerp(YELLOW, GREEN, (Percent - 0.5f) / 0.5f);
-    }
-    if (Percent < 0.5f) {
-        return ColorLerp(RED, YELLOW, Percent / 0.5f);
-    }
-    return {0, 0, 0, 255};
-}
-
 UIManager::UIManager(Game &game) {
     this->game = &game;
     this->WeaponUITexture = LoadRenderTexture(GetRenderWidth(), 250);
@@ -559,13 +547,22 @@ void UIManager::DisplayRank()
     MinRankClassificationLvl = max(min(MinRankClassificationLvl, 1.0f), 0.0f);
 
     if (RankLevel >= MinRankClassificationLvl && RankLevel <= MaxRankClassificationLvl)
-        RankClassification = game->MainPlayer->LogicProcessor.RankClassifications[(int) max(min((RankLevel * game->MainPlayer->LogicProcessor.RankClassifications.size()),
-            (float)game->MainPlayer->LogicProcessor.RankClassifications.size()-1.0f), 0.0f)];
+        RankClassification = game->MainPlayer->LogicProcessor.RankClassifications[static_cast<int>(max(min((RankLevel * game->MainPlayer->LogicProcessor.RankClassifications.size()),
+            static_cast<float>(game->MainPlayer->LogicProcessor.RankClassifications.size()) - 1.0f), 0.0f))];
+
+    float HighestTxSize = 0.0f;
+    for (int i = 0; i < game->MainPlayer->ScoreChanges.size(); i++)
+    {
+        ScoreChange& ScoreChange = game->MainPlayer->ScoreChanges[i];
+        float sz = MeasureText(ScoreChange.Reason.c_str(), 70)+15.0f;
+        if (sz > HighestTxSize)
+            HighestTxSize = sz;
+    }
 
     float SizeGoal = static_cast<float>(MeasureText(RankClassification.c_str(), 70)) + 100.0f;
     float HeightGoal = 130 + game->MainPlayer->ScoreChanges.size() * 25.0f;
 
-    SizeGoal = min(max(SizeGoal, 100.0f), 500.0f);
+    SizeGoal = min(max(SizeGoal, max(HighestTxSize,100.0f)), 500.0f);
     HeightGoal = min(max(HeightGoal, 250.0f), 500.0f);
 
     RankSideSize = Lerp(RankSideSize, SizeGoal, 10.0f * game->GetGameDeltaTime());
@@ -575,7 +572,7 @@ void UIManager::DisplayRank()
     SideRectangle.x = 50.0f;
     SideRectangle.y = GetRenderHeight() / 2 - SideRectangle.height / 2;
 
-    DrawRectangleRec(SideRectangle, ColorAlpha(BLACK, 0.25f * UITransparency));
+    DrawRectangleRec(SideRectangle, ColorAlpha(BLACK, 0.125f * UITransparency));
 
     Color OtherColor = Color{
         (unsigned char) (127.0f + sin(game->GetGameTime()) * 127.0f),
@@ -583,12 +580,10 @@ void UIManager::DisplayRank()
         (unsigned char) (127.0f + tan(game->GetGameTime()) * 127.0f),
         255
     };
-    Color RainbowColor = ColorAlpha(ColorLerp(WHITE, OtherColor, RankLevel), UITransparency);
+    Color RainbowColor = ColorAlpha(ColorLerp(WHITE, OtherColor, RankLevel * 1.5f), UITransparency);
 
     if (!RankClassification.empty())
-    {
         DrawText(RankClassification.c_str(), SideRectangle.x + 15 - StressShakePos.x * 2.5f, SideRectangle.y + 15 - StressShakePos.y * 2.5f, 70, RainbowColor);
-    }
 
     std::string PercentTxt = to_string((int) (RankLevel * 100.0f)) + "%";
     Vector2 EndPos ={SideRectangle.x + 15 + (SideRectangle.width - 15 - 15 - MeasureText(PercentTxt.c_str(), 30)) * RankLevel, SideRectangle.y + 15 + 15 + 70};
@@ -597,14 +592,14 @@ void UIManager::DisplayRank()
         SideRectangle.x + 15, SideRectangle.y + 15 + 15 + 70
     }, EndPos, 10, RainbowColor);
 
-    for (int i = 0; i < game->MainPlayer->ScoreChanges.size(); i++)
+    for (int i = 0; i < min((float)game->MainPlayer->ScoreChanges.size(), 14.0f); i++)
     {
         ScoreChange& ScoreChange = game->MainPlayer->ScoreChanges[i];
         float Trans = 1.0f - (game->GetGameTime() - ScoreChange.Time) / 10.0f;
         Trans = max(Trans, 0.1f);
 
         if (Trans > 0.0f)
-            DrawText((ScoreChange.Reason + " (+" + to_string((int)round(ScoreChange.Points)) + ")").c_str(), SideRectangle.x + 15, EndPos.y + 15 + ((game->MainPlayer->ScoreChanges.size() - i - 1) * 25), 25, ColorAlpha(WHITE, Trans * UITransparency));
+            DrawText((ScoreChange.Reason + " (+" + to_string((int)round(ScoreChange.Points)) + ")").c_str(), SideRectangle.x + 15, EndPos.y + 15 + ((game->MainPlayer->ScoreChanges.size() - i - 1) * 25), 25, ColorAlpha(ColorContrast(ScoreChange.ScoreColor, 0.5f), Trans * UITransparency));
     }
 }
 

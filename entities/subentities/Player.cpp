@@ -271,7 +271,7 @@ void Player::Update()
             EnemyCombo = 0;
 
         KillPoints *= 1.0f + static_cast<float>(EnemyCombo) / 10.0f;
-        LogicProcessor.IncreaseScore(KillName, KillPoints);
+        LogicProcessor.IncreaseScore(KillName, KillPoints, RED);
 
         LastKilledAnEnemy = game->GetGameTime();
     }

@@ -15,6 +15,7 @@ struct ScoreChange
 {
     std::string Reason;
     float Points;
+    Color ScoreColor;
     double Time;
 };
 

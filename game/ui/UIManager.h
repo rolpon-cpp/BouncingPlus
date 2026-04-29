@@ -8,8 +8,6 @@
 
 class Game;
 
-Color GetHealthColor(float Percent, float Armor = 0.0f);
-
 class UIManager {
 public:
     float StartingBlackScreenTrans = 1.0f;

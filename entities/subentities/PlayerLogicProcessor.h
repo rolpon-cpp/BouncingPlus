@@ -41,7 +41,7 @@ public:
     PlayerLogicProcessor(std::weak_ptr<Player> Owner);
     ~PlayerLogicProcessor();
     void Update();
-    void IncreaseScore(std::string Reason, float Points);
+    void IncreaseScore(std::string Reason, float Points, Color ScoreColor = RED);
     void DamageNotification(Vector2 From);
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
     void PhysicsUpdate();

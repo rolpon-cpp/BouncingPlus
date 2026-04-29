@@ -6,6 +6,18 @@
 #include "string"
 #include "UIUtils.h"
 
+Color GetHealthColor(float Percent, float Armor) {
+    if (Armor > 0)
+        return BLUE;
+    if (Percent >= 0.5f) {
+        return ColorLerp(YELLOW, GREEN, (Percent - 0.5f) / 0.5f);
+    }
+    if (Percent < 0.5f) {
+        return ColorLerp(RED, YELLOW, Percent / 0.5f);
+    }
+    return {0, 0, 0, 255};
+}
+
 void UIAssets::Load()
 {
     TitleImg = LoadTexture("assets/ui/title.png");

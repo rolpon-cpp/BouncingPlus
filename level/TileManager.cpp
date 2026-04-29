@@ -516,7 +516,12 @@ void TileManager::CreateFileEntity(FileEntity& NewFileEntity)
     std::shared_ptr<Entity> NewEntity;
 
     if (NewFileEntity.Type == EnemyType)
+    {
         NewEntity = make_shared<Enemy>(NewFileEntity.X, NewFileEntity.Y, NewFileEntity.Health, NewFileEntity.Speed, NewFileEntity.Armor, NewFileEntity.Weapon, game->GameResources.Textures["enemy"], *game);
+    }
+
+    NewEntity->BoundingBox.width = NewFileEntity.W;
+    NewEntity->BoundingBox.height = NewFileEntity.H;
 
     game->GameEntities.AddEntity(NewEntity->Type, NewEntity);
 }

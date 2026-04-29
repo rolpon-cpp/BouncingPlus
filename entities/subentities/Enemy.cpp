@@ -178,7 +178,7 @@ void Enemy::Update() {
         }
 
         if (IsTouchingFreezeZone && !LastFreezingState)
-            game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Frozen", 75);
+            game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Frozen", 75, SKYBLUE);
 
         LastFreezingState = IsTouchingFreezeZone;
 

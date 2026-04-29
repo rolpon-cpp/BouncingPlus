@@ -169,7 +169,7 @@ void PlayerLogicProcessor::RankLevelLogic()
         });
 }
 
-void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points)
+void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points, Color ScoreColor)
 {
     auto MyPlayer = Owner.lock();
 
@@ -177,7 +177,7 @@ void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points)
 
     RankLevel += min(Points / 600.0f, 0.1f);
 
-    MyPlayer->ScoreChanges.push_back({Reason, Points, MyPlayer->game->GetGameTime()});
+    MyPlayer->ScoreChanges.push_back({Reason, Points, ScoreColor, MyPlayer->game->GetGameTime()});
     MyPlayer->game->GameScore += Points;
 }
 
@@ -221,7 +221,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
             MyPlayer->Health += Damage * 0.1f;
             amount = 950;
             MyPlayer->Kills+=1;
-            this->IncreaseScore("Dash Kill", 45 * ((DashedEnemies.size() + 1.0f) * 1.25f));
+            this->IncreaseScore("Dash Kill", 45 * ((DashedEnemies.size() + 1.0f) * 1.25f), ColorContrast(GREEN,0.5f));
         }
 
         MyPlayer->game->GameParticles.ParticleEffect({{
@@ -234,7 +234,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
                 PINK
         }, 180-Vector2LineAngle({0,0}, MyPlayer->VelocityMovement)*RAD2DEG, 30, 35);
 
-        this->IncreaseScore("Dash", Damage / 1.5f);
+        this->IncreaseScore("Dash", Damage / 1.5f,GREEN);
         MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
         MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 1.5f);
         MyPlayer->game->GameCamera.QuickZoom(0.95f, 0.05f, false);
