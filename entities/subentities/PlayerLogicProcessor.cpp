@@ -161,19 +161,23 @@ void PlayerLogicProcessor::RankLevelLogic()
 {
     auto MyPlayer = Owner.lock();
 
-    RankLevel -= RankLevel * (1.0f - MyPlayer->StressLevel) * 0.12f * MyPlayer->game->GetGameDeltaTime();
+    RankLevel -= RankLevel * (1.0f - MyPlayer->StressLevel) * 0.17f * MyPlayer->game->GetGameDeltaTime();
 
     RankLevel = max(min(RankLevel, 1.0f), 0.0f);
     std::erase_if(MyPlayer->ScoreChanges, [MyPlayer](ScoreChange& e) {
         return MyPlayer->game->GetGameTime() - e.Time >= 10;
         });
+    std::sort(MyPlayer->ScoreChanges.begin(), MyPlayer->ScoreChanges.end(), [MyPlayer](ScoreChange& e1, ScoreChange& e2)
+    {
+        return e1.Time < e2.Time;
+    });
 }
 
 void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points, Color ScoreColor)
 {
     auto MyPlayer = Owner.lock();
 
-    Points *= MyPlayer->StressLevel;
+    Points *= min(MyPlayer->StressLevel, 0.7f);
 
     RankLevel += min(Points / 600.0f, 0.1f);
 

@@ -3,7 +3,9 @@
   "difficulty": 4,
   "music": "danger",
   "player": {
-    "inventory": ["Player Gun"],
+    "inventory": [
+      "Player Gun"
+    ],
     "powerup": "tank",
     "starting_health": 200,
     "starting_speed": 350,
@@ -22,7 +24,10 @@
     "win": "kill_all_enemies",
     "mode": "default",
     "friendly_fire": false,
-    "banned_spawn_weapons": ["Default Gun","Player Gun"]
+    "banned_spawn_weapons": [
+      "Default Gun",
+      "Player Gun"
+    ]
   },
   "enemy_weapons": {
     "shotgun": "Enemy Shotgun",

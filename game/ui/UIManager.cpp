@@ -577,7 +577,7 @@ void UIManager::DisplayRank()
     Color OtherColor = Color{
         (unsigned char) (127.0f + sin(game->GetGameTime()) * 127.0f),
         (unsigned char) (127.0f + cos(game->GetGameTime()) * 127.0f),
-        (unsigned char) (127.0f + tan(game->GetGameTime()) * 127.0f),
+        (unsigned char) (127.0f + sin(game->GetGameTime() + 10.0f) * 127.0f),
         255
     };
     Color RainbowColor = ColorAlpha(ColorLerp(WHITE, OtherColor, RankLevel * 1.5f), UITransparency);
@@ -592,14 +592,14 @@ void UIManager::DisplayRank()
         SideRectangle.x + 15, SideRectangle.y + 15 + 15 + 70
     }, EndPos, 10, RainbowColor);
 
-    for (int i = 0; i < min((float)game->MainPlayer->ScoreChanges.size(), 14.0f); i++)
+    for (int i = 0; i < static_cast<int>(min(static_cast<float>(game->MainPlayer->ScoreChanges.size()), 14.0f)); i++)
     {
         ScoreChange& ScoreChange = game->MainPlayer->ScoreChanges[i];
         float Trans = 1.0f - (game->GetGameTime() - ScoreChange.Time) / 10.0f;
-        Trans = max(Trans, 0.1f);
+        Trans = min(max(Trans, 0.25f), 1.0f);
 
         if (Trans > 0.0f)
-            DrawText((ScoreChange.Reason + " (+" + to_string((int)round(ScoreChange.Points)) + ")").c_str(), SideRectangle.x + 15, EndPos.y + 15 + ((game->MainPlayer->ScoreChanges.size() - i - 1) * 25), 25, ColorAlpha(ColorContrast(ScoreChange.ScoreColor, 0.5f), Trans * UITransparency));
+            DrawText((ScoreChange.Reason + " (+" + to_string((int)round(ScoreChange.Points)) + ")").c_str(), SideRectangle.x + 15, EndPos.y + 15 + (i * 25), 25, ColorAlpha(ColorContrast(ScoreChange.ScoreColor, 0.5f), Trans * UITransparency));
     }
 }
 

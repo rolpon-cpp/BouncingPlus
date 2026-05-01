@@ -576,11 +576,11 @@ powerup = ""
 inventory_1 = ""
 inventory_2 = ""
 inventory_3 = ""
-
+ffire = False
 n = ""
 
 def thread2():
-    global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, n
+    global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, n, ffire
 
     import tkinter
 
@@ -622,6 +622,9 @@ def thread2():
     k8 = tkinter.Label(frame, text="Inventory 3")
     k8.grid(row=9, column=0)
 
+    k9 = tkinter.Label(frame, text="Friendly Fire")
+    k9.grid(row=10, column=0)
+
     e1 = tkinter.Entry(frame)
     e2 = tkinter.Entry(frame)
     e3 = tkinter.Entry(frame)
@@ -646,8 +649,11 @@ def thread2():
     e10 = tkinter.Entry(frame)
     e10.grid(row=9, column=1)
 
+    e11 = tkinter.Entry(frame)
+    e11.grid(row=10, column=1)
+
     def set_val():
-        global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, tilemap_path, n
+        global write_path, description_lvl, gamemode, win_cond, health, speed, powerup, inventory_1, inventory_2, inventory_3, tilemap_path, n, ffire
 
         try:
             write_path = str(e1.get())
@@ -701,6 +707,11 @@ def thread2():
             except ValueError:
                 pass
 
+            try:
+                ffire = bool(e11.get())
+            except ValueError:
+                pass
+
         m.destroy()
 
     button = tkinter.Button(m, text='Done', width=25, command=set_val)
@@ -721,12 +732,13 @@ if len(write_path) > 0 and len(tilemap_path) < 1:
     json_data = {
       "description": description_lvl,
       "difficulty": 3,
-      "player": {
+        "music": "danger",
+        "player": {
+        "weapon_health_gain_buff": 1,
         "starting_health": health,
         "starting_speed": speed,
         "inventory": [inventory_1, inventory_2, inventory_3],
         "powerup": powerup,
-
         "dash_base_power": 2500,
         "dash_power_multiplier": 1,
         "dash_base_cooldown": 1.1,
@@ -740,6 +752,7 @@ if len(write_path) > 0 and len(tilemap_path) < 1:
         "timer": -1,
         "win": win_cond,
         "mode": gamemode,
+          "friendly_fire": ffire,
         "banned_spawn_weapons": ["Default Gun","Player Gun"]
       },
       "enemy_weapons": {

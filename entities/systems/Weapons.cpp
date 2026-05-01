@@ -8,6 +8,9 @@
 #include "../subentities/Bullet.h"
 #include "../../game/Game.h"
 #include "Weapons.h"
+
+#include <nlohmann/json.hpp>
+
 #include "../subentities/Player.h"
 #include "../subentities/Enemy.h"
 #include "iostream"
@@ -452,10 +455,13 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            std::vector<shared_ptr<Entity>>* array = &game->GameEntities.Entities[EnemyType];
-            for (int i = 0; i < array->size(); i++) {
-                if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
-                    MeleeAttack(entity, TargetAngle);
+            if (Owner->Type == PlayerType || game->LevelData[game->CurrentLevelName]["game"]["friendly_fire"].get<bool>())
+            {
+                std::vector<shared_ptr<Entity>>* array = &game->GameEntities.Entities[EnemyType];
+                for (int i = 0; i < array->size(); i++) {
+                    if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
+                        MeleeAttack(entity, TargetAngle);
+                    }
                 }
             }
         }

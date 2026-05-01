@@ -20,13 +20,14 @@ Color GetHealthColor(float Percent, float Armor) {
 
 void UIAssets::Load()
 {
+    int tetoChance = GetRandomValue(1, 3);
     TitleImg = LoadTexture("assets/ui/title.png");
     ButtonSmallImg = LoadTexture("assets/ui/button_small.png");
     ButtonSmallRedImg = LoadTexture("assets/ui/button_small_red.png");
     ButtonImg = LoadTexture("assets/ui/button.png");
     MenuImg = LoadTexture("assets/ui/menu_img.png");
-    MikuImg = LoadTexture("assets/ui/miku.png");
-    MikuMusic = LoadSound("assets/ui/lovely_cavity.mp3");
+    MikuImg = LoadTexture(tetoChance == 2 ? "assets/ui/teto.png" : "assets/ui/miku.png");
+    MikuMusic = LoadSound(tetoChance == 2 ? "assets/ui/teto_territory.mp3" : "assets/ui/lovely_cavity.mp3");
     ButtonClick = LoadSound("assets/ui/button_click.wav");
     SliderDrag = LoadSound("assets/ui/slider_dragging.wav");
     CursorImg = LoadTexture("assets/ui/cursor.png");

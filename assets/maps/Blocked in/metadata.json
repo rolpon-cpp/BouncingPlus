@@ -1,0 +1,38 @@
+{
+  "description": "No way out!",
+  "difficulty": 3,
+  "music": "danger",
+  "player": {
+    "starting_health": 198.0,
+    "starting_speed": 400.0,
+    "inventory": [
+      "Sword",
+      "Shotgun",
+      ""
+    ],
+    "powerup": "freeze",
+    "weapon_health_gain_buff": 1.25,
+    "dash_base_power": 2500,
+    "dash_power_multiplier": 1,
+    "dash_base_cooldown": 1.1,
+    "dash_concentration_boost": 1,
+    "dodge_cooldown": 3.0,
+    "dodge_iframe_time": 1.0,
+    "dash_iframe_time": 0.1,
+    "dash_frozen_multiplier": 0.5
+  },
+  "game": {
+    "timer": -1,
+    "win": "kill_all_enemies",
+    "mode": "default",
+    "friendly_fire": true,
+    "banned_spawn_weapons": [
+      "Default Gun",
+      "Player Gun"
+    ]
+  },
+  "enemy_weapons": {
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
+  }
+}
