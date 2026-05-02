@@ -22,9 +22,6 @@ TileManager::TileManager() {
 
 TileManager::TileManager(Game &game) {
     this->game = &game;
-    uWidth = -1;
-    uHeight = -1;
-    uTime = -1;
     PrevFileName = "";
     Lines = std::vector<std::string>();
     Distortions = std::vector<Distortion>();
@@ -233,22 +230,15 @@ void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
     ClearBackground(BLANK);
 
     for (Vector2 p : ForceFieldPos)
-        DrawRectangleRec({p.x*TileSize, p.y*TileSize, TileSize, TileSize},WHITE);
+    {
+        Rectangle rec = {p.x*TileSize, p.y*TileSize, TileSize, TileSize};
+        DrawTexturePro(game->GameResources.Textures["noise"], {(p.x * TileSize / 2) + (float)(game->GetGameTime()),0,rec.width, rec.height},rec,{0,0},0,WHITE);
+        DrawRectangleLinesEx(rec, 4.0f + sin(game->GetGameTime()) * 2.0f, ColorLerp(GREEN, DARKGREEN, cos(game->GetGameTime())/3.0f));
+    }
 
     game->GameCamera.EndRenderTexture();
     game->GameCamera.BeginRenderTexture(TileMapTex);
-
-    BeginShaderMode(game->GameResources.Shaders["forcefield"]);
-
-    float Time = game->GetGameTime();
-
-    SetShaderValue(game->GameResources.Shaders["forcefield"], uWidth, &game->GameCamera.IntendedScreenWidth, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["forcefield"], uHeight, &game->GameCamera.IntendedScreenHeight, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["forcefield"], uTime, &Time, SHADER_UNIFORM_FLOAT);
-
     DrawTextureRec(ForceFieldTex.texture,{0,0,(float)ForceFieldTex.texture.width,-(float)ForceFieldTex.texture.height},{0,0},WHITE);
-
-    EndShaderMode();
 }
 
 void TileManager::ProcessUniformLocations()
@@ -272,12 +262,6 @@ void TileManager::ProcessUniformLocations()
 
         EndShaderMode();
     }
-    if (uWidth == -1)
-        uWidth = GetShaderLocation(game->GameResources.Shaders["forcefield"], "renderWidth");
-    if (uHeight == -1)
-        uHeight = GetShaderLocation(game->GameResources.Shaders["forcefield"], "renderHeight");
-    if (uTime == -1)
-        uTime = GetShaderLocation(game->GameResources.Shaders["forcefield"], "time");
 }
 
 void TileManager::Update() {

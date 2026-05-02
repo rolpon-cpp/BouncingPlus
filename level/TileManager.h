@@ -43,8 +43,6 @@ class TileManager {
     std::vector<std::tuple<int, int, int>> DistortionUniformLocations;
     std::vector<Distortion> Distortions;
 
-    int uWidth, uHeight, uTime;
-
     int DistortionCountLocation;
     float FXLifetime;
 

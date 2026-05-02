@@ -159,6 +159,8 @@ undo_strokes = []
 strokes = []
 stroke = []
 
+ui_state_txt = "NO MODE ACTIVE"
+
 last_e_state = False
 last_c_state = False
 last_drag_state = False
@@ -309,8 +311,8 @@ def place_entity(x,y):
             er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
             if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
                 placed_entities.remove(e)
-                placed_entities.append(new_e)
                 break
+        placed_entities.append(new_e)
         entity_num = -1
         entity_x = -1
         entity_y = -1
@@ -355,11 +357,9 @@ while running:
 
     if tile_mode:
         if current_mode == 1:
-            img = fnt.render("TILE PLACING",True,(0,0,0))
-            screen.blit(img,(screen.get_width()-img.get_width(), 0))
+            ui_state_txt = "TILE PLACING"
         elif current_mode == 2:
-            img = fnt.render("TILE ERASE",True,(0,0,0))
-            screen.blit(img,(screen.get_width()-img.get_width(), 0))
+            ui_state_txt = "TILE REMOVAL"
 
         if mouse_buttons[2]:
             current_mode = 0
@@ -412,19 +412,21 @@ while running:
             strokes.append(latest_stroke)
         last_ctrly_state = ctrly_state
     else:
-        img = fnt.render("ENTITY PLACING",True,(0,0,0))
-        screen.blit(img,(screen.get_width()-img.get_width(), 0))
+        ui_state_txt= "ENTITY MODE"
         c = False
         for e in placed_entities:
             er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
             if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
                 c=True
+                ui_state_txt = "ENTITY EDIT"
                 surf=pygame.Surface((e[3],e[4]),pygame.SRCALPHA,32)
                 surf.fill((0,0,255,150))
                 screen.blit(surf,(e[1]/2-e[4]/2-camera[0],e[2]/2-e[3]/2-camera[1]))
                 break
+
         if not c:
             if keys[pygame.K_r]:
+                ui_state_txt = "ENTITY ADD"
                 surf=pygame.Surface((36,36),pygame.SRCALPHA,32)
                 surf.fill((50,50,255,150))
                 screen.blit(surf,(world_mouse_pos[0]-18-camera[0],world_mouse_pos[1]-18-camera[1]))
@@ -503,7 +505,14 @@ while running:
 
     screen.blit(surf,rect)
 
-    selecting_entities = not tile_mode and not keys[pygame.K_r] and mouse_buttons[0]
+    ee_2 = True
+    for e in selected_entities:
+        er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
+        if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
+            ee_2=False
+            break
+
+    selecting_entities = not tile_mode and not keys[pygame.K_r] and mouse_buttons[0] and ee_2
     if selecting_entities and not selecting_entities_before and entity_selection_rect.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
         selecting_entities = False
 
@@ -540,27 +549,42 @@ while running:
         surf.fill((100,100,255,128))
         screen.blit(surf,(r[0],r[1]))
 
-    selected_entities = [e for e in placed_entities if entity_selection_rect.collidepoint(e[1]/2, e[2]/2)]
+    for e in placed_entities:
+        er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
+        if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]) and entity_selection_rect.w * entity_selection_rect.h <= 2200 and e not in selected_entities:
+            selected_entities.append(e)
+
+    for e in placed_entities:
+        if e not in selected_entities and entity_selection_rect.collidepoint(e[1]/2, e[2]/2):
+            selected_entities.append(e)
+        #elif e in selected_entities and not entity_selection_rect.collidepoint(e[1]/2, e[2]/2):
+        #    selected_entities.remove(e)
     if not selecting_entities and len(selected_entities) <= 0:
         entity_selection_rect = pygame.Rect(-1,-1,0,0)
 
     if not selecting_entities and mouse_buttons[0]:
         for e in selected_entities:
-            e[1]-=rel_x*2
-            e[2]-=rel_y*2
-        entity_selection_rect.x -= rel_x
-        entity_selection_rect.y -= rel_y
+            e[1] -= rel_x * 2
+            e[2] -= rel_y * 2
 
     if keys[pygame.K_DELETE]:
         for e in selected_entities:
             placed_entities.remove(e)
         selected_entities.clear()
 
+    if not tile_mode and mouse_buttons[2]:
+        selected_entities.clear()
+        selecting_entities = False
+        entity_selection_rect = pygame.Rect(-1,-1,0,0)
+
     selecting_entities_before = selecting_entities
 
     if keys[pygame.K_s] and not last_s_state:
         pygame.image.save(screen, "screenshot" + str(clock.get_time()) + ".png")
     last_s_state = keys[pygame.K_s]
+
+    img = fnt.render(ui_state_txt,True,(0,0,0))
+    screen.blit(img,(screen.get_width()-img.get_width(), 0))
 
     pygame.display.update()
 
