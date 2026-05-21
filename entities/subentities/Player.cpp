@@ -238,8 +238,7 @@ void Player::Update()
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
 
-    Vector2 c = GetCenter();
-    DrawCircleGradient(c.x, c.y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
+    DrawCircleGradient(GetCenter().x, GetCenter().y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
 
     // update entity
     Entity::Update();
@@ -252,7 +251,7 @@ void Player::Update()
         game->GameSounds.PlayGameSound("death");
         ExtraSpeed += 14;
 
-        float ComboTime = min(max(4.0f - 3.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.0f), 4.0f);
+        float ComboTime = min(max(2.5f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 0.5f), 2.5f);
 
         std::string KillName = "Kill";
         float KillPoints = 100.0f;
@@ -269,6 +268,8 @@ void Player::Update()
             KillName += ", Combo x"+to_string(EnemyCombo);
         } else
             EnemyCombo = 0;
+
+        StressLevel += 0.1f;
 
         KillPoints *= 1.0f + static_cast<float>(EnemyCombo) / 10.0f;
         LogicProcessor.IncreaseScore(KillName, KillPoints, RED);

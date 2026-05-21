@@ -84,6 +84,7 @@ void ParticleManager::Update() {
             (game->GetGameTime() - p.SpawnTime) * 100 * (1-Percent),
             ColorAlpha(p.ParticleColor, Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)
             );
+
         DrawCircleGradient(
             p.Position.x - game->GameCamera.RaylibCamera.target.x,
             p.Position.y - game->GameCamera.RaylibCamera.target.y,

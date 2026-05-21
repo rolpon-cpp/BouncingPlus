@@ -228,17 +228,20 @@ void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
     game->GameCamera.BeginRenderTexture(ForceFieldTex,true);
 
     ClearBackground(BLANK);
-
+    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     for (Vector2 p : ForceFieldPos)
     {
         Rectangle rec = {p.x*TileSize, p.y*TileSize, TileSize, TileSize};
         DrawTexturePro(game->GameResources.Textures["noise"], {(p.x * TileSize / 2) + (float)(game->GetGameTime()),0,rec.width, rec.height},rec,{0,0},0,WHITE);
         DrawRectangleLinesEx(rec, 4.0f + sin(game->GetGameTime()) * 2.0f, ColorLerp(GREEN, DARKGREEN, cos(game->GetGameTime())/3.0f));
     }
+    EndBlendMode();
 
     game->GameCamera.EndRenderTexture();
     game->GameCamera.BeginRenderTexture(TileMapTex);
+    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTextureRec(ForceFieldTex.texture,{0,0,(float)ForceFieldTex.texture.width,-(float)ForceFieldTex.texture.height},{0,0},WHITE);
+    EndBlendMode();
 }
 
 void TileManager::ProcessUniformLocations()

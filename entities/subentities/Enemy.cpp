@@ -232,7 +232,7 @@ void Enemy::Update() {
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->GameResources.Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
+        DrawTexturePro(game->GameResources.Textures["armor_overlay"], {0, 0, 36.0f, 36.0f}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()

@@ -225,7 +225,7 @@ void WeaponsSystem::Update() {
         DisplayMeleeAnim();
 
     // display reflect
-    if (CurrentWeapon != nullptr && Owner->Type == PlayerType && CurrentWeapon->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
+    if (CurrentWeapon != nullptr && Owner->Type == PlayerType && !game->MainPlayer->IsPreparingForDash && CurrentWeapon->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
         DisplayWeaponReflectance();
 
     TriedChargingThisFrame = false;
@@ -241,11 +241,20 @@ void WeaponsSystem::DisplayWeaponReflectance()
 
     for (int i = 0; i < 6; i++)
     {
-        auto RayCastData = game->RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera.IntendedScreenWidth));
+        auto RayCastData = game->RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera.IntendedScreenWidth * 1.5f));
 
         Vector2 Hit = RayCastData.HitPosition;
 
-        DrawLine(Origin.x, Origin.y, Hit.x, Hit.y, ColorAlpha(WHITE, 0.5f));
+        Vector2 OriginHitCenter = {
+            Origin.x + (Hit.x - Origin.x) / 2.0f,
+            Origin.y + (Hit.y - Origin.y) / 2.0f
+        };
+
+        float SZ_INC = 2.5f;
+        float OriginHitDist = Vector2Distance(Origin,Hit);
+        DrawTexturePro(game->GameResources.Textures["dotted_line"], {0.0f, (float)-game->GetGameTime() * (10.0f + (50.0f * game->MainPlayer->StressLevel)), 1.0f, OriginHitDist / SZ_INC}, {
+            OriginHitCenter.x, OriginHitCenter.y, SZ_INC, OriginHitDist
+        }, {SZ_INC / 2.0f, OriginHitDist / 2.0f}, (180.0f - Vector2LineAngle(Origin,Hit) * RAD2DEG) + 90.0f, ColorAlpha(WHITE, 0.5f));
 
         int tile_x = (int) (Hit.x / game->GameTiles.TileSize);
         int tile_y = (int) (Hit.y / game->GameTiles.TileSize);

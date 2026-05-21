@@ -1,5 +1,6 @@
 The Base
 Bullet Hell
+Free
 Blocked in
 Openfield
 The Robots
