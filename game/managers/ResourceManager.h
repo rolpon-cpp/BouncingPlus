@@ -26,6 +26,7 @@ public:
     ResourceManager();
     ~ResourceManager();
     ResourceManager(Game& game);
+    void LoadWeaponData();
     void Load();
     void Quit();
 };

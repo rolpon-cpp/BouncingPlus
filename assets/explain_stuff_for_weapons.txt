@@ -23,7 +23,8 @@
   "Intensity": 0, // how intense is the screen shake + sound volume? (0-1)
   "texture": "", // texture name
   "bullet_tex": "", // bullet texture name (leave blank if melee or u want regular bullet texture)
-  "sound": [""] // sound effect name(s). put sounds in a list for multiple different sounds
+  "sound": [""] // sound effect name(s). put sounds in a list for multiple different sounds,
+  "icon": "" // icon texture name
 
 day 21
 

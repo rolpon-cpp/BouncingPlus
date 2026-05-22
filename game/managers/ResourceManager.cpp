@@ -52,7 +52,23 @@ void ResourceManager::Load()
             Shaders.insert({p, shader});
         }
     }
-    path = "assets/weapondata";
+
+    LoadWeaponData();
+
+    auto* p = new SpeedPowerup();
+    auto* s = new ShieldPowerup();
+    auto* f = new FreezePowerup();
+    auto* t = new TankyPowerup();
+    Powerups.insert({"speed", p});
+    Powerups.insert({"freeze", f});
+    Powerups.insert({"shield", s});
+    Powerups.insert({"tank", t});
+}
+
+void ResourceManager::LoadWeaponData()
+{
+    unordered_map<std::string, Weapon> NewWeapons;
+    std::string path = "assets/weapondata";
     for (const auto & entry : fs::directory_iterator(path)) {
         try
         {
@@ -64,6 +80,7 @@ void ResourceManager::Load()
                           << entry.path() << std::endl;
                 continue;
             }
+
             nlohmann::json data = nlohmann::json::parse(g);
 
             Weapon wep = {};
@@ -116,13 +133,15 @@ void ResourceManager::Load()
                 wep.Intensity = data["Intensity"].get<float>();
             if (data.count("texture"))
                 wep.texture = data["texture"].get<string>();
+            if (data.count("icon"))
+                wep.Icon = data["icon"].get<string>();
             if (data.count("bullet_tex"))
                 wep.BulletTexture = data["bullet_tex"].get<string>();
             if (data.count("sound"))
             {
                 wep.sound = data["sound"].get<vector<string>>();
             }
-            Weapons.insert({p, wep});
+            NewWeapons.insert({p, wep});
             g.close();
         } catch (...)
         {
@@ -130,14 +149,10 @@ void ResourceManager::Load()
         }
     }
 
-    auto* p = new SpeedPowerup();
-    auto* s = new ShieldPowerup();
-    auto* f = new FreezePowerup();
-    auto* t = new TankyPowerup();
-    Powerups.insert({"speed", p});
-    Powerups.insert({"freeze", f});
-    Powerups.insert({"shield", s});
-    Powerups.insert({"tank", t});
+    for (auto& [name,value] : NewWeapons)
+    {
+        Weapons[name] = value;
+    }
 }
 
 void ResourceManager::Quit()

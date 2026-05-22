@@ -23,7 +23,7 @@ struct SharedManager
 
     // Settings
     float FrameRate = -1;
-    float Volume = 100;
+    float Volume = 50.0f;
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
@@ -37,7 +37,7 @@ struct SharedManager
     RenderTexture ControlsRenderTexture = { 0 };
 
     // Processing
-    float LastVolumeBar = 100.0f;
+    float LastVolumeBar = 50.0f;
     float LastFrameRateBar = 60.0f;
     float LastFrameRate = -1;
 

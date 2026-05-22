@@ -60,10 +60,16 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
     float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
     if (Owner->Type == EnemyType)
-        Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2,
-        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2
-        };
-    else if (Owner->Type == TurretType)
+    {
+        std::shared_ptr<Enemy> ptr = dynamic_pointer_cast<Enemy>(Owner);
+        if (ptr->Behavior == nullptr || ptr->Behavior->BehaviorType != WeaponBehaviorType)
+            Target = game->MainPlayer->GetCenter();
+        else if (ptr->Behavior != nullptr && ptr->Behavior->BehaviorType == WeaponBehaviorType)
+        {
+            auto* behaviorPtr = dynamic_cast<WeaponBehavior*>(ptr->Behavior.get());
+            Target = behaviorPtr->Target;
+        }
+    }else if (Owner->Type == TurretType)
     {
         std::shared_ptr<Turret> ptr = dynamic_pointer_cast<Turret>(Owner);
         Target =ptr->Target;

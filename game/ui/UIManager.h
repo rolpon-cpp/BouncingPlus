@@ -45,11 +45,11 @@ public:
     void RefreshRenderTextures();
     void PauseMenu();
     void DeathMenu();
-    void DisplayTopHUD();
     void DisplayCursor();
     void DisplayHealthMeter();
     void DisplayCooldownMeter(float LowestX, float LowestY, float HighestWidth, float HighestHeight);
     void DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight);
+    void DisplayInventoryIndicator();
     void DisplayKillMeter();
     void DisplayPowerupMeter();
     void DisplayRank();

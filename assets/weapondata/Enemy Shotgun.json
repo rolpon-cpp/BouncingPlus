@@ -23,5 +23,6 @@
   "Intensity": 0.2,
   "texture": "shotgun",
   "bullet_tex": "",
-  "sound": ["shotgun"]
+  "sound": ["shotgun"],
+  "icon": "shotgun_icon"
 }

@@ -23,5 +23,6 @@
   "Intensity": 1,
   "texture": "sniper",
   "bullet_tex": "",
-  "sound": ["bullet_fire_2"]
+  "sound": ["bullet_fire_2"],
+  "icon": "sniper"
 }

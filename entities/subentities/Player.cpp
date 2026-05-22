@@ -212,6 +212,40 @@ void Player::Update()
         if (game->GameControls->IsControlPressed("drop") && MainWeaponsSystem.CurrentWeaponIndex != -1)
             MainWeaponsSystem.DropWeapon(MainWeaponsSystem.Weapons[MainWeaponsSystem.CurrentWeaponIndex]);
 
+        // inventory/item switch logic
+        int LastWeaponIdx = MainWeaponsSystem.CurrentWeaponIndex;
+
+        // inventory scrolling logic
+        ScrollWheel -= GetMouseWheelMoveV().y;
+        if (abs(ScrollWheel) > 1.85f)
+        {
+            if (MainWeaponsSystem.CurrentWeaponIndex == -1)
+            {
+                if (ScrollWheel < 0)
+                    MainWeaponsSystem.Equip(2);
+                if (ScrollWheel > 0)
+                    MainWeaponsSystem.Equip(0);
+            } else
+            {
+                int Idx = -1;
+                if (ScrollWheel < 0)
+                {
+                    Idx = MainWeaponsSystem.CurrentWeaponIndex - 1;
+                    if (Idx < 0)
+                        Idx = 2;
+                }
+                if (ScrollWheel > 0)
+                {
+                    Idx = MainWeaponsSystem.CurrentWeaponIndex + 1;
+                    if (Idx > 2)
+                        Idx = 0;
+                }
+                if (Idx != -1)
+                    MainWeaponsSystem.Equip(Idx);
+            }
+            ScrollWheel = 0;
+        }
+
         // inventory input logic
         if (game->GameControls->IsControlPressed("item1")) {
             if (MainWeaponsSystem.CurrentWeaponIndex != 0) {
@@ -234,6 +268,9 @@ void Player::Update()
                 MainWeaponsSystem.Unequip();
             }
         }
+
+        if (MainWeaponsSystem.CurrentWeaponIndex != LastWeaponIdx)
+            LastSwappedItem = game->GetGameTime();
     } else {
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
@@ -246,12 +283,12 @@ void Player::Update()
     MainPowerupSystem.Update();
     LogicProcessor.Update();
 
+    ComboTime = min(max(3.0f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.15f), 3.0f);
+
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
         game->GameSounds.PlayGameSound("death");
         ExtraSpeed += 14;
-
-        float ComboTime = min(max(2.5f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 0.5f), 2.5f);
 
         std::string KillName = "Kill";
         float KillPoints = 100.0f;
@@ -270,12 +307,16 @@ void Player::Update()
             EnemyCombo = 0;
 
         StressLevel += 0.1f;
+        if (StressLevel > 1.0f)
+            StressLevel = 1.0f;
 
         KillPoints *= 1.0f + static_cast<float>(EnemyCombo) / 10.0f;
-        LogicProcessor.IncreaseScore(KillName, KillPoints, RED);
+        LogicProcessor.IncreaseScore(KillName, KillPoints, ColorBrightness(RED, GetRandomValue(-300, 300) / 1000.0f));
 
         LastKilledAnEnemy = game->GetGameTime();
     }
+    if (game->GetGameTime() - LastKilledAnEnemy > ComboTime)
+        EnemyCombo = 0;
     LastKills = Kills;
     EnemiesDetected = 0;
 }

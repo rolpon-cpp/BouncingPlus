@@ -36,12 +36,17 @@ class Player : public Entity {
 
     double LastTanked;
 
-    double LastKilledAnEnemy;
-    int EnemyCombo;
+    float ScrollWheel = 0;
 
     public:
 
         std::vector<ScoreChange> ScoreChanges;
+
+    double LastSwappedItem = 0;
+
+        float ComboTime= 0;
+        int EnemyCombo = 0;
+        double LastKilledAnEnemy = 0;
 
         float StressLevel = 0;
         float FrameStressLevel = 0;

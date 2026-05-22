@@ -23,5 +23,6 @@
   "Intensity": 1.0,
   "texture": "charger",
   "bullet_tex": "",
-  "sound": ["charger"]
+  "sound": ["charger"],
+  "icon": "charger"
 }

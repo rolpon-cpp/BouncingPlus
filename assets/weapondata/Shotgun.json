@@ -12,16 +12,17 @@
   "Ammo": 15,
   "ReloadTime": 0.3,
   "BulletLifetime": 0.4,
-  "WeaponWeightSpeedMultiplier": 0.8,
+  "WeaponWeightSpeedMultiplier": 0.95,
   "Size": [4, 4],
   "Damage": 35,
-  "HealthGain": 0,
+  "HealthGain": 5,
   "Cooldown": 0.5,
   "AngleRange": 70.0,
   "Range": 180.0,
   "Bullets": 10,
-  "Intensity": 0.6,
+  "Intensity": 0.8,
   "texture": "shotgun",
   "bullet_tex": "",
-  "sound": ["shotgun"]
+  "sound": ["shotgun"],
+  "icon": "shotgun_icon"
 }

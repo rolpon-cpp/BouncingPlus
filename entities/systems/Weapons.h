@@ -38,6 +38,7 @@ struct Weapon {
     float Intensity = 0;
     std::string BulletTexture = "";
     std::string texture = "";
+    std::string Icon = "";
     std::vector<string> sound;
 };
 

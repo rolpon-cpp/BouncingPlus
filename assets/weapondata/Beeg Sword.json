@@ -23,5 +23,6 @@
   "Intensity": 0.8,
   "texture": "sword",
   "bullet_tex": "",
-  "sound": ["sword_swing_3"]
+  "sound": ["sword_swing_3"],
+  "icon": "sword_icon"
 }

@@ -23,5 +23,6 @@
   "Intensity": 0.1,
   "texture": "",
   "bullet_tex": "",
-  "sound": ["bullet_fire_1", "bullet_fire_2", "bullet_fire_3"]
+  "sound": ["bullet_fire_1", "bullet_fire_2", "bullet_fire_3"],
+  "icon": "regular_gun_icon"
 }

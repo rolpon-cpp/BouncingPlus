@@ -122,7 +122,9 @@ void Menu::LevelSelect()
                 }
             }
 
-            DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetRenderWidth()-145)-CameraX, 200 + GetRenderHeight()-450 - 70 - 64 + LevelSelectPanelRectangle.y, 25, ColorBrightness(RED, -1 + ((float)data["difficulty"] * 0.25f) ));
+            DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetRenderWidth()-145)-CameraX, 200 + GetRenderHeight()-450 - 70 - 64 + LevelSelectPanelRectangle.y, 25, GetHealthColor(
+            1.0f - (data["difficulty"].get<float>() * 0.2f)
+                ));
             Rectangle play_bbox = {(float)-(GetRenderWidth()-145), 200 + GetRenderHeight()-450 - 70 + LevelSelectPanelRectangle.y,150,56};
             if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "PLAY")) {
                 MovingToGame = true;

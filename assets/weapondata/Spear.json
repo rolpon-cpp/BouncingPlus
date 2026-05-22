@@ -23,5 +23,6 @@
   "Intensity": 0.4,
   "texture": "spear",
    "bullet_tex": "",
-  "sound": []
+  "sound": [],
+   "icon": "spear"
 }
