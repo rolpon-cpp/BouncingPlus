@@ -84,9 +84,9 @@ void PlayerLogicProcessor::HandleFightMusic()
         return;
     if (MyPlayer->game->CurrentLevelName.empty())
         return;
-    if (!MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName].count("music"))
+    if (!MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName].count("music"))
         return;
-    if (MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].empty())
+    if (MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["music"].empty())
         return;
 
     if (LayerSwitchCooldown <= 0)
@@ -114,7 +114,7 @@ void PlayerLogicProcessor::HandleFightMusic()
     FightMusicLayer = Lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
 
     int ChosenLayer = (int)round(FightMusicLayer);
-    std::string FightTrack = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
+    std::string FightTrack = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
     if (ChosenLayer == 4 && MyPlayer->StressLevel >= 0.4f)
     {
         LayerSwitchCooldown += 3.0f;
@@ -188,7 +188,8 @@ void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points, Color
 void PlayerLogicProcessor::DamageNotification(Vector2 From)
 {
     auto MyPlayer = Owner.lock();
-    this->DamageNotifs.push_back({From.x, From.y, (float) MyPlayer->game->GetGameTime()});
+    Vector2 Dir = Vector2Normalize(Vector2Subtract(MyPlayer->GetCenter(), {From.x, From.y}));
+    this->DamageNotifs.push_back({Dir.x, Dir.y, static_cast<float>(MyPlayer->game->GetGameTime())});
 }
 
 void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked)
@@ -206,7 +207,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         float EnemyConcentration = 0.8f + (MyPlayer->FrameStressLevel*1.2f);
 
         EnemyConcentration = max(min(EnemyConcentration, 2.0f), 1.0f);
-        EnemyConcentration *= MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
+        EnemyConcentration *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
         Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.0f), 5.5f);
@@ -257,7 +258,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 void PlayerLogicProcessor::DashAttacking()
 {
     auto MyPlayer = Owner.lock();
-    if (MyPlayer->VelocityPower > 0 && !MyPlayer->Dodging) {
+    if (MyPlayer->VelocityPower > 150 && !MyPlayer->Dodging) {
         // get enemies list
         std::vector<shared_ptr<Entity>>* array = &MyPlayer->game->GameEntities.Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
@@ -351,25 +352,25 @@ void PlayerLogicProcessor::DashLogic()
         }
     }
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && MyPlayer->IsPreparingForDash && MyPlayer->Health > 0 && MyPlayer->game->GetGameTime() - DashTimeStart >= 0.35f) {
-        DashCooldown = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
+        DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
         MyPlayer->VelocityMovement = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera.RaylibCamera), {MyPlayer->BoundingBox.x+MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y+MyPlayer->BoundingBox.height/2});
-        MyPlayer->VelocityPower = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>() * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
+        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>() * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         MyPlayer->VelocityPower /= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 1.25f);
-        MyPlayer->VelocityPower *= MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
+        MyPlayer->VelocityPower *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
         MyPlayer->game->GameSounds.PlayGameSound("dash");
-        MyPlayer->PlayerFrozenTimer = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_frozen_multiplier"].get<float>() *
-            min(max((MyPlayer->VelocityPower / MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
+        MyPlayer->PlayerFrozenTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_frozen_multiplier"].get<float>() *
+            min(max((MyPlayer->VelocityPower / MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
         if (!MyPlayer->isInvincible)
         {
             MyPlayer->ToggleInvincibility();
-            MyPlayer->InvincibilityResetTimer = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_iframe_time"].get<float>();
+            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_iframe_time"].get<float>();
         }
         if (IsMouseButtonDown(1)) {
-            MyPlayer->VelocityPower *= 1.25f;
+            MyPlayer->VelocityPower *= 1.5f;
             MyPlayer->Dodging = true;
-            MyPlayer->InvincibilityResetTimer = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_iframe_time"].get<float>();
-            DashCooldown = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_cooldown"].get<float>();
+            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_iframe_time"].get<float>() * 3.0f;
+            DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_cooldown"].get<float>();
         }
         MyPlayer->IsPreparingForDash = false;
     }
@@ -423,19 +424,41 @@ void PlayerLogicProcessor::DisplayDamageNotifs()
     auto MyPlayer = Owner.lock();
     std::erase_if(DamageNotifs, [this, MyPlayer](Vector3 e)
     {
-        return (float)MyPlayer->game->GetGameTime() - e.z >= 1.5f;
+        return static_cast<float>(MyPlayer->game->GetGameTime()) - e.z >= 1.5f || DamageNotifs.size() > 36;
     });
-    for (Vector3 notif : DamageNotifs)
+    if (MyPlayer->isInvincible)
     {
-        float time = (float)MyPlayer->game->GetGameTime() - notif.z;
-        Vector2 m = Vector2Multiply(Vector2Normalize(Vector2Subtract({MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2}, {notif.x, notif.y})),
-            {200, 200});
-        float angle = 180 - Vector2LineAngle({0,0},m) * RAD2DEG;
-        float trans = 1.0f;
-        if (time <= 0.5f)
-            trans = time / 0.5f;
-        if (time >= 1.0f)
-            trans = (time - 1.0f) / 0.5f;
-        DrawCircleSector(Vector2Subtract({MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2}, m), 45, (180+angle)-50, (180+angle)+50, 10, ColorAlpha(WHITE, trans/2));
+        DrawPolyLinesEx(MyPlayer->GetCenter(), 12, 100, 0.0f, 2.5f, ColorAlpha(WHITE, 0.2f));
+        for (Vector3 notif : DamageNotifs)
+        {
+            //Vector2Normalize(Vector2Subtract({MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2}, {notif.x, notif.y}))
+            float time = (float)MyPlayer->game->GetGameTime() - notif.z;
+            Vector2 m = Vector2Multiply({notif.x,notif.y},
+                {200, 200});
+            float angle = 180 - Vector2LineAngle({0,0},m) * RAD2DEG;
+            float trans = 1.0f;
+            if (time <= 0.5f)
+                trans = time / 0.5f;
+            if (time >= 1.0f)
+                trans = (time - 1.0f) / 0.5f;
+            angle /= 30.0f;
+            angle = round(angle);
+            angle *= 30.0f;
+
+            angle = 180 + angle;
+
+            float cX = -cos(angle * (2 * PI / 360))*100;
+            float cY = -sin(angle * (2 * PI / 360))*100;
+
+            float p1X = -cos((angle+90) * (2 * PI / 360))*26.8f;
+            float p1Y = -sin((angle+90) * (2 * PI / 360))*26.8f;
+
+            float p2X = -cos((angle-90) * (2 * PI / 360))*26.8f;
+            float p2Y = -sin((angle-90) * (2 * PI / 360))*26.8f;
+
+            Color clr = ColorAlpha(WHITE, trans);
+            Vector2 center = MyPlayer->GetCenter();
+            DrawLineEx(Vector2Add({cX + p1X, cY + p1Y},center), Vector2Add({cX + p2X, cY + p2Y},center), 6.0f, clr);
+        }
     }
 }

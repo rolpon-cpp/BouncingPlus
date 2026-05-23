@@ -81,7 +81,6 @@ class Game {
 
         // Level Information
         std::string CurrentLevelName;
-        std::map<std::string, json> LevelData;
 
         // Managers
         TileManager GameTiles;

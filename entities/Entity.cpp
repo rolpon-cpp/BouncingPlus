@@ -63,16 +63,22 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
 {
     if (owner == nullptr)
         owner = shared_from_this();
+
     if (entity->ShouldDelete)
         return;
     if (entity->Health <= 0)
-        return;
-    if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
         return;
     if (owner->ShouldDelete)
         return;
     if (owner->Health <= 0)
         return;
+
+    if (entity->Type == PlayerType)
+        game->MainPlayer->LogicProcessor.DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
+
+    if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
+        return;
+
     if (HealthGain < 0)
         HealthGain = Damage;
     if (entity->Type == EnemyType) { // if victim is enemy, check for armor damage
@@ -83,11 +89,8 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
             enemy->Health -= Damage;
         else
             enemy->Armor -= Damage;
-    } else { // if they are normal, just damage them normally
+    } else // if they are normal, just damage them normally
         entity->Health -= Damage;
-        if (entity->Type == PlayerType)
-            game->MainPlayer->LogicProcessor.DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
-    }
 
     // if entity dies, give owner health and increase kill count for player
     if (entity->Health <= 0) {
@@ -97,7 +100,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
             if (owner->Type != PlayerType)
                 owner->Health += HealthGain;
             else if (!game->MainPlayer->isInvincible)
-                owner->Health += HealthGain * game->LevelData[game->CurrentLevelName]["player"]["weapon_health_gain_buff"].get<float>();
+                owner->Health += HealthGain * game->GameShared->LevelData[game->CurrentLevelName]["player"]["weapon_health_gain_buff"].get<float>();
         }
         if (owner->Type == PlayerType)
             game->MainPlayer->Kills += 1;

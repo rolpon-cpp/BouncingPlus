@@ -56,10 +56,10 @@ class TileManager {
     void SetPropertiesOfFileEntity(FileEntity &ThisFileEntity, int i, std::string cell);
     void ProcessUniformLocations();
 
+    public:
     std::vector<std::string> Lines;
     std::string PrevFileName;
 
-    public:
         float TileSize;
         int MapWidth, MapHeight;
         Vector2 PlayerSpawnPosition;

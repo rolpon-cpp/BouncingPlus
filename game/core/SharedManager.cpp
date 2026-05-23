@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include "../../level/LevelLoader.h"
+
 bool IsWindowFullscreenCrossPlatform()
 {
 #ifdef PLATFORM_WEB
@@ -24,19 +26,37 @@ bool IsCursorOnScreenCrossPlatform()
 #endif
 }
 
+SharedManager::SharedManager()
+{
+    ReloadLevels();
+    SharedUIAssets = UIAssets();
+    SharedUIAssets.Load();
+    Controls.SetDefaultBindings();
+}
+
+SharedManager::~SharedManager()
+{
+}
+
+void SharedManager::ReloadLevels()
+{
+    LevelData.clear();
+    LevelData = GetLevelsData();
+}
+
 void SharedManager::DisplaySettings(Vector2 Position, float Offset1, float Offset2)
 {
     if (!ControlBindingsMenu)
     {
         Panel(Rectangle{Position.x + 200, Position.y + 25, GetRenderWidth() - 400.0f, GetRenderHeight() - 200.0f}, "SETTINGS", -(Offset1 + Offset2)/4);
-        Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, "VOLUME", &this->Volume, &LastVolumeBar, &VolumeBarInteraction, 0, 100.0f);
-        Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 60}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, "FRAMERATE", &this->FrameRate, &LastFrameRateBar, &FrameRateBarInteraction, 30, 240);
-        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 120}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "CURSOR WINDOW LOCK", &CursorWindowLock);
-        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 180}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "DEVELOPER MODE", &DevMode);
-        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 240}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "SHAKE CAMERA", &ShakeCamera);
-        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 300}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "FULLSCREEN", &Fullscreen);
-        if (Button({Position.x + (float)GetRenderWidth() /2 - UIAssets.ButtonImg.width/2, Position.y + 150 + (Offset1 + Offset2)/4 + 360, (float)UIAssets.ButtonImg.width, (float)UIAssets.ButtonImg.height},
-            GetMousePosition(), UIAssets.ButtonImg, UIAssets.ButtonClick, "CONTROLS"
+        Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, "VOLUME", &this->Volume, &LastVolumeBar, &VolumeBarInteraction, 0, 100.0f);
+        Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 60}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, "FRAMERATE", &this->FrameRate, &LastFrameRateBar, &FrameRateBarInteraction, 30, 240);
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 120}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "CURSOR WINDOW LOCK", &CursorWindowLock);
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 180}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "DEVELOPER MODE", &DevMode);
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 240}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "SHAKE CAMERA", &ShakeCamera);
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 300}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "FULLSCREEN", &Fullscreen);
+        if (Button({Position.x + (float)GetRenderWidth() /2 - SharedUIAssets.ButtonImg.width/2, Position.y + 150 + (Offset1 + Offset2)/4 + 360, (float)SharedUIAssets.ButtonImg.width, (float)SharedUIAssets.ButtonImg.height},
+            GetMousePosition(), SharedUIAssets.ButtonImg, SharedUIAssets.ButtonClick, "CONTROLS"
             ))
             ControlBindingsMenu = true;
     } else
@@ -74,8 +94,8 @@ void SharedManager::ControlBindings(Vector2 Position, float Offset1, float Offse
         (float)ControlsRenderTexture.texture.height
     }, {0, 0}, 0, WHITE);
 
-    if (Button({Position.x + (float)GetRenderWidth() /2 - UIAssets.ButtonImg.width/2, Position.y + PanelRect.height + 100.0f + (Offset1 + Offset2)/4, (float)UIAssets.ButtonImg.width, (float)UIAssets.ButtonImg.height},
-            GetMousePosition(), UIAssets.ButtonImg, UIAssets.ButtonClick, "CANCEL"
+    if (Button({Position.x + (float)GetRenderWidth() /2 - SharedUIAssets.ButtonImg.width/2, Position.y + PanelRect.height + 100.0f + (Offset1 + Offset2)/4, (float)SharedUIAssets.ButtonImg.width, (float)SharedUIAssets.ButtonImg.height},
+            GetMousePosition(), SharedUIAssets.ButtonImg, SharedUIAssets.ButtonClick, "CANCEL"
             ))
         ControlBindingsMenu = false;
 }
@@ -140,6 +160,6 @@ void SharedManager::Update()
 
 void SharedManager::Quit()
 {
-    UIAssets.Quit();
+    SharedUIAssets.Quit();
     Controls.Quit();
 }

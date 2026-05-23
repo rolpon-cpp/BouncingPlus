@@ -29,16 +29,16 @@ Menu::Menu(SharedManager& GameSettings)
     MusicLevel = 0.0f;
     this->Shared = &GameSettings;
     Reset();
-    PlaySound(this->Shared->UIAssets.MikuMusic);
+    PlaySound(this->Shared->SharedUIAssets.MikuMusic);
 
-    AttachAudioStreamProcessor(this->Shared->UIAssets.MainMenuMusic.stream, this->AudioCallback);
+    AttachAudioStreamProcessor(this->Shared->SharedUIAssets.MainMenuMusic.stream, this->AudioCallback);
 }
 
 void Menu::Reset()
 {
     Map = "";
     TargetMap = "";
-    TitleImgY = -Shared->UIAssets.TitleImg.height;
+    TitleImgY = -Shared->SharedUIAssets.TitleImg.height;
     TitleImgOffsetY = 0;
     PlayButtonOffsetY = -100;
     SettingsButtonOffsetY = -200;
@@ -53,7 +53,7 @@ void Menu::Reset()
     BlackTransparency= 1.0f;
     MusicLevel = 0.0f;
     MikuOffset = 0.0f;
-    MenuImgOffsetY = GetRandomValue(0, Shared->UIAssets.MenuImg.height);
+    MenuImgOffsetY = GetRandomValue(0, Shared->SharedUIAssets.MenuImg.height);
     MovingToGame = false;
     MousePos = {0,0};
     Shared->ResetSettings();
@@ -66,8 +66,8 @@ void Menu::LevelSelect()
 
     DrawRectangleRec({LevelSelectPanelRectangle.x - CameraX, LevelSelectPanelRectangle.y, LevelSelectPanelRectangle.width, LevelSelectPanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
 
-    Rectangle play_bbox = {(GetRenderWidth()/2.0f) - GetRenderWidth() - (int)(Shared->UIAssets.ButtonImg.width/2.0f), GetRenderHeight() - 106 + Offset1,150,56};
-    if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "BACK")) {
+    Rectangle play_bbox = {(GetRenderWidth()/2.0f) - GetRenderWidth() - (int)(Shared->SharedUIAssets.ButtonImg.width/2.0f), GetRenderHeight() - 106 + Offset1,150,56};
+    if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "BACK")) {
         CameraTargetX=0;
     }
     DrawText("LEVEL SELECT", (int)(GetRenderWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 55)/2.0f)-CameraX-GetRenderWidth(), LevelSelectPanelRectangle.y+25, 55, WHITE);
@@ -126,7 +126,7 @@ void Menu::LevelSelect()
             1.0f - (data["difficulty"].get<float>() * 0.2f)
                 ));
             Rectangle play_bbox = {(float)-(GetRenderWidth()-145), 200 + GetRenderHeight()-450 - 70 + LevelSelectPanelRectangle.y,150,56};
-            if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "PLAY")) {
+            if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "PLAY")) {
                 MovingToGame = true;
             }
         }
@@ -142,10 +142,13 @@ void Menu::LevelSelect()
     Rectangle r = {LevelSelectPanelRectangle.x + 50+ (GetRenderWidth()-900) + ow/2 - rw/2, (float)165 + 140 * (mi+1) + LevelSelectPanelRectangle.y, rw, rh};
     DrawRectangleRec({r.x-CameraX,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));
 
-    if (Button({r.x + r.width*0.85f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, ">"))
+    if (Button({LevelSelectPanelRectangle.x + 25 -CameraX, LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "RELOAD LEVELS"))
+        Shared->ReloadLevels();
+
+    if (Button({r.x + r.width*0.85f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, ">"))
         CurrentLevelsPage += 1;
 
-    if (Button({r.x + r.width * 0.15f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "<"))
+    if (Button({r.x + r.width * 0.15f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "<"))
         CurrentLevelsPage -= 1;
 
     if (CurrentLevelsPage < 0)
@@ -162,11 +165,11 @@ void Menu::Credits()
 
     Vector2 CreditsPanelSize = {CreditsPanelRectangle.width, CreditsPanelRectangle.height};
 
-    DrawTexture(Shared->UIAssets.RolponPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 125.0f, WHITE);
-    DrawTexture(Shared->UIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 406.0f, WHITE);
+    DrawTexture(Shared->SharedUIAssets.RolponPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 125.0f, WHITE);
+    DrawTexture(Shared->SharedUIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 406.0f, WHITE);
 
-    DrawTexture(Shared->UIAssets.InkyPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 125.0f, WHITE);
-    DrawTexture(Shared->UIAssets.EggPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, WHITE);
+    DrawTexture(Shared->SharedUIAssets.InkyPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 125.0f, WHITE);
+    DrawTexture(Shared->SharedUIAssets.EggPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, WHITE);
 
     float R = 127.0f + 127.0f * sin(GetTime());
     float G = 127.0f + 127.0f * cos(GetTime());
@@ -213,7 +216,7 @@ void Menu::Credits()
     DrawRectangleRec(r, ColorAlpha(BLACK, 0.5f / TransparencyDiv));
 
     DrawText("Support me on YouTube!", r.x + 5, r.y + 5, FntSize, ColorAlpha(WHITE, 1.0f / TransparencyDiv));
-    DrawTextureEx(Shared->UIAssets.YTImg, Vector2{r.x + 12 + TxSize, r.y + 5}, 0, FntSize / 512.0f, ColorAlpha(WHITE, 1.0f / TransparencyDiv));
+    DrawTextureEx(Shared->SharedUIAssets.YTImg, Vector2{r.x + 12 + TxSize, r.y + 5}, 0, FntSize / 512.0f, ColorAlpha(WHITE, 1.0f / TransparencyDiv));
 }
 
 void Menu::Update() {
@@ -222,9 +225,9 @@ void Menu::Update() {
         MousePos = {(float)GetMouseX() + CameraX, (float)GetMouseY()};
     }
 
-    if (!IsMusicStreamPlaying(Shared->UIAssets.MainMenuMusic))
-        PlayMusicStream(Shared->UIAssets.MainMenuMusic);
-    UpdateMusicStream(Shared->UIAssets.MainMenuMusic);
+    if (!IsMusicStreamPlaying(Shared->SharedUIAssets.MainMenuMusic))
+        PlayMusicStream(Shared->SharedUIAssets.MainMenuMusic);
+    UpdateMusicStream(Shared->SharedUIAssets.MainMenuMusic);
 
     MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
 
@@ -247,36 +250,36 @@ void Menu::Update() {
 
     MenuImgOffsetY += GetFrameTime()*15;
     float zoom = 1.45f;
-    DrawTexturePro(Shared->UIAssets.MenuImg, {0, MenuImgOffsetY, 1184.0f, 736.0f},
+    DrawTexturePro(Shared->SharedUIAssets.MenuImg, {0, MenuImgOffsetY, 1184.0f, 736.0f},
         {(float)GetRenderWidth() / 2.0f - CameraX/10, (float)GetRenderHeight() / 2.0f, (float)GetRenderWidth() * zoom, (float)GetRenderHeight() * zoom},
         {(float)GetRenderWidth() * zoom / 2.0f, (float)GetRenderHeight() * zoom / 2.0f},
         0,
         WHITE
         );
 
-    DrawTexture(Shared->UIAssets.TitleImg, (int)(GetRenderWidth()/2.0f) - (int)(Shared->UIAssets.TitleImg.width/2.0f)-CameraX, (int)TitleImgY - (int)TitleImgOffsetY, WHITE);
+    DrawTexture(Shared->SharedUIAssets.TitleImg, (int)(GetRenderWidth()/2.0f) - (int)(Shared->SharedUIAssets.TitleImg.width/2.0f)-CameraX, (int)TitleImgY - (int)TitleImgOffsetY, WHITE);
 
     Shared->DisplaySettings(Vector2{-CameraX + GetRenderWidth(), 0}, Offset1, Offset2);
 
-    Rectangle play_bbox = {(GetRenderWidth()/2.0f) - (int)(Shared->UIAssets.ButtonImg.width/2.0f), (float)PlayButtonOffsetY +Offset3,150,56};
-    if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "PLAY")) {
+    Rectangle play_bbox = {(GetRenderWidth()/2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width/2.0f), (float)PlayButtonOffsetY +Offset3,150,56};
+    if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "PLAY")) {
         CameraTargetX = -1;
     }
 
     Credits();
 
     if (Button({GetRenderWidth()*2 + (GetRenderWidth() / 2.0f) - 75.0f - CameraX, GetRenderHeight() - 106.0f + (Offset1 + Offset3)/2, 150, 56}, GetMousePosition(),
-        Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "BACK") ||
+        Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "BACK") ||
         Button({GetRenderWidth() + (GetRenderWidth() / 2.0f) - 75.0f - CameraX, GetRenderHeight() - 106.0f + (Offset2 + Offset3)/2, 150, 56}, GetMousePosition(),
-            Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "BACK"))
+            Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "BACK"))
         CameraTargetX=0;
 
-    if (Button({(GetRenderWidth()/2.0f) - (int)(Shared->UIAssets.ButtonImg.width/2.0f) - CameraX, (float)SettingsButtonOffsetY + (Offset2 + Offset3)/2,150,56}
-        ,GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "SETTINGS"))
+    if (Button({(GetRenderWidth()/2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width/2.0f) - CameraX, (float)SettingsButtonOffsetY + (Offset2 + Offset3)/2,150,56}
+        ,GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "SETTINGS"))
         CameraTargetX=1;
 
-    if (Button({(GetRenderWidth()/2.0f) - (int)(Shared->UIAssets.ButtonImg.width/2.0f) - CameraX, (float)CreditsButtonOffsetY +Offset2,150,56},
-        GetMousePosition(), Shared->UIAssets.ButtonImg, Shared->UIAssets.ButtonClick, "CREDITS"))
+    if (Button({(GetRenderWidth()/2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width/2.0f) - CameraX, (float)CreditsButtonOffsetY +Offset2,150,56},
+        GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "CREDITS"))
         CameraTargetX=2;
 
     if (isStarting && BlackTransparency > 0)
@@ -289,23 +292,23 @@ void Menu::Update() {
         BlackTransparency += 0.65f * GetFrameTime();
     if (MovingToGame && BlackTransparency >= 1.0f) {
         Map = TargetMap;
-        StopSound(Shared->UIAssets.MikuMusic);
-        StopMusicStream(Shared->UIAssets.MainMenuMusic);
+        StopSound(Shared->SharedUIAssets.MikuMusic);
+        StopMusicStream(Shared->SharedUIAssets.MainMenuMusic);
     }
 
-    DrawTexture(Shared->UIAssets.MikuImg, -75, GetRenderHeight() - 20 + MikuOffset, WHITE);
+    DrawTexture(Shared->SharedUIAssets.MikuImg, -75, GetRenderHeight() - 20 + MikuOffset, WHITE);
     if (GetMouseX() < 250 && GetMouseY() > GetRenderHeight() - 70) {
         MikuOffset = Lerp(MikuOffset, -500, 10*GetFrameTime());
-        if (!IsSoundPlaying(Shared->UIAssets.MikuMusic)) {
-            SetSoundVolume(Shared->UIAssets.MikuMusic, 0.2f);
-            ResumeSound(Shared->UIAssets.MikuMusic);
-            SetMusicVolume(Shared->UIAssets.MainMenuMusic, 0);
+        if (!IsSoundPlaying(Shared->SharedUIAssets.MikuMusic)) {
+            SetSoundVolume(Shared->SharedUIAssets.MikuMusic, 0.2f);
+            ResumeSound(Shared->SharedUIAssets.MikuMusic);
+            SetMusicVolume(Shared->SharedUIAssets.MainMenuMusic, 0);
         }
     } else {
         MikuOffset = Lerp(MikuOffset, 0, 10*GetFrameTime());
-        PauseSound(Shared->UIAssets.MikuMusic);
+        PauseSound(Shared->SharedUIAssets.MikuMusic);
 
-        SetMusicVolume(Shared->UIAssets.MainMenuMusic, 1.0f - BlackTransparency);
+        SetMusicVolume(Shared->SharedUIAssets.MainMenuMusic, 1.0f - BlackTransparency);
     }
 
     LevelSelect();
@@ -319,5 +322,5 @@ std::string Menu::LeaveMenu() {
 
 void Menu::Quit() {
     Reset();
-    DetachAudioStreamProcessor(Shared->UIAssets.MainMenuMusic.stream, AudioCallback);
+    DetachAudioStreamProcessor(Shared->SharedUIAssets.MainMenuMusic.stream, AudioCallback);
 }

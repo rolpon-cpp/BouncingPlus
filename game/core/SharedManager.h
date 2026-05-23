@@ -4,8 +4,8 @@
 
 #ifndef BOUNCINGPLUS_SETTINGS_H
 #define BOUNCINGPLUS_SETTINGS_H
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <nlohmann/json_fwd.hpp>
 
 #include "Controls.h"
@@ -14,16 +14,17 @@
 using namespace std;
 using namespace nlohmann;
 
-struct SharedManager
+class SharedManager
 {
+public:
     // Separate Objects
-    map<string, json> LevelData;
-    UIAssets UIAssets;
+    unordered_map<string, json> LevelData;
+    UIAssets SharedUIAssets;
     Controls Controls;
 
     // Settings
     float FrameRate = -1;
-    float Volume = 50.0f;
+    float Volume = 100.0f;
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
@@ -37,14 +38,18 @@ struct SharedManager
     RenderTexture ControlsRenderTexture = { 0 };
 
     // Processing
-    float LastVolumeBar = 50.0f;
+    float LastVolumeBar = 100.0f;
     float LastFrameRateBar = 60.0f;
     float LastFrameRate = -1;
+
+    SharedManager();
+    ~SharedManager();
 
     // Functions
     void ControlBindings(Vector2 Position, float Offset1, float Offset2);
     void DisplaySettings(Vector2 Position, float Offset1, float Offset2);
     void ResetSettings();
+    void ReloadLevels();
     void Update();
     void Quit();
 };

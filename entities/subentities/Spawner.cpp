@@ -176,7 +176,7 @@ void Spawner::Update() {
                 int times = 0;
                 bool found = false;
                 std::vector<std::string> f = game->GameResources.EnemyWeaponNamesList;
-                std::vector<std::string> g = game->LevelData[game->CurrentLevelName]["game"]["banned_spawn_weapons"].get<vector<string>>();
+                std::vector<std::string> g = game->GameShared->LevelData[game->CurrentLevelName]["game"]["banned_spawn_weapons"].get<vector<string>>();
                 while (times < 10 && !found && f.size() > 0)
                 {
                     int i = GetRandomValue(0, f.size() - 1);

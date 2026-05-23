@@ -76,6 +76,10 @@ class Player : public Entity {
         void OnDeath() override;
         void OnDelete() override;
         void OnWallVelocityBump(float Power)override;
+        void PlayerControls();
+        void ProcessKills();
+        void ProcessWarningSign();
+        void SystemsInitCheck();
         void ToggleInvincibility();
 
 };

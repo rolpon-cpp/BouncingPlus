@@ -102,9 +102,10 @@ void Player::OnWallVelocityBump(float Power)
 {
     if (Power >= 400)
     {
-        float PreviousH = Health;
+        if (VelocityPower > 150 && !Dodging)
+            game->GameSounds.PlayGameSound("dash_wall_hit");
+
         Entity::OnWallVelocityBump(Power);
-        game->GameSounds.PlayGameSound("dash_wall_hit");
         int ParticleAmount = round(Power / 500.0f);
         bool PURPLE_OR_BLUE = GetRandomValue(1,2)==1;
         if (ParticleAmount > 0)
@@ -117,73 +118,26 @@ void Player::OnWallVelocityBump(float Power)
                 1.0f,
                 PURPLE_OR_BLUE ? BLUE : PURPLE
             }, (180 - Vector2LineAngle(VelocityMovement, {0,0})*RAD2DEG), 15, ParticleAmount);
-        float Damage = Power / 390.0f;
-        if (Health - Damage >= 20)
+        if (Dodging)
+            VelocityPower *= 2.0f;
+
+        if (!isInvincible)
         {
-            Health -= Damage;
-        } else if (PreviousH >= 20)
-        {
-            Health = 20;
+            float PreviousH = Health;
+            float Damage = Power / 390.0f;
+            if (Health - Damage >= 20)
+            {
+                Health -= Damage;
+            } else if (PreviousH >= 20)
+            {
+                Health = 20;
+            }
         }
     }
 }
 
-
-void Player::Update()
+void Player::PlayerControls()
 {
-    // is the weapon system not initialized?? init it now!!!
-    if (!this->SystemsInitialized) {
-        this->LogicProcessor = PlayerLogicProcessor(dynamic_pointer_cast<Player>(shared_from_this()));
-        this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
-        this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
-        auto f = game->LevelData[game->CurrentLevelName]["player"]["inventory"];
-        for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
-            this->MainWeaponsSystem.Weapons[i] = f[i];
-            this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources.Weapons[f[i]].Ammo;
-        }
-        if (game->GameResources.Powerups.count(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
-        {
-            MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
-        }
-        this->MainWeaponsSystem.Equip(0);
-        this->SystemsInitialized = true;
-    }
-
-    if (Health > 1000)
-        Health = 1000;
-
-    // warning sign interval
-    if (game->GetGameTime() - LastInterval >= 1.5f)
-    {
-        HealthConcern = (IntervalHealth - Health) >= 75;
-        LastInterval = game->GetGameTime();
-    }
-    if (Health < 50)
-        HealthConcern = true;
-
-    if (game->GetGameTime() - LastWarningSign >= 0.1f)
-    {
-        WarningSign = !WarningSign;
-        LastWarningSign = game->GetGameTime();
-    }
-
-    if (Health > 0 && HealthConcern && WarningSign)
-    {
-        DrawTexturePro(game->GameResources.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
-    }
-
-    // player transparency processing
-    EntityColor = ColorAlpha(WHITE, Alpha);
-    Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
-
-    if (InvincibilityResetTimer > 0)
-        InvincibilityResetTimer -= game->GetGameDeltaTime();
-    if (InvincibilityResetTimer <= 0)
-    {
-        isInvincible = false;
-        Dodging=false;
-    }
-
     if (PlayerFrozenTimer <= 0) {
         // powerup logic
         if (game->GameControls->IsControlDown("powerup"))
@@ -274,6 +228,51 @@ void Player::Update()
     } else {
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
+}
+
+void Player::SystemsInitCheck()
+{
+    // is the weapon system not initialized?? init it now!!!
+    if (!this->SystemsInitialized) {
+        this->LogicProcessor = PlayerLogicProcessor(dynamic_pointer_cast<Player>(shared_from_this()));
+        this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
+        this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
+        auto f = game->GameShared->LevelData[game->CurrentLevelName]["player"]["inventory"];
+        for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
+            this->MainWeaponsSystem.Weapons[i] = f[i];
+            this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources.Weapons[f[i]].Ammo;
+        }
+        if (game->GameResources.Powerups.count(game->GameShared->LevelData[game->CurrentLevelName]["player"]["powerup"]))
+        {
+            MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->GameShared->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
+        }
+        this->MainWeaponsSystem.Equip(0);
+        this->SystemsInitialized = true;
+    }
+}
+
+void Player::Update()
+{
+    SystemsInitCheck();
+
+    if (Health > 1000)
+        Health = 1000;
+
+    ProcessWarningSign();
+
+    // player transparency processing
+    EntityColor = ColorAlpha(WHITE, Alpha);
+    Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
+
+    if (InvincibilityResetTimer > 0)
+        InvincibilityResetTimer -= game->GetGameDeltaTime();
+    if (InvincibilityResetTimer <= 0)
+    {
+        isInvincible = false;
+        Dodging=false;
+    }
+
+    PlayerControls();
 
     DrawCircleGradient(GetCenter().x, GetCenter().y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
 
@@ -283,9 +282,34 @@ void Player::Update()
     MainPowerupSystem.Update();
     LogicProcessor.Update();
 
-    ComboTime = min(max(3.0f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.15f), 3.0f);
+    ProcessKills();
+    EnemiesDetected = 0;
+}
 
-    // did we get a kill? play kill sound game!
+void Player::ProcessWarningSign()
+{
+    // warning sign interval
+    if (game->GetGameTime() - LastInterval >= 1.5f)
+    {
+        HealthConcern = (IntervalHealth - Health) >= 75;
+        LastInterval = game->GetGameTime();
+    }
+    if (Health < 50)
+        HealthConcern = true;
+
+    if (game->GetGameTime() - LastWarningSign >= 0.1f)
+    {
+        WarningSign = !WarningSign;
+        LastWarningSign = game->GetGameTime();
+    }
+    if (Health > 0 && HealthConcern && WarningSign)
+        DrawTexturePro(game->GameResources.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
+}
+
+void Player::ProcessKills()
+{
+    ComboTime = min(max(3.0f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.15f), 3.0f);
+    // did we get a kill?
     if (Kills != LastKills) {
         game->GameSounds.PlayGameSound("death");
         ExtraSpeed += 14;
@@ -318,16 +342,15 @@ void Player::Update()
     if (game->GetGameTime() - LastKilledAnEnemy > ComboTime)
         EnemyCombo = 0;
     LastKills = Kills;
-    EnemiesDetected = 0;
 }
 
 void Player::OnDeath()
 {
-    if (!game->CurrentLevelName.empty() && !game->LevelData[game->CurrentLevelName]["music"].get<string>().empty())
+    if (!game->CurrentLevelName.empty() && !game->GameShared->LevelData[game->CurrentLevelName]["music"].get<string>().empty())
     {
         for (int i = 1; i < 5; i++)
         {
-            std::string FightTrack = game->LevelData[game->CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
+            std::string FightTrack = game->GameShared->LevelData[game->CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
             game->GameSounds.StopGameMusic(FightTrack, true);
         }
     }

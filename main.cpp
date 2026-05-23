@@ -23,7 +23,7 @@ void loop(void* arg)
 {
 
     Data* d = (Data*)arg;
-    SharedManager& SharedManager=d->SharedManager;
+    SharedManager& SharedMgr=d->SharedManager;
     Game& MainGame=d->MainGame;
     Menu& MainMenu=d->MainMenu;
     bool& InGame=d->InGame;
@@ -34,7 +34,7 @@ void loop(void* arg)
 
     BeginDrawing();
 
-    SharedManager.Update();
+    SharedMgr.Update();
 
     ClearBackground(BLANK);
 
@@ -86,27 +86,21 @@ int main(int argc, char *argv[]) {
     SetWindowIcon(t);
     UnloadImage(t);
 
-    LevelLoader level_loader = LevelLoader();
-    std::map<std::string,json> level_data = level_loader.GetLevelsData();
+    SharedManager SharedMgr = SharedManager();
 
-    SharedManager SharedManager{};
-    SharedManager.LevelData = level_data;
-    SharedManager.UIAssets = UIAssets();
-    SharedManager.UIAssets.Load();
-    SharedManager.Controls.SetDefaultBindings();
 
-    Game MainGame = Game(SharedManager);
-    Menu MainMenu = Menu(SharedManager);
+    Game MainGame = Game(SharedMgr);
+    Menu MainMenu = Menu(SharedMgr);
 
     bool InGame = false;
 
     #ifdef PLATFORM_WEB
-        SharedManager.FrameRate = 60;
+        SharedMgr.FrameRate = 60;
     #else
         SetWindowMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         SetWindowSize(min(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, WINDOW_WIDTH), min(GetMonitorHeight(GetCurrentMonitor()) / 1.2f, WINDOW_HEIGHT));
         SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
-        SharedManager.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);
+        SharedMgr.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);
     #endif
 
     SetExitKey(KEY_NULL);
@@ -114,7 +108,7 @@ int main(int argc, char *argv[]) {
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
     Data d = {
-        SharedManager,MainGame,MainMenu,InGame
+        SharedMgr,MainGame,MainMenu,InGame
     };
 
     #ifdef PLATFORM_WEB
@@ -127,7 +121,7 @@ int main(int argc, char *argv[]) {
 
     MainMenu.Quit();
     MainGame.Quit();
-    SharedManager.Quit();
+    SharedMgr.Quit();
     CloseAudioDevice();
     CloseWindow();
 

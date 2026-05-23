@@ -7,12 +7,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-class LevelLoader {
-public:
-    LevelLoader();
-    std::map<std::string,json> GetLevelsData();
-};
-
-
+std::unordered_map<std::string,json> GetLevelsData();
+void ReloadLevel(std::string LevelName, std::map<std::string,json> &LevelData);
 
 #endif //LEVELLOADER_H

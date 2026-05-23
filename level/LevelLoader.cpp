@@ -12,13 +12,9 @@ using json = nlohmann::json;
 
 using namespace std;
 
-LevelLoader::LevelLoader()
+std::unordered_map<std::string,json> GetLevelsData()
 {
-}
-
-std::map<std::string,json> LevelLoader::GetLevelsData()
-{
-    std::map<std::string,json> level_data = std::map<std::string,json>();
+    std::unordered_map<std::string,json> level_data = std::unordered_map<std::string,json>();
     std::vector<std::string> level_order = std::vector<std::string>();
 
     try
@@ -68,4 +64,19 @@ std::map<std::string,json> LevelLoader::GetLevelsData()
     }
 
     return level_data;
+}
+
+void ReloadLevel(std::string LevelName, std::map<std::string, json>& LevelData)
+{
+    try
+    {
+        std::string c = "assets/maps/" + LevelName + "/metadata.json";
+        std::ifstream f(c);
+        json h = json::parse(f);
+        LevelData[LevelName] = h;
+        f.close();
+    } catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+    }
 }

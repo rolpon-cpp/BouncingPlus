@@ -40,7 +40,7 @@ void GameModeManager::Update()
     if (LevelTimer > 0)
         LevelTimer -= game->GetGameDeltaTime();
 
-    if (game->LevelData[game->CurrentLevelName]["game"]["win"].get<std::string>() == "kill_all_enemies")
+    if (game->GameShared->LevelData[game->CurrentLevelName]["game"]["win"].get<std::string>() == "kill_all_enemies")
     {
         std::vector<shared_ptr<Entity>> array = game->GameEntities.Entities[EnemyType];
         if (array.size() == 0)

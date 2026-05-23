@@ -1,4 +1,5 @@
 import json
+import math
 import time
 
 import pygame
@@ -357,9 +358,10 @@ while running:
 
     if tile_mode:
         if current_mode == 1:
-            ui_state_txt = "TILE PLACING"
+            ui_state_txt = "TILE PLACING MODE"
         elif current_mode == 2:
-            ui_state_txt = "TILE REMOVAL"
+            ui_state_txt = "TILE REMOVAL MODE"
+        ui_state_txt += "\nCTRL+Z undo\nCTRL+Y redo\nK to enter ENTITY PLACING"
 
         if mouse_buttons[2]:
             current_mode = 0
@@ -412,13 +414,13 @@ while running:
             strokes.append(latest_stroke)
         last_ctrly_state = ctrly_state
     else:
-        ui_state_txt= "ENTITY MODE"
+        ui_state_txt= "ENTITY MODE\nK to enter TILE MODE\nR to place entity"
         c = False
         for e in placed_entities:
             er = pygame.Rect(e[1]/2 - e[3]/4,e[2]/2 - e[4]/4,e[3]/2,e[4]/2)
             if er.collidepoint(world_mouse_pos[0],world_mouse_pos[1]):
                 c=True
-                ui_state_txt = "ENTITY EDIT"
+                ui_state_txt = "ENTITY EDIT\nclick to confirm"
                 surf=pygame.Surface((e[3],e[4]),pygame.SRCALPHA,32)
                 surf.fill((0,0,255,150))
                 screen.blit(surf,(e[1]/2-e[4]/2-camera[0],e[2]/2-e[3]/2-camera[1]))
@@ -426,7 +428,7 @@ while running:
 
         if not c:
             if keys[pygame.K_r]:
-                ui_state_txt = "ENTITY ADD"
+                ui_state_txt = "ENTITY ADD\nclick to confirm"
                 surf=pygame.Surface((36,36),pygame.SRCALPHA,32)
                 surf.fill((50,50,255,150))
                 screen.blit(surf,(world_mouse_pos[0]-18-camera[0],world_mouse_pos[1]-18-camera[1]))
@@ -492,16 +494,18 @@ while running:
                 tex_rect.x = (x * 36) + rect.x
                 tex_rect.y = (y * 36) + rect.y
 
-                if current_tile == i:
-                    pygame.draw.rect(screen, (50, 255, 50), tex_rect)
+                surf.blit(tex, (x * 36, y * 36))
 
                 if tex_rect.collidepoint(mouse_pos[0],mouse_pos[1]):
-                    pygame.draw.rect(screen, (255, 255, 255), tex_rect)
+                    pygame.draw.rect(screen, (128 + (math.sin(time.time()*10) * 128), 255, 255, 100), tex_rect)
                     if mouse_buttons[0]:
                         current_tile = i
                         current_mode = 1
 
-                surf.blit(tex, (x * 36, y * 36))
+                if current_tile == i:
+                    pygame.draw.rect(screen, (50, 255, 50, 100), tex_rect)
+
+
 
     screen.blit(surf,rect)
 

@@ -91,7 +91,7 @@ void SoundManager::Update() {
         float& f1 = std::get<1>(value);
         float& f2 = std::get<2>(value);
 
-        f2 = Lerp(f2, f1, 6.5f * game->GetGameDeltaTime());
+        f2 = Lerp(f2, f1, 6.5f * GetFrameTime());
         SetMusicVolume(Musics[s],f2);
     }
 

@@ -470,7 +470,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            if (Owner->Type == PlayerType || game->LevelData[game->CurrentLevelName]["game"]["friendly_fire"].get<bool>())
+            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->CurrentLevelName]["game"]["friendly_fire"].get<bool>())
             {
                 std::vector<shared_ptr<Entity>>* array = &game->GameEntities.Entities[EnemyType];
                 for (int i = 0; i < array->size(); i++) {

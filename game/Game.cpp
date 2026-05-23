@@ -41,7 +41,8 @@ Game::Game(SharedManager& Shared)
 {
     this->GameShared = &Shared;
     GameControls = &GameShared->Controls;
-    LevelData = this->GameShared->LevelData;
+    
+    
 
     // init game services
     GameUI = UIManager(*this);
@@ -64,7 +65,7 @@ Game::Game(SharedManager& Shared)
     LastAverageDeltaTime = 0.0f;
     LastDeltaTime = 0.0f;
     StutterCooldown = 0.0f;
-    Stutters= 0;
+    Stutters = 0;
     MaxSlowdownTime = 0;
     LastStartedRecordingDelta = GetTime();
     GameScore = 0;
@@ -292,11 +293,11 @@ void Game::Update() {
             if (GameMode.WonLevel)
             {
                 isReturning=true;
-                if (!CurrentLevelName.empty() && !LevelData[CurrentLevelName]["music"].get<string>().empty())
+                if (!CurrentLevelName.empty() && !this->GameShared->LevelData[CurrentLevelName]["music"].get<string>().empty())
                 {
                     for (int i = 1; i < 5; i++)
                     {
-                        std::string FightTrack = LevelData[CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
+                        std::string FightTrack = this->GameShared->LevelData[CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
                         GameSounds.StopGameMusic(FightTrack, true);
                     }
                 }
@@ -348,6 +349,8 @@ void Game::Update() {
     {
         GameUI.StartingBlackScreenTrans = 0;
         GameUI.EndBlackScreenTrans += 0.65f * GetFrameTime();
+        GameTiles.Lines.clear();
+        GameTiles.PrevFileName.clear();
         if (GameUI.EndBlackScreenTrans >= 0.9f)
             ShouldReturn = true;
     } else
@@ -536,22 +539,22 @@ void Game::Reload(std::string MapName) {
 
     CurrentLevelName = MapName;
 
-    for (std::string s : LevelData[MapName]["game"]["banned_spawn_weapons"])
+    for (std::string s : this->GameShared->LevelData[MapName]["game"]["banned_spawn_weapons"])
         BannedWeaponDrops.emplace_back(s);
-    EnemyRoleWeapons= LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
+    EnemyRoleWeapons= this->GameShared->LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
 
     GameTiles.ReadMapDataFile("assets/maps/" + CurrentLevelName + "/map_data.csv");
     if (fs::exists(("assets/maps/" + CurrentLevelName + "/entities.csv").c_str()))
         GameTiles.ReadEntitiesFile("assets/maps/" + CurrentLevelName + "/entities.csv");
 
 
-    GameMode.PrepareGameMode(LevelData[MapName]);
+    GameMode.PrepareGameMode(this->GameShared->LevelData[MapName]);
 
     MainPlayer = make_shared<Player>(GameTiles.PlayerSpawnPosition.x,
-                                     GameTiles.PlayerSpawnPosition.y, LevelData[MapName]["player"]["starting_speed"],
+                                     GameTiles.PlayerSpawnPosition.y, this->GameShared->LevelData[MapName]["player"]["starting_speed"],
                                      GameResources.Textures["player"], *this);
-    MainPlayer->MaxHealth = LevelData[MapName]["player"]["starting_health"];
-    MainPlayer->Health = LevelData[MapName]["player"]["starting_health"];
+    MainPlayer->MaxHealth = this->GameShared->LevelData[MapName]["player"]["starting_health"];
+    MainPlayer->Health = this->GameShared->LevelData[MapName]["player"]["starting_health"];
     GameCamera.CameraPosition = Vector2Add(MainPlayer->GetCenter(), {
         (float)GetRandomValue(-100, 100),
         (float)GetRandomValue(-100, 100),
