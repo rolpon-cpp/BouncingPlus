@@ -273,6 +273,10 @@ void TileManager::Update() {
         UnloadRenderTexture(TileMapTex);
         TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
+    if (ForceFieldTex.texture.width != GetRenderWidth() || ForceFieldTex.texture.height != GetRenderHeight()) {
+        UnloadRenderTexture(ForceFieldTex);
+        ForceFieldTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
+    }
 
     UpdateDistance = Vector2{round(GetRenderWidth() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3, round(GetRenderHeight() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3};
 

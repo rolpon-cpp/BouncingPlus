@@ -33,7 +33,7 @@ PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
     RankClassifications.emplace_back("Decent");
     RankClassifications.emplace_back("Good");
     RankClassifications.emplace_back("Great");
-    RankClassifications.emplace_back("BOUNCING!!!");
+    RankClassifications.emplace_back("Bouncing");
 }
 
 PlayerLogicProcessor::PlayerLogicProcessor()

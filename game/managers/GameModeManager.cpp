@@ -30,6 +30,9 @@ void GameModeManager::PrepareGameMode(nlohmann::json Data)
     Clear();
     this->CurrentGameMode = Data["game"]["mode"].get<std::string>();
     this->LevelTimer = Data["game"]["timer"].get<float>();
+    this->LevelGameSpeed = Data["game"]["time_pass_speed"].get<float>();
+
+    game->GameSpeed = LevelGameSpeed;
 }
 
 void GameModeManager::Update()

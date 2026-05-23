@@ -129,9 +129,9 @@ void Game::ProcessSlowdownAnimation() {
         if (Percent >= 0.1)
         {
             if (Percent < 0.5)
-                GameSpeed = Lerp(1.0f, 0.1f, Percent / 0.5f);
+                GameSpeed = Lerp(GameMode.LevelGameSpeed, GameMode.LevelGameSpeed / 10.0f, Percent / 0.5f);
             else
-                GameSpeed = Lerp(0.1f, 1.0f, (Percent-0.5f) / 0.5f);
+                GameSpeed = Lerp(GameMode.LevelGameSpeed, GameMode.LevelGameSpeed, (Percent-0.5f) / 0.5f);
         }
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
             GameCamera.ShakeCamera(SlowdownShakeIntensity);
@@ -143,7 +143,7 @@ void Game::ProcessSlowdownAnimation() {
         SlowdownTime = 0;
         MaxSlowdownTime = 0;
         SlowdownShakeIntensity = 0;
-        GameSpeed = 1.0f;
+        GameSpeed = GameMode.LevelGameSpeed;
     }
 }
 

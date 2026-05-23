@@ -25,6 +25,7 @@
     "win": "kill_all_enemies",
     "mode": "default",
     "friendly_fire": true,
+    "time_pass_speed": 1.0,
     "banned_spawn_weapons": [
       "Default Gun",
       "Player Gun"

@@ -17,7 +17,7 @@ for metadata.json:
     "starting_health": 150, // starting health
     "starting_speed": 350, // starting speed, pixels per second
     "inventory": ["Sword", "Shotgun", ""], // loadout
-    "powerup": "shield", // player powerup, powerups: speed and shield
+    "powerup": "shield", // player powerup, powerups: speed, shield, freeze, tank
 
      // a LOT of dash related settings.
     "dash_base_power": 2500, (pixels per second)
@@ -32,6 +32,8 @@ for metadata.json:
   "game": { // game properties
     "timer": -1, // does the level have a timer?
     "win": "kill_all_enemies", // level win condition: kill_all_enemies, nothing
+    "time_pass_speed" : 1.0, // controls how time passes in the level, 1.0 is normal speed
+    "friendly_fire": false, // controls if enemies can friendly fire
     "mode": "default", // what gamemode is the level? current modes: default,wave,boss
     "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons are spawned enemies from spawners NOT allowed to spawn with?
   },

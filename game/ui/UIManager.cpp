@@ -475,9 +475,11 @@ void UIManager::PauseMenu() {
     }, GetMousePosition(), game->GameShared->UIAssets.ButtonImg, game->GameShared->UIAssets.ButtonClick, "QUIT"))
         game->isReturning = true;
 
+    #ifndef PLATFORM_WEB
     if (Button({(float)PauseScreen.texture.width - 320.0f, 20.0f, 300.0f, 50.0f},GetMousePosition(),
         game->GameShared->UIAssets.ButtonImg, game->GameShared->UIAssets.ButtonClick, "RELOAD WEAPONS"))
         game->GameResources.LoadWeaponData();
+    #endif
 }
 
 void UIManager::GameWin()

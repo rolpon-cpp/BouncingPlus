@@ -27,6 +27,7 @@ class GameModeManager
     std::string CurrentBossName;
     std::string CurrentGameMode;
     int CurrentWave;
+    double LevelGameSpeed;
     bool InWave;
     double LevelTimer;
     bool WonLevel;
