@@ -9,6 +9,7 @@ enum BehaviorType
 {
     DefaultBehaviorType,
     CatchBehaviorType,
+    DwellerBehaviorType,
     WeaponBehaviorType
 };
 

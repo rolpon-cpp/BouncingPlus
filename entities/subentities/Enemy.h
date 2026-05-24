@@ -12,12 +12,13 @@
 
 class Enemy : public Entity {
     float AnimatedHealth;
-    std::string MyWeapon;
+
     Vector2 WanderPos;
     float TotalHealth = -1;
 double LastSetWanderPos = 0;
     double WanderingCooldown;
     bool weaponsSystemInit = false;
+
     bool isActive = false;
     bool LastFreezingState = false;
     double ActivationTimer;
@@ -25,6 +26,8 @@ double LastSetWanderPos = 0;
     float Alpha = 0;
     void Init(float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Game &game);
 public:
+    bool RenderHealthBar = true;
+    std::string MyWeapon;
     std::unique_ptr<EnemyBehavior> Behavior = nullptr;
     WeaponsSystem weaponsSystem;
     float AngeredRangeBypassTimerMax;

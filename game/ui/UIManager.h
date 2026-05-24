@@ -47,6 +47,7 @@ public:
     void DeathMenu();
     void DisplayCursor();
     void DisplayHealthMeter();
+    void DisplayLevelTimer();
     void DisplayCooldownMeter(float LowestX, float LowestY, float HighestWidth, float HighestHeight);
     void DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight);
     void DisplayInventoryIndicator();

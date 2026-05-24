@@ -57,7 +57,7 @@ struct WeaponPickup
 };
 
 class WeaponsSystem {
-    void DisplayGunTexture();
+    void DisplayWeaponTexture();
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
     void ResetMeleeAnim();
     void DisplayWeaponCone();
@@ -85,6 +85,7 @@ class WeaponsSystem {
         float ChargingProgress = 0.0f;
         bool TriedChargingThisFrame = false;
         Vector2 ChargeTarget = {0,0};
+        bool CanDisplayWeaponTex = true;
 
         WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
         WeaponsSystem();

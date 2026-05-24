@@ -1,0 +1,39 @@
+{
+  "description": "The Walls... they're FAKE!!!!!!",
+  "difficulty": 3,
+  "music": "danger",
+  "player": {
+    "weapon_health_gain_buff": 1,
+    "starting_health": 198.0,
+    "starting_speed": 400.0,
+    "inventory": [
+      "Shotgun",
+      "Sword",
+      ""
+    ],
+    "powerup": "freeze",
+    "dash_base_power": 2500,
+    "dash_power_multiplier": 1,
+    "dash_base_cooldown": 1.1,
+    "dash_concentration_boost": 1,
+    "dodge_cooldown": 3.0,
+    "dodge_iframe_time": 1.0,
+    "dash_iframe_time": 0.1,
+    "dash_frozen_multiplier": 0.5
+  },
+  "game": {
+    "timer": -1,
+    "win": "kill_all_enemies",
+    "mode": "default",
+    "friendly_fire": true,
+    "time_pass_speed": 1.0,
+    "banned_spawn_weapons": [
+      "Default Gun",
+      "Player Gun"
+    ]
+  },
+  "enemy_weapons": {
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
+  }
+}

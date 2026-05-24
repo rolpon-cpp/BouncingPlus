@@ -192,42 +192,45 @@ void Enemy::Update() {
     }
     AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * game->GetGameDeltaTime());
 
-    std::string t = std::to_string((int)round(AnimatedHealth));
-    if (t == "67") // getting rid of "6 7" meme
-        t = "66";
-    if (t == "13") // FRIDAY THE 13TH
-        t = "12";
-    else if (t == "41") // getting rid of 41 meme
-        t = "40";
-    else if (t == "69") // getting rid of 69 nice number
-        t = "68";
-    else if (t == "63") // getting rid of rule 63
-        t = "62";
-    else if (t == "21") // 9 + 10 = ?
-        t = "20";
-    else if (t == "29") // i blame an old recording of me saying "TWENTY NINE" a year before the "6 7" meme for this
-        t = "28";
-    else if (t == "34") // stop gooning. just stop. please.
-        t = "35";
-    else if (t == "131") // idk what this is...
-        t = "132";
-    else if (t == "420")// i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
-        t = "419";
-    else if (t == "666") // gotta make sure this number doesnt come touchin my game
-        t = "665";
-
-    float size = MeasureText(t.c_str(), 36);
-    float size2 = MeasureText("%", 18) + 1;
-    float total_size = size + size2;
-
-    if (IsVisible({center_x - total_size / 2, BoundingBox.y - 36, total_size, 36})
-    )
+    if (RenderHealthBar)
     {
-        DrawText(t.c_str(),
-                 center_x - total_size / 2,
-                 BoundingBox.y - 36, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
-        DrawText("%", center_x - total_size / 2 + size + 1, BoundingBox.y - 22, 18,
-                 GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+        std::string t = std::to_string((int)round(AnimatedHealth));
+        if (t == "67") // getting rid of "6 7" meme
+            t = "66";
+        if (t == "13") // FRIDAY THE 13TH
+            t = "12";
+        else if (t == "41") // getting rid of 41 meme
+            t = "40";
+        else if (t == "69") // getting rid of 69 nice number
+            t = "68";
+        else if (t == "63") // getting rid of rule 63
+            t = "62";
+        else if (t == "21") // 9 + 10 = ?
+            t = "20";
+        else if (t == "29") // i blame an old recording of me saying "TWENTY NINE" a year before the "6 7" meme for this
+            t = "28";
+        else if (t == "34") // stop gooning. just stop. please.
+            t = "35";
+        else if (t == "131") // idk what this is...
+            t = "132";
+        else if (t == "420")// i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
+            t = "419";
+        else if (t == "666") // gotta make sure this number doesnt come touchin my game
+            t = "665";
+
+        float size = MeasureText(t.c_str(), 36);
+        float size2 = MeasureText("%", 18) + 1;
+        float total_size = size + size2;
+
+        if (IsVisible({center_x - total_size / 2, BoundingBox.y - 36, total_size, 36})
+        )
+        {
+            DrawText(t.c_str(),
+                     center_x - total_size / 2,
+                     BoundingBox.y - 36, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+            DrawText("%", center_x - total_size / 2 + size + 1, BoundingBox.y - 22, 18,
+                     GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+        }
     }
     weaponsSystem.Update();
     Entity::Update();

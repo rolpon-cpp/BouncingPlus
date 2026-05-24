@@ -47,6 +47,41 @@ void UIManager::Clear()
     this->RankSizeHeight = 250.0f;
 }
 
+void UIManager::DisplayLevelTimer()
+{
+    if (game->GameMode.LevelTimer > 0)
+    {
+        int minutes = (int)(this
+            ->game->GameMode.LevelTimer / 60);
+        int seconds = (int)(this->game->GameMode.LevelTimer - (minutes * 60.0f));
+        std::string txt = to_string(minutes) + ":" + to_string(seconds);
+        if (seconds < 10)
+            txt = to_string(minutes) + ":0" + to_string(seconds);
+
+        int font_size = 50;
+        int width = MeasureText(txt.c_str(), font_size);
+
+        float x = GetRenderWidth() / 2 - width / 2;
+        float y = 50 + font_size;
+
+        Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
+        DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, 0.5f * UITransparency));
+        DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
+        DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
+
+        std::string o_txt = "TIME LEFT";
+        if (game->GameMode.CurrentGameMode == "wave")
+        {
+            if (!game->GameMode.InWave)
+                o_txt = "INTERMISSION " + to_string(game->GameMode.CurrentWave + 1);
+            else
+                o_txt = "WAVE " + to_string(game->GameMode.CurrentWave);
+        }
+
+        DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
+    }
+}
+
 void UIManager::GameUI()
 {
     RefreshRenderTextures();
@@ -153,6 +188,9 @@ void UIManager::GameUI()
         };
         LastChangedStressShakePos = game->GetGameTime();
     }
+
+    // lvl timer
+    DisplayLevelTimer();
 
     // rank
     DisplayRank();

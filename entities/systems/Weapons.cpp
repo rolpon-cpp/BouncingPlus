@@ -52,7 +52,9 @@ WeaponsSystem::WeaponsSystem() {
 WeaponsSystem::~WeaponsSystem() {
 }
 
-void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
+void WeaponsSystem::DisplayWeaponTexture() { // HATSUNE MIKU!!!!
+    if (!CanDisplayWeaponTex)
+        return;
     auto Owner = OwnerPtr.lock();
     Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
     float Range = CurrentWeapon->Range;
@@ -164,7 +166,13 @@ void WeaponsSystem::DisplayWeaponCone()
             {
                 WeaponBehavior* f = (WeaponBehavior*)ptr->Behavior.get();
                 MeleeDisplayRenderTarget = f->Target;
+            } else
+            {
+                return;
             }
+        } else
+        {
+            return;
         }
 
         MeleeAnimRange = CurrentWeapon->AngleRange;
@@ -224,7 +232,7 @@ void WeaponsSystem::Update() {
 
     // display gun tex
     if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee) && Owner->IsVisible())
-        DisplayGunTexture();
+        DisplayWeaponTexture();
 
     // display melee animations
     if (CurrentWeapon != nullptr && CurrentWeapon->isMelee)

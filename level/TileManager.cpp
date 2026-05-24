@@ -15,6 +15,8 @@
 #include "../entities/subentities/Spawner.h"
 #include "../entities/subentities/Turret.h"
 #include "../entities/subentities/UpgradeStation.h"
+#include "../entities/subentities/behaviors/CatchBehavior.h"
+#include "../entities/subentities/behaviors/DwellerBehavior.h"
 
 TileManager::TileManager() {
 
@@ -40,6 +42,8 @@ TileManager::TileManager(Game &game) {
     TileTypes[10] = BossTileType; // boss
     TileTypes[11] = TurretTileType; // turrets
     TileTypes[12] = EnemyWallTileType; // enemy walls
+    TileTypes[13] = CatchEnemyTileType; // catch enemy
+    TileTypes[14] = DwellerEnemyTileType; // dweller enemy
     Clear();
 }
 
@@ -434,6 +438,30 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             game->GameEntities.AddEntity(TurretType, t);
             break;
     }
+    case CatchEnemyTileType:
+        {
+
+            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "", game->GameResources.Textures["enemy"], *game);
+            std::unique_ptr<EnemyBehavior> catch_behavior = std::make_unique<CatchBehavior>(*e, *game);
+            e->Behavior.reset();
+            e->Behavior = std::move(catch_behavior);
+
+            game->GameEntities.AddEntity(EnemyType, e);
+            break;
+        }
+    case DwellerEnemyTileType:
+        {
+            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "Enemy Sword", game->GameResources.Textures["enemy"], *game);
+            std::unique_ptr<EnemyBehavior> dwell_behavior = std::make_unique<DwellerBehavior>(*e, *game);
+            auto* db = dynamic_cast<DwellerBehavior*>(dwell_behavior.get());
+            db->HasMovedIntoPlace = true;
+
+            e->Behavior.reset();
+            e->Behavior = std::move(dwell_behavior);
+
+            game->GameEntities.AddEntity(EnemyType, e);
+            break;
+        }
     case NothingTileType:
         {
             break;

@@ -1,7 +1,8 @@
 The Base
 Bullet Hell
-Free
+Waves
 Blocked in
 Openfield
+Schizo
 The Robots
 debug

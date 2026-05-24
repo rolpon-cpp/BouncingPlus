@@ -12,6 +12,8 @@
 #include <raymath.h>
 #include <nlohmann/json.hpp>
 
+#include "behaviors/DwellerBehavior.h"
+
 Spawner::Spawner() {
 }
 
@@ -201,13 +203,6 @@ void Spawner::Update() {
                 if (!found)
                     wep = "";
             }
-            std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();
-            if (GetRandomValue(1, 3) == 2)
-            {
-                behavior.reset();
-                behavior = make_unique<CatchBehavior>();
-                wep.clear();
-            }
 
             std::shared_ptr<Enemy> e = make_shared<Enemy>(
                 p.x,
@@ -216,10 +211,28 @@ void Spawner::Update() {
                 350 + (GetRandomValue(1, 100) / 10.0f < EnemyDifficulty ? GetRandomValue(10, 75) : 0),
                 GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(25, 50) : 0,
                 wep,
-                std::move(behavior),
                 game->GameResources.Textures["spawned_enemy"],
                 *game
                 );
+
+            std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>(*e, *game);
+
+            if (GetRandomValue(1, 2) == 2)
+            {
+                behavior.reset();
+                behavior = make_unique<CatchBehavior>(*e, *game);
+                e->weaponsSystem.Unequip();
+                e->weaponsSystem.Weapons[0] = "";
+                e->MyWeapon = "";
+            } else if (GetRandomValue(1, 2) == 1)
+            {
+                behavior.reset();
+                behavior = make_unique<DwellerBehavior>(*e, *game);
+            }
+
+            e->Behavior.reset();
+            e->Behavior = std::move(behavior);
+
             if (EnemyDifficulty >= 0.6f)
                 e->HealthRegenRate = GetRandomValue(25, 70) / 10.0f;
             e->WanderingEnabled = false;

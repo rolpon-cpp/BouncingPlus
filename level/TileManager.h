@@ -64,7 +64,7 @@ class TileManager {
         int MapWidth, MapHeight;
         Vector2 PlayerSpawnPosition;
         Vector2 BossSpawnPosition;
-        TileType TileTypes[13];
+        TileType TileTypes[15];
         std::vector<Vector2> EnemySpawnLocations;
         std::vector<int> Map;
         RenderTexture TileMapTex;

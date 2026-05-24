@@ -145,7 +145,9 @@ images_to_id = {
     8: "upgrade_core.png",
     9: "boss1_img.png",
     10: "turret.png",
-    11: "enemy_wall_tile.png"
+    11: "enemy_wall_tile.png",
+    12: "catch_enemy.png",
+    13: "dweller.png"
 }
 
 for key in images_to_id.keys():
@@ -779,6 +781,7 @@ if len(write_path) > 0 and len(tilemap_path) < 1:
       "game": {
         "timer": -1,
         "win": win_cond,
+          "time_pass_speed": 1.0,
         "mode": gamemode,
           "friendly_fire": ffire,
         "banned_spawn_weapons": ["Default Gun","Player Gun"]

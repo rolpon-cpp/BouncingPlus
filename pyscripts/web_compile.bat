@@ -4,6 +4,7 @@ call C:\Emscripten\emsdk\emsdk_env.bat
 if not exist build-web mkdir build-web
 em++ ^
     entities/Entity.cpp ^
+	entities/subentities/behaviors/DwellerBehavior.cpp ^
     entities/subentities/behaviors/CatchBehavior.cpp ^
     entities/subentities/behaviors/EnemyBehavior.cpp ^
     entities/subentities/behaviors/WeaponBehavior.cpp ^

@@ -65,12 +65,15 @@ void PlayerLogicProcessor::ProcessStress()
 
     MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.075f;
 
+    if (MyPlayer->game->GameMode.InWave)
+        MyPlayer->FrameStressLevel += 0.15f;
+
     MyPlayer->FrameStressLevel = min(max(MyPlayer->FrameStressLevel, 0.0f), 1.0f);
 
     if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
         MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
     else
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.25f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.35f * MyPlayer->game->GetGameDeltaTime());
 
 }
 
@@ -216,14 +219,14 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         else
             entity->Armor -= Damage;
 
-        float reward = Damage / 12.5f;
+        float reward = Damage / 9.5f;
         MyPlayer->Health += reward;
 
         float amount = 1500.0f;
 
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
-            MyPlayer->Health += Damage * 0.1f;
+            MyPlayer->Health += Damage * 0.25f;
             amount = 950;
             MyPlayer->Kills+=1;
             this->IncreaseScore("Dash Kill", 45 * ((DashedEnemies.size() + 1.0f) * 1.25f), ColorContrast(GREEN,0.5f));
