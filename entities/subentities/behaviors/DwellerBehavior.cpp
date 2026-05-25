@@ -67,7 +67,7 @@ void DwellerBehavior::Update()
     Owner->weaponsSystem.CanDisplayWeaponTex= false;
     if (!HasMovedIntoPlace)
     {
-        Owner->Movement = PlaceSpot;
+        Owner->Movement = Vector2Subtract(PlaceSpot,Owner->GetCenter());
         
         if (Vector2Distance(Owner->GetCenter(), PlaceSpot) <= 36.0f)
             HasMovedIntoPlace = true;
@@ -82,10 +82,15 @@ void DwellerBehavior::Update()
     } else
     {
         float PlrDistance = Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter());
-        if (PlrDistance < 150)
+        if (PlrDistance < 250)
         {
-            Owner->Movement = Vector2Subtract(Owner->GetCenter(), game->MainPlayer->GetCenter());
+            Owner->Movement = Vector2Subtract(game->MainPlayer->GetCenter(),Owner->GetCenter());
             Owner->weaponsSystem.Attack(game->MainPlayer->GetCenter());
+        } else
+        {
+            if (Vector2Distance(Owner->GetCenter(), PlaceSpot) > 36.0f)
+                HasMovedIntoPlace = false;
+            Owner->Movement = {0, 0};
         }
     }
 
