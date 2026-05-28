@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include <nlohmann/json.hpp>
-#include "../../entities/subentities/Spawner.h"
+#include "../../entities/subentities/stationary/Spawner.h"
 #include "../Game.h"
 #include <raymath.h>
 
@@ -28,9 +28,16 @@ GameModeManager::GameModeManager(Game& game)
 void GameModeManager::PrepareGameMode(nlohmann::json Data)
 {
     Clear();
-    this->CurrentGameMode = Data["game"]["mode"].get<std::string>();
-    this->LevelTimer = Data["game"]["timer"].get<float>();
-    this->LevelGameSpeed = Data["game"]["time_pass_speed"].get<float>();
+    if (Data.contains("game"))
+    {
+        if (Data["game"].contains("mode"))
+            this->CurrentGameMode = Data["game"]["mode"].get<std::string>();
+        if (Data["game"].contains("timer"))
+            this->LevelTimer = Data["game"]["timer"].get<float>();
+        if (Data["game"].contains("time_pass_speed"))
+            this->LevelGameSpeed = Data["game"]["time_pass_speed"].get<float>();
+    }
+
 
     game->GameSpeed = LevelGameSpeed;
 }

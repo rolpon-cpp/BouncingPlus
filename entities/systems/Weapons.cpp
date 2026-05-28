@@ -5,17 +5,17 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "../Entity.h"
-#include "../subentities/Bullet.h"
+#include "../subentities/projectile/Bullet.h"
 #include "../../game/Game.h"
 #include "Weapons.h"
 
 #include <nlohmann/json.hpp>
 
-#include "../subentities/Player.h"
-#include "../subentities/Enemy.h"
+#include "../subentities/player/Player.h"
+#include "../subentities/enemy/Enemy.h"
 #include "iostream"
-#include "../subentities/Turret.h"
-#include "../subentities/behaviors/WeaponBehavior.h"
+#include "../subentities/stationary/Turret.h"
+#include "../subentities/enemy/behaviors/WeaponBehavior.h"
 
 using namespace std;
 

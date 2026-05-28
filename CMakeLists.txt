@@ -18,8 +18,10 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
     endif()
 endif()
 find_package(nlohmann_json CONFIG REQUIRED)
-add_executable(BouncingPlus entities/Entity.cpp entities/subentities/behaviors/CatchBehavior.cpp entities/subentities/behaviors/EnemyBehavior.cpp entities/subentities/behaviors/WeaponBehavior.cpp entities/subentities/Bullet.cpp entities/subentities/Enemy.cpp entities/subentities/Player.cpp entities/subentities/PlayerLogicProcessor.cpp entities/subentities/Spawner.cpp entities/subentities/Throwable.cpp entities/subentities/Turret.cpp entities/subentities/UpgradeStation.cpp entities/systems/Effects.cpp entities/systems/Powerups.cpp entities/systems/Weapons.cpp game/core/Controls.cpp game/core/Profiler.cpp game/core/SharedManager.cpp game/Game.cpp game/managers/CameraManager.cpp game/managers/EntityManager.cpp game/managers/GameModeManager.cpp game/managers/ParticleManager.cpp game/managers/ResourceManager.cpp game/managers/SoundManager.cpp game/ui/Menu.cpp game/ui/UIManager.cpp game/ui/UIUtils.cpp level/LevelLoader.cpp level/TileManager.cpp main.cpp
-        entities/subentities/behaviors/DwellerBehavior.cpp
-        entities/subentities/behaviors/DwellerBehavior.h)
+add_executable(BouncingPlus entities/Entity.cpp entities/subentities/enemy/behaviors/CatchBehavior.cpp entities/subentities/enemy/behaviors/EnemyBehavior.cpp entities/subentities/enemy/behaviors/WeaponBehavior.cpp entities/subentities/projectile/Bullet.cpp entities/subentities/enemy/Enemy.cpp entities/subentities/player/Player.cpp entities/subentities/player/PlayerLogicProcessor.cpp entities/subentities/stationary/Spawner.cpp entities/subentities/projectile/Throwable.cpp entities/subentities/stationary/Turret.cpp entities/subentities/stationary/UpgradeStation.cpp entities/systems/Effects.cpp entities/systems/Powerups.cpp entities/systems/Weapons.cpp game/core/Controls.cpp game/core/Profiler.cpp game/core/SharedManager.cpp game/Game.cpp game/managers/CameraManager.cpp game/managers/EntityManager.cpp game/managers/GameModeManager.cpp game/managers/ParticleManager.cpp game/managers/ResourceManager.cpp game/managers/SoundManager.cpp game/ui/Menu.cpp game/ui/UIManager.cpp game/ui/UIUtils.cpp level/LevelLoader.cpp level/tiles/TileManager.cpp main.cpp
+        entities/subentities/enemy/behaviors/DwellerBehavior.cpp
+        entities/subentities/enemy/behaviors/DwellerBehavior.h
+        level/tiles/TileManagerFileRead.cpp
+        level/tiles/TileManagerRendering.cpp)
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

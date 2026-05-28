@@ -12,7 +12,7 @@
 #include <raymath.h>
 #include <nlohmann/json.hpp>
 
-#include "subentities/Bullet.h"
+#include "subentities/projectile/Bullet.h"
 #include "../game/Game.h"
 
 void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) {

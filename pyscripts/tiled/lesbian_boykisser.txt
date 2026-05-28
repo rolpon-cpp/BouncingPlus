@@ -1,0 +1,259 @@
+#version 330
+
+// Input vertex attributes (from vertex shader)
+in vec2 fragTexCoord;
+in vec4 fragColor;
+
+// Input uniform values
+uniform sampler2D texture0;
+uniform vec4 colDiffuse;
+
+// Output fragment color
+out vec4 finalColor;
+
+// NOTE: Add here your custom variables
+
+// NOTE: Render size values must be passed from code
+uniform int renderWidth = 800;
+uniform int renderHeight = 450;
+
+float offset[3] = float[](0.0, 1.3846153846, 3.2307692308);
+float weight[3] = float[](0.2270270270, 0.3162162162, 0.0702702703);
+
+void main()
+{
+    // Texel color fetching from texture sampler
+    vec4 origin = texture(texture0, fragTexCoord);
+    vec4 texelColor = origin * weight[0];
+
+    for (int i = 1; i < 3; i++)
+    {
+        texelColor += texture(texture0, fragTexCoord + vec2(offset[i] / float(renderWidth), offset[i] / float(renderHeight)), 0.0)*weight[i];
+        texelColor += texture(texture0, fragTexCoord + vec2(-offset[i] / float(renderWidth), offset[i] / float(renderHeight)), 0.0)*weight[i];
+        texelColor += texture(texture0, fragTexCoord + vec2(offset[i] / float(renderWidth), -offset[i] / float(renderHeight)), 0.0)*weight[i];
+        texelColor += texture(texture0, fragTexCoord + vec2(-offset[i] / float(renderWidth), -offset[i] / float(renderHeight)), 0.0)*weight[i];
+
+        texelColor += texture(texture0, fragTexCoord + vec2(offset[i] / float(renderWidth), 0), 0.0)*weight[i];
+        texelColor += texture(texture0, fragTexCoord + vec2(-offset[i] / float(renderWidth), 0), 0.0)*weight[i];
+        texelColor += texture(texture0, fragTexCoord + vec2(0, offset[i] / float(renderHeight)), 0.0)*weight[i];
+        texelColor += texture(texture0, fragTexCoord + vec2(0, -offset[i] / float(renderHeight)), 0.0)*weight[i];
+    }
+
+    finalColor = texelColor / 4.0;
+}
+
+#version 100
+
+precision mediump float;
+
+// Input vertex attributes (from vertex shader)
+varying vec2 fragTexCoord;
+varying vec4 fragColor;
+
+// Input uniform values
+uniform sampler2D texture0;
+uniform vec4 colDiffuse;
+
+// NOTE: Add your custom variables here
+
+const vec2 size = vec2(800, 450);   // Framebuffer size
+const float samples = 5.0;          // Pixels per axis; higher = bigger glow, worse performance
+const float quality = 2.5;          // Defines size factor: Lower = smaller glow, better quality
+
+void main()
+{
+    vec4 sum = vec4(0);
+    vec2 sizeFactor = vec2(1)/size*quality;
+
+    // Texel color fetching from texture sampler
+    vec4 source = texture2D(texture0, fragTexCoord);
+
+    const int range = 2;            // should be = (samples - 1)/2;
+
+    for (int x = -range; x <= range; x++)
+    {
+        for (int y = -range; y <= range; y++)
+        {
+            sum += texture2D(texture0, fragTexCoord + vec2(x, y)*sizeFactor);
+        }
+    }
+
+    // Calculate final fragment color
+    gl_FragColor = ((sum/(samples*samples)) + source)*colDiffuse;
+}
+
+#version 330
+
+// Input vertex attributes (from vertex shader)
+in vec2 fragTexCoord;
+in vec4 fragColor;
+
+// Input uniform values
+uniform sampler2D texture0;
+uniform vec4 colDiffuse;
+
+out vec4 finalColor;
+
+uniform int renderWidth = 1480;
+uniform int renderHeight = 920;
+
+void main()
+{
+    vec2 px = vec2(1.0f / renderWidth, 1.0f / renderHeight);
+    vec4 origin = texture(texture0, fragTexCoord);
+    vec4 total = vec4(0, 0, 0, 0);
+
+    int times = 0;
+
+    float optimization = 3;
+
+    for (int r = 0; r < 18 / optimization; r++) {
+        for (int i = 0; i < 12; i++) {
+            float angle = float(i) * (3.14159265 / 12.0) * optimization;
+            vec2 coord = vec2(sin(angle) * r * optimization, cos(angle) * r * optimization);
+            vec4 color = texture2D(texture0, fragTexCoord + (coord * px));
+            total += color;
+            times += 1;
+        }
+    }
+
+    finalColor = total / times;
+}
+
+/*
+RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target)
+{
+    Vector2 vRayStart = Origin;
+    Vector2 vRayDir = Vector2Normalize(Target - Origin);
+    Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
+    Vector2 vMapCheck = Vector2{floor(Origin.x/GameTiles.TileSize),floor(Origin.y/GameTiles.TileSize)};
+    Vector2 vRayLength1D;
+    Vector2 vStep;
+
+    if (vRayDir.x < 0)
+    {
+        vStep.x = -1;
+        vRayLength1D.x = (vRayStart.x - float(vMapCheck.x*GameTiles.TileSize)) * vRayUnitStepSize.x;
+    }
+    else
+    {
+        vStep.x = 1;
+        vRayLength1D.x = (float((vMapCheck.x + 1)*GameTiles.TileSize) - vRayStart.x) * vRayUnitStepSize.x;
+    }
+
+    if (vRayDir.y < 0)
+    {
+        vStep.y = -1;
+        vRayLength1D.y = (vRayStart.y - float(vMapCheck.y*GameTiles.TileSize)) * vRayUnitStepSize.y;
+    }
+    else
+    {
+        vStep.y = 1;
+        vRayLength1D.y = (float((vMapCheck.y + 1)*GameTiles.TileSize) - vRayStart.y) * vRayUnitStepSize.y;
+    }
+
+    bool bTileFound = false;
+    float fMaxDistance = Vector2Distance(vMapCheck,Vector2{floor(Target.x/GameTiles.TileSize),floor(Target.y/GameTiles.TileSize)});
+    float fDistance = 0.0f;
+    while (!bTileFound && fDistance < fMaxDistance)
+    {
+        // Walk along shortest path
+        if (vRayLength1D.x < vRayLength1D.y)
+        {
+            vMapCheck.x += vStep.x;
+            fDistance = vRayLength1D.x;
+            vRayLength1D.x += vRayUnitStepSize.x;
+        }
+        else
+        {
+            vMapCheck.y += vStep.y;
+            fDistance = vRayLength1D.y;
+            vRayLength1D.y += vRayUnitStepSize.y;
+        }
+
+        if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight)
+        {
+            std::string s = to_string((int)vMapCheck.x) + " " + to_string((int)vMapCheck.y);
+            int g = GameTiles.Map[s];
+            if (GameTiles.TileTypes[g]==WallTileType)
+            {
+                bTileFound = true;
+                break;
+            }
+        }
+    }
+
+    if (DebugDraw)
+        DrawLine(Origin.x,Origin.y,vMapCheck.x * GameTiles.TileSize,vMapCheck.y * GameTiles.TileSize,RED);
+
+    return std::pair(!bTileFound, Vector2{vMapCheck.x * GameTiles.TileSize, vMapCheck.y * GameTiles.TileSize});
+}
+*/
+
+RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target)
+{
+    Vector2 vRayStart = Origin;
+    Vector2 vRayDir = Vector2Normalize(Target - Origin);
+    Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
+    Vector2 vMapCheck = Origin;
+    Vector2 vRayLength1D;
+    Vector2 vStep;
+
+    if (vRayDir.x < 0)
+    {
+        vStep.x = -1;
+        vRayLength1D.x = (vRayStart.x - float(vMapCheck.x)) * vRayUnitStepSize.x;
+    }
+    else
+    {
+        vStep.x = 1;
+        vRayLength1D.x = (float(vMapCheck.x + 1) - vRayStart.x) * vRayUnitStepSize.x;
+    }
+
+    if (vRayDir.y < 0)
+    {
+        vStep.y = -1;
+        vRayLength1D.y = (vRayStart.y - float(vMapCheck.y)) * vRayUnitStepSize.y;
+    }
+    else
+    {
+        vStep.y = 1;
+        vRayLength1D.y = (float(vMapCheck.y + 1) - vRayStart.y) * vRayUnitStepSize.y;
+    }
+
+    bool bTileFound = false;
+    float fMaxDistance = Vector2Distance(Origin,Target);
+    float fDistance = 0.0f;
+    while (!bTileFound && fDistance < fMaxDistance)
+    {
+        // Walk along shortest path
+        if (vRayLength1D.x < vRayLength1D.y)
+        {
+            vMapCheck.x += vStep.x;
+            fDistance = vRayLength1D.x;
+            vRayLength1D.x += vRayUnitStepSize.x;
+        }
+        else
+        {
+            vMapCheck.y += vStep.y;
+            fDistance = vRayLength1D.y;
+            vRayLength1D.y += vRayUnitStepSize.y;
+        }
+
+        if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth*GameTiles.TileSize && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight*GameTiles.TileSize)
+        {
+            std::string s = to_string((int)(vMapCheck.x/GameTiles.TileSize)) + " " + to_string((int)(vMapCheck.y/GameTiles.TileSize));
+            int g = GameTiles.Map[s];
+            if (GameTiles.TileTypes[g]==WallTileType)
+            {
+                bTileFound = true;
+                break;
+            }
+        }
+    }
+
+    if (DebugDraw)
+        DrawLine(Origin.x,Origin.y,vMapCheck.x,vMapCheck.y,RED);
+
+    return std::pair(!bTileFound, vMapCheck);
+}

@@ -7,8 +7,8 @@
 #include <iostream>
 
 #include "../../game/Game.h"
-#include "../subentities/Bullet.h"
-#include "../subentities/Player.h"
+#include "../subentities/projectile/Bullet.h"
+#include "../subentities/player/Player.h"
 
 #include <raylib.h>
 #include <raymath.h>

@@ -10,20 +10,41 @@
 class Entity;
 class Game;
 
-struct Effect
+class Effect
 {
-    void Affect();
+public:
+    double Duration;
+    double ImpactTime;
+    Effect(double Duration, double ImpactTime);
+    Effect(double ImpactTime);
+    virtual void Update(std::shared_ptr<Entity> Owner);
+    virtual ~Effect();
+};
+
+class Burning : public Effect
+{
+public:
+    float Damage;
+    double LastDidFireParticle;
+    Burning(double ImpactTime);
+    Burning(float Damage, double Duration, double ImpactTime);
+    void Update(std::shared_ptr<Entity> Owner);
+    ~Burning();
 };
 
 class Effects
 {
+public:
+    void RemoveOldestEffect();
     std::weak_ptr<Entity> Owner;
-    std::vector<Effect> CurrentEffects;
+    std::vector<Effect*> CurrentEffects;
     Game* game;
     Effects(std::shared_ptr<Entity> Owner, Game &game);
     Effects();
+    virtual ~Effects() = default;
+    void AddEffect(Effect* effect);
     void Update();
-    virtual ~Effects();
+    void Cleanup();
 };
 
 

@@ -142,8 +142,11 @@ void Menu::LevelSelect()
     Rectangle r = {LevelSelectPanelRectangle.x + 50+ (GetRenderWidth()-900) + ow/2 - rw/2, (float)165 + 140 * (mi+1) + LevelSelectPanelRectangle.y, rw, rh};
     DrawRectangleRec({r.x-CameraX,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));
 
-    if (Button({LevelSelectPanelRectangle.x + 25 -CameraX, LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "RELOAD LEVELS"))
+    #ifndef PLATFORM_WEB
+    if (Button({LevelSelectPanelRectangle.x + 25 -CameraX, LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40},
+        GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "RELOAD LEVELS"))
         Shared->ReloadLevels();
+    #endif
 
     if (Button({r.x + r.width*0.85f - 25 - CameraX, r.y + r.height/2 - 25, 50, 50}, GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, ">"))
         CurrentLevelsPage += 1;

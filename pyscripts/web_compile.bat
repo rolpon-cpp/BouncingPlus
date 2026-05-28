@@ -1,21 +1,21 @@
-REM this script was made by Claude AI!!!
+echo this script was made by Claude AI!!!
 cd ..
 call C:\Emscripten\emsdk\emsdk_env.bat
 if not exist build-web mkdir build-web
 em++ ^
     entities/Entity.cpp ^
-	entities/subentities/behaviors/DwellerBehavior.cpp ^
-    entities/subentities/behaviors/CatchBehavior.cpp ^
-    entities/subentities/behaviors/EnemyBehavior.cpp ^
-    entities/subentities/behaviors/WeaponBehavior.cpp ^
-    entities/subentities/Bullet.cpp ^
-    entities/subentities/Enemy.cpp ^
-    entities/subentities/Player.cpp ^
-    entities/subentities/PlayerLogicProcessor.cpp ^
-    entities/subentities/Spawner.cpp ^
-    entities/subentities/Throwable.cpp ^
-    entities/subentities/Turret.cpp ^
-    entities/subentities/UpgradeStation.cpp ^
+    entities/subentities/enemy/behaviors/CatchBehavior.cpp ^
+    entities/subentities/enemy/behaviors/DwellerBehavior.cpp ^
+    entities/subentities/enemy/behaviors/EnemyBehavior.cpp ^
+    entities/subentities/enemy/behaviors/WeaponBehavior.cpp ^
+    entities/subentities/enemy/Enemy.cpp ^
+    entities/subentities/player/Player.cpp ^
+    entities/subentities/player/PlayerLogicProcessor.cpp ^
+    entities/subentities/projectile/Bullet.cpp ^
+    entities/subentities/projectile/Throwable.cpp ^
+    entities/subentities/stationary/Spawner.cpp ^
+    entities/subentities/stationary/Turret.cpp ^
+    entities/subentities/stationary/UpgradeStation.cpp ^
     entities/systems/Effects.cpp ^
     entities/systems/Powerups.cpp ^
     entities/systems/Weapons.cpp ^
@@ -33,7 +33,9 @@ em++ ^
     game/ui/UIManager.cpp ^
     game/ui/UIUtils.cpp ^
     level/LevelLoader.cpp ^
-    level/TileManager.cpp ^
+    level/tiles/TileManager.cpp ^
+    level/tiles/TileManagerFileRead.cpp ^
+    level/tiles/TileManagerRendering.cpp ^
     main.cpp ^
     -o build-web/index.html ^
     -I . ^
