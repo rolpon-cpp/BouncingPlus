@@ -32,6 +32,8 @@ public:
 
     std::vector<Vector3> DamageNotifs;
 
+    double LastFrozeGame = 0.0f;
+
     float DashCooldown = 0;
     double DashTimeStart = 0;
     std::vector<std::weak_ptr<Enemy>> DashedEnemies;

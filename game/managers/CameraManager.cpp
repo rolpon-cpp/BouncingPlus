@@ -29,12 +29,11 @@ void CameraManager::Clear() {
     BGTexture = GetRandomValue(1, 3);
     ShowLines = GetRandomValue(1, 1000) == 783;
     ZoomResetTimer= 0;
-    ShaderDraw= false;
     ShaderPixelPower = 2;
     uWidth = -1;
     uHeight = -1;
     uPixelSize = -1;
-
+    uImpactFrame = -1;
     RaylibCamera = {{0,0}, {0, 0}, 0, 1.0f};
 }
 
@@ -59,26 +58,24 @@ void CameraManager::QuickZoom(float Zoom, double Time, bool Instant) {
     ZoomResetTimer = Time;
 }
 
-void CameraManager::Display() {
-    if (ShaderDraw)
-        BeginShaderMode(game->GameResources.Shaders["pixelizer"]);
+void CameraManager::Display(int ImpactFrame) {
+    BeginShaderMode(game->GameResources.Shaders["main_game"]);
     int w = CameraRenderTexture.texture.width;
     int h = CameraRenderTexture.texture.height;
-    if (uWidth == -1 || uHeight == -1 || uPixelSize == -1) {
-        uWidth = GetShaderLocation(this->game->GameResources.Shaders["pixelizer"], "renderWidth");
-        uHeight = GetShaderLocation(this->game->GameResources.Shaders["pixelizer"], "renderHeight");
-        uPixelSize = GetShaderLocation(this->game->GameResources.Shaders["pixelizer"], "pixelSize");
+    if (uWidth == -1 || uHeight == -1 || uPixelSize == -1 || uImpactFrame) {
+        uWidth = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "renderWidth");
+        uHeight = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "renderHeight");
+        uPixelSize = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "pixelSize");
+        uImpactFrame = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "impactFrame");
     }
-    SetShaderValue(game->GameResources.Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->GameResources.Shaders["main_game"], uWidth, &w, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["main_game"], uHeight, &h, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["main_game"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->GameResources.Shaders["main_game"], uImpactFrame, &ImpactFrame, SHADER_UNIFORM_INT);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetRenderWidth(), (float)-GetRenderHeight()}, {0, 0, (float)GetRenderWidth(), (float)GetRenderHeight()}, {0,0},0, WHITE);
     EndBlendMode();
-    if (ShaderDraw) {
-        EndShaderMode();
-        DrawText(to_string(ShaderPixelPower).c_str(), 150, 150, 50, RED);
-    }
+    EndShaderMode();
 }
 
 void CameraManager::ProcessCameraShake() {

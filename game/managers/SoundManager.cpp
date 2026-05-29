@@ -134,7 +134,7 @@ void SoundManager::Update() {
         {
             for (Sound& CachedSound : val)
             {
-                if (IsSoundValid(CachedSound) && IsSoundPlaying(CachedSound) && name != "dash_hit")
+                if (IsSoundValid(CachedSound) && IsSoundPlaying(CachedSound) && !name.starts_with("dash"))
                 {
                     PauseSound(CachedSound);
                 }

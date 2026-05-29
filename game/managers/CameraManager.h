@@ -32,6 +32,7 @@ class CameraManager {
     int uWidth;
     int uHeight;
     int uPixelSize;
+    int uImpactFrame;
 
     bool ShowLines;
 
@@ -48,7 +49,6 @@ class CameraManager {
         Vector2 CameraTarget;
         Camera2D RaylibCamera;
         float CameraZoom;
-        bool ShaderDraw;
         float ShaderPixelPower;
         CameraManager(Game &game);
         CameraManager();
@@ -59,7 +59,7 @@ class CameraManager {
         void BeginCamera();
         void ShakeCamera(float Intensity);
         void QuickZoom(float Zoom, double Time, bool Instant=false);
-        void Display();
+        void Display(int ImpactFrame = 0);
         void Begin();
         void End();
         void Clear();

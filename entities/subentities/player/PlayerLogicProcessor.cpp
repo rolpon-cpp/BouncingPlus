@@ -201,63 +201,82 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 {
     auto MyPlayer = Owner.lock();
     // check if we're colliding with them. if so, attack!
-    float extra_size = 64;
+    float extra_size = 80;
     Rectangle myRect = Rectangle{MyPlayer->BoundingBox.x - extra_size / 2, MyPlayer->BoundingBox.y - extra_size / 2, MyPlayer->BoundingBox.width + extra_size, MyPlayer->BoundingBox.height + extra_size};
     if (MyPlayer->game->DebugDraw)
         DrawRectangleRec(myRect, ColorAlpha(RED, 0.5f));
     if (CheckCollisionRecs(myRect, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
-        float Damage = min(MyPlayer->VelocityPower / 18.5f / max(1.0f, DashedEnemies.size() * 0.85f), 100.0f);
+        float Damage = min(MyPlayer->VelocityPower / 7.5f / max(1.0f, DashedEnemies.size() * 0.55f), 250.0f);
 
         float EnemyConcentration = 0.8f + (MyPlayer->FrameStressLevel*1.2f);
 
-        EnemyConcentration = max(min(EnemyConcentration, 2.0f), 1.0f);
+        EnemyConcentration = max(min(EnemyConcentration, 5.0f), 1.0f);
         EnemyConcentration *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
-        Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.0f), 5.5f);
+        Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.1f), 5.5f);
         if (entity->Armor <= 0)
             entity->Health -= Damage;
         else
             entity->Armor -= Damage;
 
-        float reward = Damage / 11.5f;
+        float reward = Damage / 15.5f;
         MyPlayer->Health += reward;
 
         float amount = 1500.0f;
 
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
-            MyPlayer->Health += Damage * 0.25f;
-            amount = 950;
+            MyPlayer->Health += reward * 0.25f;
+            amount = 2000.0f;
             MyPlayer->Kills+=1;
             this->IncreaseScore("Dash Kill", 45 * ((DashedEnemies.size() + 1.0f) * 1.25f), ColorContrast(GREEN,0.5f));
+            MyPlayer->game->GameSounds.PlayGameSound("dash_hit_kill",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.85f));
         }
 
+        // dashing particle effect
         MyPlayer->game->GameParticles.ParticleEffect({{
             MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2},
-                700,
+                1000,
                 PURPLE,
-                600,
+                1100,
                 MyPlayer->VelocityPower / 500.0f,
                 1.3f,
                 PINK
         }, 180-Vector2LineAngle({0,0}, MyPlayer->VelocityMovement)*RAD2DEG, 30, 35);
 
-        MyPlayer->game->Freeze(0.15f);
+        if (MyPlayer->game->GetGameTime() - LastFrozeGame >= 0.08f && (Damage >= 45.0f || entity->Health <= 0))
+        {
+            float StartFrames = 15.0f;
 
-        this->IncreaseScore("Dash", Damage / 1.5f,GREEN);
-        MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
-        MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 1.5f);
-        MyPlayer->game->GameCamera.QuickZoom(0.95f, 0.05f, false);
-        MyPlayer->game->GameSounds.PlayGameSound("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.8f));
+            StartFrames -= round(Damage / 15.0f);
+            if (entity->Health <= 0)
+                StartFrames -= 2.5f;
+
+            StartFrames = max(StartFrames, 8.5f);
+
+            MyPlayer->game->Freeze(1.0f / StartFrames);
+            LastFrozeGame = MyPlayer->game->GetGameTime();
+        }
+
+        MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 0.8f);
+        MyPlayer->game->GameCamera.CameraPosition +=
+            Vector2Normalize({(float)GetRandomValue(-35, 35), (float)GetRandomValue(-35, 35)}) * (MyPlayer->VelocityPower / 100);
+
+        MyPlayer->game->GameCamera.QuickZoom(0.65f, 0.1f, true);
+
+        MyPlayer->game->GameSounds.PlayGameSound("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.85f));
+
+        // increase score
+        this->IncreaseScore("Dash", Damage * 1.5f, GREEN);
 
         // give them pushback force
         entity->VelocityMovement = MyPlayer->VelocityMovement;
-        entity->VelocityPower = -MyPlayer->VelocityPower/2;
+        entity->VelocityPower = -MyPlayer->VelocityPower / 1.1f;
 
         // increase velocity and mark enemy as attacked
-        MyPlayer->VelocityPower += MyPlayer->VelocityPower / (amount/200);
+        MyPlayer->VelocityPower += MyPlayer->VelocityPower / (amount / 200.0f);
         DashedEnemies.push_back(std::weak_ptr(entity));
     }
 }
@@ -381,6 +400,8 @@ void PlayerLogicProcessor::DashLogic()
             DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_cooldown"].get<float>();
         }
         MyPlayer->IsPreparingForDash = false;
+
+        DashCooldown *= 1.95f;
     }
 
     // display dashing bar

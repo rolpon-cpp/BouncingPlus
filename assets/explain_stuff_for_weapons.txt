@@ -5,7 +5,7 @@
   "ShakeScreen": false, // does the weapon induce screen shake?
   "ChargeSpeed": 20, // how fast throwable weapon charges up
   "SlowdownOverTime": false, // should bullets the weapon fires slow down over time?
-  "Speed": 400, // how fast are the bullets? (pixels per second)
+  "Speed": 400, // how fast are the bullets? (pixels per second) / if melee weapon, how fast is the melee animation?
   "WeaponWeightSpeedMultiplier": 1, // should entities have their speeds reduced due to this weapon?
   "PushbackForce": 450, // wep pushback force (0 for no pushback)
   "WeaponSize": 1, // weapon texture size multiplier

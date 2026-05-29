@@ -52,15 +52,15 @@ void EntityManager::EntityUpdate()
 
 void EntityManager::EntityPhysicsUpdate()
 {
-    PhysicsAccumulator += GetFrameTime();
+    PhysicsAccumulator += game->GetGameDeltaTime();
     double g = game->GetGameTime();
 
     while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*game->GameSpeed)) {
 
-        double start = GetTime();
+        double start = game->GetGameTime();
 
         if (!game->MainPlayer->ShouldDelete)
-            game->MainPlayer->PhysicsUpdate(1.0f/PhysicsFPS, g + (GetTime() - start));
+            game->MainPlayer->PhysicsUpdate(1.0f/PhysicsFPS, g + (game->GetGameTime() - start));
 
         for (int e = 0; e < End; ++e) {
             if (static_cast<EntityType>(e) == PlayerType)
@@ -68,7 +68,7 @@ void EntityManager::EntityPhysicsUpdate()
             std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType)e];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                    entity->PhysicsUpdate(1.0f/PhysicsFPS, g + (GetTime() - start));
+                    entity->PhysicsUpdate(1.0f/PhysicsFPS, g + (game->GetGameTime() - start));
                 }
             }
         }

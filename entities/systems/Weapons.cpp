@@ -321,7 +321,7 @@ void WeaponsSystem::DisplayMeleeAnim()
         }
         // increase the animation's progress
         if (MeleeAnimPercent <= 1.0)
-            MeleeAnimPercent += 3 * game->GetGameDeltaTime();
+            MeleeAnimPercent += 3 * CurrentWeapon->Speed * game->GetGameDeltaTime();
 
         // set the animation's state to stop/start with the progress
         MeleeAnim = MeleeAnimPercent <= 1.0 || MeleeAnimAlpha > 0;
@@ -336,7 +336,7 @@ void WeaponsSystem::DisplayMeleeAnim()
             MeleeAnimAlpha = 1;
         } else {
             // if the animation is already complete, phase out the sword
-            MeleeAnimAlpha -= 3 * game->GetGameDeltaTime();
+            MeleeAnimAlpha -= 3 * CurrentWeapon->Speed * game->GetGameDeltaTime();
         }
 
         // render sword

@@ -258,16 +258,6 @@ void Game::Update() {
 
         GameTime += GetGameDeltaTime();
 
-        // shader stuff
-        if (!DebugDraw)
-            GameCamera.ShaderDraw = false;
-        if (this->GameControls->IsControlPressed("debug2") && DebugDraw)
-            GameCamera.ShaderDraw = !GameCamera.ShaderDraw;
-        if (this->GameControls->IsControlDown("debug3") && GameCamera.ShaderDraw)
-            GameCamera.ShaderPixelPower += 10 * GetGameDeltaTime();
-        if (this->GameControls->IsControlDown("debug4") && GameCamera.ShaderDraw)
-            GameCamera.ShaderPixelPower -= 10 * GetGameDeltaTime();
-
         if (this->GameControls->IsControlPressed("level_restart_or_finish"))
         {
             if (GameMode.WonLevel)
@@ -319,10 +309,7 @@ void Game::Update() {
     } else if (IsCursorHiddenCrossPlatform())
         ShowCursorCrossPlatform();
 
-    GameCamera.Display();
-
-    if (GameSpeed == 0.0f)
-        DrawRectangle(0,0,GetRenderWidth(),GetRenderHeight(),ColorAlpha(WHITE, 0.5f));
+    GameCamera.Display(GameSpeed == 0.0f);
 
     GameUI.GameUI();
 

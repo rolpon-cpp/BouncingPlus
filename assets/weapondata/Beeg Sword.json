@@ -10,7 +10,7 @@
   "WeaponSize": 5,
   "Ammo": -1,
   "ReloadTime": 0,
-  "Speed": 1.3,
+  "Speed": 0.5,
   "BulletLifetime": -1,
   "WeaponWeightSpeedMultiplier": 1,
   "Size": [1, 1],

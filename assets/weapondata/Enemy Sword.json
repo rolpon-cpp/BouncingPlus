@@ -11,7 +11,7 @@
   "Ammo": -1,
   "ReloadTime": 0,
   "BulletLifetime": -1,
-  "Speed": 0.4,
+  "Speed": 1.0,
   "WeaponWeightSpeedMultiplier": 0.7,
   "Size": [1, 1],
   "Damage": 14,
