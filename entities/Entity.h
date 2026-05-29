@@ -26,6 +26,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         Vector2 LastVelBounceCoord;
 
         float WeaponWeightSpeedMultiplier;
+        float FrameStackSpeed;
         float Rotation;
         float Speed;
         float Health;

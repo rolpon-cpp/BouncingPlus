@@ -59,14 +59,14 @@ Game::Game(SharedManager& Shared)
 
     // game speed & timing
     GameSpeed = 1.0f;
-    SlowdownTime = 0;
+    FreezeTime = 0;
     GameTime = 0.0f;
     AverageDeltaTime = 0.0f;
     LastAverageDeltaTime = 0.0f;
     LastDeltaTime = 0.0f;
     StutterCooldown = 0.0f;
     Stutters = 0;
-    MaxSlowdownTime = 0;
+    MaxFreezeTime = 0;
     LastStartedRecordingDelta = GetTime();
     GameScore = 0;
 
@@ -112,38 +112,18 @@ double Game::GetGameTime()
     return GameTime;
 }
 
-void Game::Slowdown(float Time) {
-    SlowdownTime = Time;
-    MaxSlowdownTime = Time;
-}
-
-void Game::Slowdown(float Time, float CrashIntensity) {
-    SlowdownTime = Time;
-    MaxSlowdownTime = Time;
-    SlowdownShakeIntensity = CrashIntensity;
+void Game::Freeze(float Time) {
+    FreezeTime = Time;
+    MaxFreezeTime = Time;
 }
 
 void Game::ProcessSlowdownAnimation() {
-    if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
+    if (FreezeTime > 0 && MaxFreezeTime > 0) {
         GameSpeed = 0.0f;
-        float Percent = SlowdownTime / MaxSlowdownTime;
-        if (Percent >= 0.1)
-        {
-            if (Percent < 0.5)
-                GameSpeed = Lerp(GameMode.LevelGameSpeed, GameMode.LevelGameSpeed / 10.0f, Percent / 0.5f);
-            else
-                GameSpeed = Lerp(GameMode.LevelGameSpeed, GameMode.LevelGameSpeed, (Percent-0.5f) / 0.5f);
-        }
-        if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
-            GameCamera.ShakeCamera(SlowdownShakeIntensity);
-            GameSounds.PlayGameSound("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
-            SlowdownShakeIntensity = 0;
-        }
-        SlowdownTime -= GetFrameTime();
+        FreezeTime -= GetFrameTime();
     } else {
-        SlowdownTime = 0;
-        MaxSlowdownTime = 0;
-        SlowdownShakeIntensity = 0;
+        FreezeTime = 0;
+        MaxFreezeTime = 0;
         GameSpeed = GameMode.LevelGameSpeed;
     }
 }
@@ -339,8 +319,11 @@ void Game::Update() {
     } else if (IsCursorHiddenCrossPlatform())
         ShowCursorCrossPlatform();
 
-
     GameCamera.Display();
+
+    if (GameSpeed == 0.0f)
+        DrawRectangle(0,0,GetRenderWidth(),GetRenderHeight(),ColorAlpha(WHITE, 0.5f));
+
     GameUI.GameUI();
 
     DisplayProfilerInfo();

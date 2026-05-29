@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+#include "raylib.h"
+
 class Entity;
 class Game;
 
@@ -30,6 +32,18 @@ public:
     Burning(float Damage, double Duration, double ImpactTime);
     void Update(std::shared_ptr<Entity> Owner);
     ~Burning();
+};
+
+class Swiftness : public Effect
+{
+public:
+    float SpeedInc;
+    double LastDidParticle;
+    Vector2 LastPos;
+    Swiftness(double ImpactTime);
+    Swiftness(float SpeedInc, double Duration, double ImpactTime);
+    void Update(std::shared_ptr<Entity> Owner);
+    ~Swiftness();
 };
 
 class Effects

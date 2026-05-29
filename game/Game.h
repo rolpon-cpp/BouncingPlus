@@ -39,9 +39,8 @@ struct RayCastData
 
 class Game {
 
-    float SlowdownTime;
-    float MaxSlowdownTime;
-    float SlowdownShakeIntensity;
+    float FreezeTime;
+    float MaxFreezeTime;
 
     UIManager GameUI;
     Profiler GameProfiler;
@@ -102,8 +101,7 @@ class Game {
         Game(SharedManager& Shared);
         void PlaceWeaponPickup(WeaponPickup Pickup);
         void ProcessFreezeZones();
-        void Slowdown(float Time);
-        void Slowdown(float Time, float ShakeIntensity);
+        void Freeze(float Time);
         void Reload(std::string Filename);
         void Update();
         void Clear();

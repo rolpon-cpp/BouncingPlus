@@ -35,9 +35,11 @@ void EntityManager::AddEntity(EntityType Type, std::shared_ptr<Entity> EntityToA
 
 void EntityManager::EntityUpdate()
 {
-    game->MainPlayer->Update();
+    if (!game->MainPlayer->ShouldDelete)
+        game->MainPlayer->Update();
+
     for (int e = 0; e < End; ++e) {
-        if ((EntityType)e == PlayerType)
+        if (static_cast<EntityType>(e) == PlayerType)
             continue;
         std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType)e];
         for (int i = 0; i < array->size(); i++) {
@@ -54,10 +56,14 @@ void EntityManager::EntityPhysicsUpdate()
     double g = game->GetGameTime();
 
     while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*game->GameSpeed)) {
+
         double start = GetTime();
-        game->MainPlayer->PhysicsUpdate(1.0f/PhysicsFPS, g + (GetTime() - start));
+
+        if (!game->MainPlayer->ShouldDelete)
+            game->MainPlayer->PhysicsUpdate(1.0f/PhysicsFPS, g + (GetTime() - start));
+
         for (int e = 0; e < End; ++e) {
-            if ((EntityType)e == PlayerType)
+            if (static_cast<EntityType>(e) == PlayerType)
                 continue;
             std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType)e];
             for (int i = 0; i < array->size(); i++) {

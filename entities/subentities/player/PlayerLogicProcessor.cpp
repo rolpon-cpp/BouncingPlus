@@ -242,6 +242,8 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
                 PINK
         }, 180-Vector2LineAngle({0,0}, MyPlayer->VelocityMovement)*RAD2DEG, 30, 35);
 
+        MyPlayer->game->Freeze(0.15f);
+
         this->IncreaseScore("Dash", Damage / 1.5f,GREEN);
         MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
         MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 1.5f);
@@ -261,7 +263,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 void PlayerLogicProcessor::DashAttacking()
 {
     auto MyPlayer = Owner.lock();
-    if (MyPlayer->VelocityPower > 150 && !MyPlayer->Dodging) {
+    if (MyPlayer->VelocityPower > 1000 && !MyPlayer->Dodging) {
         // get enemies list
         std::vector<shared_ptr<Entity>>* array = &MyPlayer->game->GameEntities.Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
@@ -358,8 +360,9 @@ void PlayerLogicProcessor::DashLogic()
         DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
         MyPlayer->VelocityMovement = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera.RaylibCamera), {MyPlayer->BoundingBox.x+MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y+MyPlayer->BoundingBox.height/2});
-        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>() * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
-        MyPlayer->VelocityPower /= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 1.25f);
+        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>()
+        * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
+        MyPlayer->VelocityPower /= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 1.1f);
         MyPlayer->VelocityPower *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
         MyPlayer->game->GameSounds.PlayGameSound("dash");
         MyPlayer->PlayerFrozenTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_frozen_multiplier"].get<float>() *

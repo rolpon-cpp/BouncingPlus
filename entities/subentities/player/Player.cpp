@@ -103,10 +103,10 @@ void Player::OnWallVelocityBump(float Power)
     if (Power >= 400)
     {
         if (VelocityPower > 150 && !Dodging)
-            game->GameSounds.PlayGameSound("dash_wall_hit");
-
+            game->GameSounds.PlayGameSound("dash_wall_hit", 0.25f);
+        VelocityPower *= 0.45f;
         Entity::OnWallVelocityBump(Power);
-        int ParticleAmount = round(Power / 500.0f);
+        int ParticleAmount = round(Power / 600.0f);
         bool PURPLE_OR_BLUE = GetRandomValue(1,2)==1;
         if (ParticleAmount > 0)
             game->GameParticles.ParticleEffect({
@@ -119,12 +119,11 @@ void Player::OnWallVelocityBump(float Power)
                 PURPLE_OR_BLUE ? BLUE : PURPLE
             }, (180 - Vector2LineAngle(VelocityMovement, {0,0})*RAD2DEG), 15, ParticleAmount);
         if (Dodging)
-            VelocityPower *= 2.0f;
-
+            VelocityPower *= 0.5f;
         if (!isInvincible)
         {
             float PreviousH = Health;
-            float Damage = Power / 390.0f;
+            float Damage = Power / 500.0f;
             if (Health - Damage >= 20)
             {
                 Health -= Damage;
@@ -238,8 +237,6 @@ void Player::SystemsInitCheck()
         this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->MainEffectsSystem = Effects(shared_from_this(), *game);
         this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
-
-        //MainEffectsSystem.AddEffect(new Burning(game->GetGameTime()));
 
         auto f = game->GameShared->LevelData[game->CurrentLevelName]["player"]["inventory"];
         for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {

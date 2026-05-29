@@ -125,6 +125,35 @@ void SoundManager::Update() {
         }
     }
 
+    if (game->GameSpeed == 0.0f)
+    {
+        for (auto &[name, val] : CachedAliases)
+        {
+            for (Sound& CachedSound : val)
+            {
+                if (IsSoundValid(CachedSound) && IsSoundPlaying(CachedSound) && name != "dash_hit")
+                {
+                    PauseSound(CachedSound);
+                }
+            }
+        }
+        for (auto& [name,music] : Musics)
+            PauseMusicStream(music);
+    } else
+    {
+        for (auto &[name, val] : CachedAliases)
+        {
+            for (Sound& CachedSound : val)
+            {
+                if (IsSoundValid(CachedSound) && IsSoundPlaying(CachedSound))
+                {
+                    ResumeSound(CachedSound);
+                }
+            }
+        }
+        for (auto& [name,music] : Musics)
+            ResumeMusicStream(music);
+    }
 }
 
 void SoundManager::ClearCache()

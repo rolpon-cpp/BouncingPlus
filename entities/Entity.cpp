@@ -21,6 +21,7 @@ void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) 
     this->Movement = Vector2{0, 0};
     this->Speed = Speed;
     this->Rotation = 0;
+    this->FrameStackSpeed = 0.0f;
     this->ShouldDelete = false;
     this->CollisionsEnabled = true;
     this->MaxHealth = 100;
@@ -52,7 +53,7 @@ Vector2 Entity::GetCenter()
 }
 
 float Entity::GetSpeed() {
-    return Speed * WeaponWeightSpeedMultiplier;
+    return (Speed * WeaponWeightSpeedMultiplier) + FrameStackSpeed;
 }
 
 void Entity::OnWallVelocityBump(float Power)
@@ -74,10 +75,22 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
         return;
 
     if (entity->Type == PlayerType)
-        game->MainPlayer->LogicProcessor.DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
+        game->MainPlayer->LogicProcessor.DamageNotification(owner->GetCenter());
 
     if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
         return;
+
+    game->GameParticles.ParticleEffect({
+        entity->GetCenter(),
+        GetRandomValue(2500,3000) / 7.5f,
+        RED,
+        750.0f,
+        3.5f,
+        2.0f,
+        ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
+    },
+    (180.0f - Vector2LineAngle(entity->GetCenter(),owner->GetCenter())*RAD2DEG),
+        15, GetRandomValue(9, 15) * (Damage / 10.0f));
 
     if (entity->Type == EnemyType) { // if victim is enemy, check for armor damage
         shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
@@ -290,6 +303,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 
 
     }
+    FrameStackSpeed = 0.0f;
 }
 
 bool Entity::IsVisible()

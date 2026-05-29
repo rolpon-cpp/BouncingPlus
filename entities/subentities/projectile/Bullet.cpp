@@ -59,12 +59,14 @@ std::pair<bool,vector<Vector2>> Bullet::BulletCollision()
             int curr_tile_x = tile_x + x - 1;
             int curr_tile_y = tile_y + y - 1;
             int tile_id = game->GameTiles.GetTileAt(curr_tile_x, curr_tile_y);
-            if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+            if (game->GameTiles.TileTypes[tile_id] == WallTileType || game->GameTiles.TileTypes[tile_id] == EnemyWallTileType) {
                 float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                 float bbox_y = curr_tile_y * game->GameTiles.TileSize;
                 Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
                 if (CheckCollisionCircleRec(GetCenter(), BoundingBox.height, bbox)) {
                     can_move = false;
+                    if (game->GameTiles.TileTypes[tile_id] == EnemyWallTileType)
+                        ShouldDelete = true;
                     if (tile_id == 2)
                         ShouldDelete = true;
                     if (tile_id == 1)

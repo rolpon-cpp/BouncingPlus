@@ -190,17 +190,18 @@ void CameraManager::UpdateCamera()
     float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetRenderWidth()) / 2.0f);
     float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetRenderHeight()) / 2.0f);
 
-    float ImportantVal = 20.0f * (static_cast<float>(GetFPS()) / 144.0f);
+    float ImportantVal = 20.0f * (1.0f / game->GetGameDeltaTime() / 144.0f);
     if (ImportantVal != 0.0f) {
         CameraPositionUnaffected.x += TargetX / ImportantVal;
         CameraPositionUnaffected.y += TargetY / ImportantVal;
         CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
         CameraPosition = Vector2Add(CameraPosition, MouseOffset);
-        CameraPosition = Vector2Add(CameraPosition, Vector2{(5.0f + min(game->MainPlayer->Kills, 7)) * (float)sin(game->GetGameTime()), (5.0f + min(game->MainPlayer->Kills, 7)) * (float)cos(game->GetGameTime())});
+        CameraPosition = Vector2Add(CameraPosition, Vector2{(5.0f + min(game->MainPlayer->Kills, 7)) * (float)sin(game->GetGameTime()),
+            (5.0f + min(game->MainPlayer->Kills, 7)) * (float)cos(game->GetGameTime())});
     }
 
     RaylibCamera.zoom = Lerp(RaylibCamera.zoom, CameraZoom * GetNaturalZoom(), 4.0f * game->GetGameDeltaTime() * GetNaturalZoom());
-    RaylibCamera.target = CameraPosition;//Vector2Add({((float)GetRenderWidth()/2.0f), ((float)GetRenderHeight()/2.0f)},CameraPosition);
+    RaylibCamera.target = CameraPosition;
     RaylibCamera.offset = {((float)GetRenderWidth()/2.0f) * (1-RaylibCamera.zoom), ((float)GetRenderHeight()/2.0f) * (1-RaylibCamera.zoom)};
 }
 

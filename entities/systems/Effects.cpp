@@ -4,11 +4,15 @@
 
 #include "Effects.h"
 
+#include <iostream>
+
 #ifndef PLATFORM_WEB
 #include "../../../../game/Game.h"
 #else
 #include "game/Game.h"
 #endif
+
+#include "raymath.h"
 
 Effect::Effect(double Duration, double ImpactTime)
 {
@@ -45,7 +49,7 @@ void Burning::Update(std::shared_ptr<Entity> Owner)
     Owner->Health -= Damage * game->GetGameDeltaTime();
     if (game->GetGameTime() - LastDidFireParticle >= 0.025f)
     {
-        game->GameCamera.QuickZoom(0.3f, 0.1f);
+        game->GameCamera.QuickZoom(1.15f, 0.5f);
         game->GameParticles.ParticleEffect({
             Owner->GetCenter(),
             65.0f,
@@ -57,6 +61,53 @@ void Burning::Update(std::shared_ptr<Entity> Owner)
         }, -90, 35, 3);
         LastDidFireParticle = game->GetGameTime();
     }
+}
+
+Swiftness::Swiftness(double ImpactTime) : Effect(5.0f, ImpactTime)
+{
+    this->LastDidParticle = 0.0f;
+    this->SpeedInc = 500.0f;
+}
+
+Swiftness::Swiftness(float SpeedInc, double Duration, double ImpactTime) : Effect(Duration, ImpactTime)
+{
+    this->SpeedInc = SpeedInc;
+    this->LastDidParticle = 0.0f;
+}
+
+void Swiftness::Update(std::shared_ptr<Entity> Owner)
+{
+    Effect::Update(Owner);
+    Game *game = Owner->game;
+
+    double EffectPercentage = (game->GetGameTime() - ImpactTime) / Duration;
+    float Multiplier = abs(EffectPercentage - 0.5f) / 0.5f;
+    Multiplier = 1.0f - Multiplier;
+    Multiplier *= 1.5f;
+
+    Multiplier = max(Multiplier, 0.5f);
+
+    game->GameCamera.QuickZoom(0.85f, 0.5f);
+    if (Vector2Distance(Owner->GetCenter(), LastPos) > 0 && game->GetGameTime() - LastDidParticle >= 0.1f)
+    {
+        game->GameParticles.ParticleEffect({
+            Owner->GetCenter(),
+            Owner->GetSpeed() * 1.5f,
+            ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), ColorBrightness(SKYBLUE, 0.5f), 0.5f),
+            Owner->GetSpeed() * 2.5f,
+            16.0f,
+            0.65f,
+            ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), SKYBLUE, GetRandomValue(1, 100) / 100.0f)
+        }, 180.0f - (Vector2LineAngle(Owner->GetCenter(),LastPos) * RAD2DEG), 35, GetRandomValue(1,2));
+        LastDidParticle = game->GetGameTime();
+    }
+
+    Owner->FrameStackSpeed = SpeedInc * Multiplier;
+    LastPos = Owner->GetCenter();
+}
+
+Swiftness::~Swiftness()
+{
 }
 
 Effects::Effects(std::shared_ptr<Entity> Owner, Game& game)
@@ -128,6 +179,7 @@ void Effects::Update()
 
 void Effects::Cleanup()
 {
+    cout << "Cleanup!\n";
     for (Effect* effect : CurrentEffects)
         delete effect;
     CurrentEffects.clear();
