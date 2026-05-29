@@ -97,17 +97,19 @@ void PlayerLogicProcessor::HandleFightMusic()
         if (MyPlayer->StressLevel <= 0.3f)
         {
             FightMusicLayerGoal = 1.0f;
+            LayerSwitchCooldown = 2.0f;
         } else if (MyPlayer->StressLevel <= 0.5f)
         {
             FightMusicLayerGoal = 2.0f;
+            LayerSwitchCooldown = 2.0f;
         } else if (MyPlayer->StressLevel <= 0.7)
         {
             FightMusicLayerGoal = 3.0f;
-            LayerSwitchCooldown = 2.0f;
+            LayerSwitchCooldown = 3.5f;
         } else if (MyPlayer->StressLevel <= 1.0f)
         {
             FightMusicLayerGoal = 4.0f;
-            LayerSwitchCooldown = 10.0f;
+            LayerSwitchCooldown = 5.0f;
         }
     } else
     {
@@ -219,7 +221,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         else
             entity->Armor -= Damage;
 
-        float reward = Damage / 9.5f;
+        float reward = Damage / 11.5f;
         MyPlayer->Health += reward;
 
         float amount = 1500.0f;

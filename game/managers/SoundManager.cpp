@@ -95,17 +95,20 @@ void SoundManager::Update() {
         SetMusicVolume(Musics[s],f2);
     }
 
-    for (auto& [name,val]: Musics)
+    if (game->GameSpeed != 0)
     {
-        if (IsMusicStreamPlaying(val))
-            UpdateMusicStream(val);
+        for (auto& [name,val]: Musics)
+        {
+            if (IsMusicStreamPlaying(val))
+                UpdateMusicStream(val);
+        }
     }
 
     int i = 0;
     for (auto& [name,value] : CachedAliases) {
         std::erase_if(value, [&](Sound& sound) {
             bool SoundCondition = false;
-            #ifdef PLATFORM_WEB
+            #ifndef PLATFORM_WEB
                 SoundCondition = ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound));
             #else
                 SoundCondition = (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound)));
@@ -137,8 +140,6 @@ void SoundManager::Update() {
                 }
             }
         }
-        for (auto& [name,music] : Musics)
-            PauseMusicStream(music);
     } else
     {
         for (auto &[name, val] : CachedAliases)
@@ -151,8 +152,6 @@ void SoundManager::Update() {
                 }
             }
         }
-        for (auto& [name,music] : Musics)
-            ResumeMusicStream(music);
     }
 }
 

@@ -179,7 +179,6 @@ void Effects::Update()
 
 void Effects::Cleanup()
 {
-    cout << "Cleanup!\n";
     for (Effect* effect : CurrentEffects)
         delete effect;
     CurrentEffects.clear();
