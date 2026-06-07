@@ -6,11 +6,7 @@
 
 #include <iostream>
 
-#ifndef PLATFORM_WEB
 #include "../../game/Game.h"
-#else
-#include "game/Game.h"
-#endif
 
 #include "raymath.h"
 
