@@ -31,7 +31,7 @@ for metadata.json:
   },
   "game": { // game properties
     "timer": -1, // does the level have a timer?
-    "win": "kill_all_enemies", // level win condition: kill_all_enemies, nothing
+    "win": "kill_all_enemies", // level win condition: kill_all_enemies, complete_10_waves, nothing
     "time_pass_speed" : 1.0, // controls how time passes in the level, 1.0 is normal speed
     "friendly_fire": false, // controls if enemies can friendly fire
     "mode": "default", // what gamemode is the level? current modes: default,wave,boss

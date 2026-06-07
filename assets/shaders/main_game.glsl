@@ -18,6 +18,7 @@ uniform int renderHeight;
 uniform float pixelSize;
 
 uniform int impactFrame;
+uniform float impactFrameRadius;
 
 void main()
 {
@@ -29,15 +30,16 @@ void main()
     vec3 tc = texture(texture0, coord).rgb;
 
     if (impactFrame == 1) {
-        float avg = (tc.r + tc.g + tc.b) / 3.0;
-        //tc = vec3(avg, avg, avg);
-        float impactFactor = 5.0;
-        if (avg < 0.5) {
-            tc = vec3(avg / impactFactor, avg / impactFactor, avg / impactFactor);
-        } else {
-            tc = vec3(avg * impactFactor, avg * impactFactor, avg * impactFactor);
+        if (impactFrameRadius < 0.0 || distance(vec2(float(renderWidth) * fragTexCoord.x, float(renderHeight) * fragTexCoord.y), vec2(float(renderWidth) / 2.0, float(renderHeight) / 2.0)) <= impactFrameRadius) {
+            float avg = (tc.r + tc.g + tc.b) / 3.0;
+            //tc = vec3(avg, avg, avg);
+            float impactFactor = 5.0;
+            if (avg < 0.5) {
+                tc = vec3(avg / impactFactor, avg / impactFactor, avg / impactFactor);
+            } else {
+                tc = vec3(avg * impactFactor, avg * impactFactor, avg * impactFactor);
+            }
         }
-
     }
 
     finalColor = vec4(tc, 1.0);

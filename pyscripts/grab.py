@@ -15,6 +15,8 @@ def cool(dir1):
     s = ""
     if "cmake" in dir1:
         return s
+    if "venv" in dir1:
+        return s
     for i in os.listdir(dir1):
         i = str(i)
         p = os.path.join(dir1, i)
@@ -28,6 +30,7 @@ os.chdir(os.path.join(os.getcwd(), "..\\"))
 s = cool(".\\")
 f = s.split(" ")
 g = ""
+g2 = ""
 for p in f:
     if len(p)>0:
         lf = count_lines(p)
@@ -35,7 +38,9 @@ for p in f:
         files.append([p, lf])
     if not p.endswith(".h"):
         g += (str(p).replace("\\","/")+ " ^\n")[2:]
+    g2 += (str(p).replace("\\","/")+" ")[2:]
 print(g)
+print(g2)
 
 print(str(lines) + " lines of code")
 greatest_lines = -1
