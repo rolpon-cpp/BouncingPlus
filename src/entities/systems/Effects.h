@@ -42,13 +42,11 @@ public:
 class Burning : public Effect
 {
 public:
-    EffectType Type = BURNING;
     float Damage;
     std::weak_ptr<Entity> Owner = std::weak_ptr<Entity>();
     double OwnerReward;
     double LastDidFireParticle;
     double LastDidSFX;
-    bool RewardedOwner;
     float GradientProg;
     Burning(double ImpactTime);
     Burning(float Damage, double Duration, double ImpactTime);
@@ -61,7 +59,6 @@ public:
 class Swiftness : public Effect
 {
 public:
-    EffectType Type = SWIFTNESS;
     float SpeedInc;
     double LastDidParticle;
     Vector2 LastPos;
@@ -81,6 +78,7 @@ public:
     Effects(std::shared_ptr<Entity> Owner, Game &game);
     Effects();
     virtual ~Effects() = default;
+    bool HasEffect(EffectType Type);
     void AddEffect(Effect* effect);
     void AddEffect(EffectData type);
     void Update();

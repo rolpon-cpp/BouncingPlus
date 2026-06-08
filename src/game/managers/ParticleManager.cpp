@@ -91,10 +91,17 @@ void ParticleManager::Update() {
             if (p.Effect.Type != DEFAULT)
             {
                 for (shared_ptr entity : game->GameEntities.Entities[EnemyType]) {
-                    auto enemy = dynamic_pointer_cast<Enemy>(entity);
                     if (entity != nullptr && entity != p.Effect.Owner.lock() && !entity->ShouldDelete) {
+                        auto enemy = dynamic_pointer_cast<Enemy>(entity);
                         if (CheckCollisionCircleRec(p.Position, p.Data.Size/2.0f, entity->BoundingBox))
                         {
+                            if (auto o = p.Effect.Owner.lock())
+                            {
+                                if (p.Effect.Type == BURNING && o->Type == PlayerType && !enemy->MainEffectsSystem.HasEffect(BURNING))
+                                {
+                                    game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Burn", 15.0f, RED);
+                                }
+                            }
                             enemy->MainEffectsSystem.AddEffect(p.Effect);
                             sd = true;
                             return sd;

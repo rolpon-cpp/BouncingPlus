@@ -14,12 +14,14 @@ Effect::Effect(double Duration, double ImpactTime)
 {
     this->Duration = Duration;
     this->ImpactTime = ImpactTime;
+    Type = DEFAULT;
 }
 
 Effect::Effect(double ImpactTime)
 {
     this->Duration = 0.0f;
     this->ImpactTime = ImpactTime;
+    Type = DEFAULT;
 }
 
 void Effect::Update(std::shared_ptr<Entity> ImpactedEntity)
@@ -31,7 +33,7 @@ Burning::Burning(float Damage, double Duration, double ImpactTime) : Effect(Dura
     this->Damage = Damage;
     LastDidFireParticle = 0.0f;
     OwnerReward = 0;
-    RewardedOwner = false;
+    Type = BURNING;
     GradientProg = 0;
     LastDidSFX= 0.0f;
 }
@@ -41,7 +43,7 @@ Burning::Burning(double ImpactTime) : Effect(10.0f, ImpactTime)
     Damage = 15.0f;
     LastDidFireParticle = 0.0f;
     OwnerReward = 0;
-    RewardedOwner = false;
+    Type = BURNING;
     GradientProg = 0;
     LastDidSFX = 0.0f;
 }
@@ -62,14 +64,20 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
     Effect::Update(ImpactedEntity);
     Game *game = ImpactedEntity->game;
 
-    ImpactedEntity->Health -= Damage * game->GetGameDeltaTime();
     if (auto owner = Owner.lock())
     {
-        if (owner != ImpactedEntity && ImpactedEntity->Health <= 0.0f && !RewardedOwner)
+        if (owner != ImpactedEntity)
         {
-            owner->Health += OwnerReward;
-            RewardedOwner = true;
+            owner->DamageOther(ImpactedEntity, Damage * game->GetGameDeltaTime(), owner, OwnerReward);
+            if (ImpactedEntity->Health <= 0.0f)
+            {
+                if (owner->Type == PlayerType)
+                    owner->game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Burn Kill", 50.0f, ORANGE);
+            }
         }
+    } else
+    {
+        ImpactedEntity->Health -= Damage * game->GetGameDeltaTime();
     }
 
     float Percent = (game->GetGameTime() - ImpactTime) / Duration;
@@ -115,12 +123,14 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
 Swiftness::Swiftness(double ImpactTime) : Effect(5.0f, ImpactTime)
 {
     this->LastDidParticle = 0.0f;
+    Type = SWIFTNESS;
     this->SpeedInc = 500.0f;
 }
 
 Swiftness::Swiftness(float SpeedInc, double Duration, double ImpactTime) : Effect(Duration, ImpactTime)
 {
     this->SpeedInc = SpeedInc;
+    Type = SWIFTNESS;
     this->LastDidParticle = 0.0f;
 }
 
@@ -219,6 +229,18 @@ void Effects::AddEffect(Effect* effect)
     });
     effect->ImpactTime = game->GetGameTime();
     CurrentEffects.push_back(effect);
+}
+
+bool Effects::HasEffect(EffectType Type)
+{
+    for (Effect* effect : CurrentEffects)
+    {
+        if (effect->Type == Type)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Effects::RemoveOldestEffect()
