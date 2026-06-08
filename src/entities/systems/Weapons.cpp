@@ -367,30 +367,47 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
 void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 {
     auto Owner = OwnerPtr.lock();
-    std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources.Textures.count(CurrentWeapon->BulletTexture))
-            ? CurrentWeapon->BulletTexture : "bullet";
 
-    float BulletLifetime = 8.5f;
-    if (CurrentWeapon->BulletLifetime != -1)
-        BulletLifetime = CurrentWeapon->BulletLifetime;
+    if (!CurrentWeapon->Flames)
+    {
+        std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources.Textures.count(CurrentWeapon->BulletTexture))
+                ? CurrentWeapon->BulletTexture : "bullet";
 
-    // loop through requested shots
-    for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
+        float BulletLifetime = 8.5f;
+        if (CurrentWeapon->BulletLifetime != -1)
+            BulletLifetime = CurrentWeapon->BulletLifetime;
 
-        float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
-        if (CurrentWeapon->Bullets > 1)
-            Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
+        // loop through requested shots
+        for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
 
-        // create bullet with weapon settings
-        shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
-                                                        game->GameResources.Textures[BulletTexture], Owner, *game);
-        bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
-        bullet->HealthGain = CurrentWeapon->HealthGain;
-        if (Owner->Type == PlayerType)
-            bullet->EntityColor = {255, 180, 255, 255};
-        if (Owner->Type == EnemyType)
-            bullet->EntityColor = {255, 182, 217, 255};
-        game->GameEntities.AddEntity(BulletType, bullet);
+            float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
+            if (CurrentWeapon->Bullets > 1)
+                Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
+
+            // create bullet with weapon settings
+            shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
+                                                            game->GameResources.Textures[BulletTexture], Owner, *game);
+            bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
+            bullet->HealthGain = CurrentWeapon->HealthGain;
+            if (Owner->Type == PlayerType)
+                bullet->EntityColor = {255, 180, 255, 255};
+            if (Owner->Type == EnemyType)
+                bullet->EntityColor = {255, 182, 217, 255};
+            game->GameEntities.AddEntity(BulletType, bullet);
+        }
+    } else
+    {
+        game->GameParticles.ParticleEffect({
+            {cX, cY},
+            CurrentWeapon->Speed,
+            ColorLerp(RED, ORANGE, 0.5f),
+            CurrentWeapon->SlowdownOverTime ? CurrentWeapon->Speed / 2.0f : 0,
+            CurrentWeapon->Size.x,
+            CurrentWeapon->BulletLifetime,
+            ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
+        }, TargetAngle - 180.0f, CurrentWeapon->AngleRange, CurrentWeapon->Bullets, {
+            BURNING, Owner, CurrentWeapon->Damage, CurrentWeapon->HealthGain, CurrentWeapon->BulletLifetime * 2.0f,
+        });
     }
 
     // pushback character
@@ -450,7 +467,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
         // Play weapon sound
         if (game->GameSounds.Sounds.count(s) && (CurrentWeapon->isMelee || Valid)) {
-            float Distance = Vector2Distance(Owner->GetCenter(), Vector2Add(game->GameCamera.CameraPosition, {GetRenderWidth() / 2.0f, GetRenderHeight() / 2.0f}));
+            float Distance = Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter());
 
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
             DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;

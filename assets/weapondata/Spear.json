@@ -1,5 +1,7 @@
  {
    "EnemiesCanUse": false,
+   "Flames": false,
+   "Flames": false,
   "isMelee": true,
   "ShakeScreen": false,
   "SlowdownOverTime": false,

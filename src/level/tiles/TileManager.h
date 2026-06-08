@@ -73,6 +73,7 @@ class TileManager {
         TileManager(Game &game);
         int GetTileAt(int x, int y);
         int GetTileAt(Vector2 coord);
+        int GetTileAtWorldCoords(Vector2 coord);
         void SetTileAt(int x, int y, int id);
         void SetTileAt(Vector2 coord, int id);
         void Update();

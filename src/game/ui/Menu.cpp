@@ -32,6 +32,8 @@ Menu::Menu(SharedManager& GameSettings)
     this->Shared = &GameSettings;
     Reset();
     PlaySound(this->Shared->SharedUIAssets.MikuMusic);
+    SetSoundVolume(this->Shared->SharedUIAssets.MikuMusic,0.0f);
+    PauseSound(this->Shared->SharedUIAssets.MikuMusic);
 
     AttachAudioStreamProcessor(this->Shared->SharedUIAssets.MainMenuMusic.stream, this->AudioCallback);
 }
@@ -362,7 +364,6 @@ void Menu::Update()
     }
 
     Credits();
-    ShopStuff();
 
     if (Button({
                    GetRenderWidth() * 2 + (GetRenderWidth() / 2.0f) - 75.0f - CameraX,
@@ -425,6 +426,7 @@ void Menu::Update()
     }
 
     LevelSelect();
+    ShopStuff();
 
     DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, BlackTransparency));
 }

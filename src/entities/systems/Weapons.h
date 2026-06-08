@@ -18,6 +18,7 @@ struct Weapon {
     bool isMelee = false;
     bool Throwable = false;
     bool ShakeScreen = false;
+    bool Flames = false;
     bool SlowdownOverTime = false;
     float ChargeSpeed = 0;
     float PushbackForce = 0;

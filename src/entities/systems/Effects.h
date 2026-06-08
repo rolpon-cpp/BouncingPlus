@@ -4,6 +4,7 @@
 
 #ifndef BOUNCINGPLUS_EFFECTS_H
 #define BOUNCINGPLUS_EFFECTS_H
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -12,37 +13,61 @@
 class Entity;
 class Game;
 
+enum EffectType
+{
+    DEFAULT, BURNING, SWIFTNESS
+};
+
+struct EffectData
+{
+    EffectType Type = DEFAULT;
+    std::weak_ptr<Entity> Owner; // make sure this isnt a nullptr before using!!!
+    float Power = 0;
+    float Reward = 0;
+    float Duration = 0;
+};
+
 class Effect
 {
 public:
+    EffectType Type = DEFAULT;
     double Duration;
     double ImpactTime;
     Effect(double Duration, double ImpactTime);
     Effect(double ImpactTime);
-    virtual void Update(std::shared_ptr<Entity> Owner);
+    virtual void Update(std::shared_ptr<Entity> ImpactedEntity);
     virtual ~Effect();
 };
 
 class Burning : public Effect
 {
 public:
+    EffectType Type = BURNING;
     float Damage;
+    std::weak_ptr<Entity> Owner = std::weak_ptr<Entity>();
+    double OwnerReward;
     double LastDidFireParticle;
+    double LastDidSFX;
+    bool RewardedOwner;
+    float GradientProg;
     Burning(double ImpactTime);
     Burning(float Damage, double Duration, double ImpactTime);
-    void Update(std::shared_ptr<Entity> Owner);
+    void SetOwner(std::shared_ptr<Entity> Owner);
+    void SetOwnerReward(double Reward);
+    void Update(std::shared_ptr<Entity> ImpactedEntity);
     ~Burning();
 };
 
 class Swiftness : public Effect
 {
 public:
+    EffectType Type = SWIFTNESS;
     float SpeedInc;
     double LastDidParticle;
     Vector2 LastPos;
     Swiftness(double ImpactTime);
     Swiftness(float SpeedInc, double Duration, double ImpactTime);
-    void Update(std::shared_ptr<Entity> Owner);
+    void Update(std::shared_ptr<Entity> ImpactedEntity);
     ~Swiftness();
 };
 
@@ -57,6 +82,7 @@ public:
     Effects();
     virtual ~Effects() = default;
     void AddEffect(Effect* effect);
+    void AddEffect(EffectData type);
     void Update();
     void Cleanup();
 };

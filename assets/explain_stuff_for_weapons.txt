@@ -1,6 +1,7 @@
 
   "EnemiesCanUse": false, // can enemies spawn with/utilize this weapon?
   "isMelee": false, // is the weapon melee?
+  "Flames": false, // does the weapon release flames instead of bullets? (useless on melee weps)
   "Throw": false, // is the weapon throwable/spear based?
   "ShakeScreen": false, // does the weapon induce screen shake?
   "ChargeSpeed": 20, // how fast throwable weapon charges up

@@ -80,6 +80,9 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
         return;
 
+    int ParticleAmount =GetRandomValue(9, 15) * (Damage / 100.0f);
+    if (ParticleAmount > 30)
+        ParticleAmount = 30;
     game->GameParticles.ParticleEffect({
         entity->GetCenter(),
         GetRandomValue(2500,3000) / 7.5f,
@@ -90,7 +93,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
         ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
     },
     (180.0f - Vector2LineAngle(entity->GetCenter(),owner->GetCenter())*RAD2DEG),
-        15, GetRandomValue(9, 15) * (Damage / 10.0f));
+        15, ParticleAmount);
 
     if (entity->Type == EnemyType) { // if victim is enemy, check for armor damage
         shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);

@@ -7,6 +7,8 @@
 #include <vector>
 #include <raylib.h>
 
+#include "../../entities/systems/Effects.h"
+
 class Game;
 
 struct ParticleData {
@@ -26,6 +28,7 @@ struct Particle {
     float Velocity;
     double SpawnTime;
     Color ParticleColor;
+    EffectData Effect;
 };
 
 class ParticleManager {
@@ -36,7 +39,7 @@ class ParticleManager {
     public:
     ParticleManager();
     ParticleManager(Game &game);
-    void ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount);
+    void ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount, EffectData PEffectData = {DEFAULT, std::weak_ptr<Entity>(), 0, 0, 0});
     void Clear();
     void Update();
     void Quit();

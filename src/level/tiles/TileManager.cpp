@@ -61,6 +61,13 @@ void TileManager::SetTileAt(int x, int y, int id)
     Map[idx] = id;
 }
 
+int TileManager::GetTileAtWorldCoords(Vector2 coord)
+{
+    int x = (int) (coord.x / TileSize);
+    int y = (int) (coord.y / TileSize);
+    return GetTileAt(x, y);
+}
+
 void TileManager::SetTileAt(Vector2 coord, int id)
 {
     SetTileAt(coord.x, coord.y, id);

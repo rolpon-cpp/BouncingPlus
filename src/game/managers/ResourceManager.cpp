@@ -81,13 +81,15 @@ void ResourceManager::LoadWeaponData()
                 continue;
             }
 
-            nlohmann::json data = nlohmann::json::parse(g);
+            json data = json::parse(g);
 
             Weapon wep = {};
             if (data.count("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
                 EnemyWeaponNamesList.push_back(p);
             if (data.count("isMelee"))
                 wep.isMelee = data["isMelee"].get<bool>();
+            if (data.count("Flames"))
+                wep.Flames = data["Flames"].get<bool>();
             if (data.count("Throw"))
                 wep.Throwable = data["Throw"].get<bool>();
             if (data.count("ShakeScreen"))

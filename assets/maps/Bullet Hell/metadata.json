@@ -1,10 +1,10 @@
 {
-  "description": "No special dudes, just pure bullets.",
+  "description": "No special dudes, just pure bullets and fire.",
   "difficulty": 4,
   "music": "danger",
   "player": {
     "inventory": [
-      "Player Gun"
+      "Player Gun", "Fire Shotgun"
     ],
     "powerup": "tank",
     "starting_health": 200,

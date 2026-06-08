@@ -3,6 +3,8 @@
 //
 
 #include "Player.h"
+
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include "../../../game/Game.h"
 #include "raylib.h"
@@ -126,13 +128,10 @@ void Player::OnWallVelocityBump(float Power)
         {
             float PreviousH = Health;
             float Damage = Power / 500.0f;
-            if (Health - Damage >= 20)
-            {
+            if (Health > 20)
                 Health -= Damage;
-            } else if (PreviousH >= 20)
-            {
-                Health = 20;
-            }
+            if (Health <= 20.0f && PreviousH > 20)
+                Health = 20.0f;
         }
     }
 }

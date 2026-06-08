@@ -390,6 +390,11 @@ void Game::DisplayProfilerInfo()
 
 RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
 {
+    int q_check = GameTiles.GetTileAtWorldCoords(Origin);
+    if (GameTiles.TileTypes[q_check] == WallTileType || GameTiles.TileTypes[q_check] == EnemyWallTileType)
+    {
+        return RayCastData{false, Origin, q_check};
+    }
     Vector2 vRayStart = Vector2{Origin.x / GameTiles.TileSize, Origin.y / GameTiles.TileSize};
     Vector2 vRayTarget = Vector2{Target.x / GameTiles.TileSize, Target.y / GameTiles.TileSize};
     Vector2 vRayDir = Vector2Normalize(vRayTarget - vRayStart);
@@ -427,6 +432,7 @@ RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
     bool bTileFound = false;
     float fMaxDistance = Vector2Distance(vRayStart, vRayTarget);
     float fDistance = 0.0f;
+
     while (!bTileFound && fDistance < fMaxDistance)
     {
 

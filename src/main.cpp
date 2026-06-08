@@ -90,7 +90,6 @@ int main(int argc, char *argv[]) {
 
     SharedManager SharedMgr = SharedManager();
 
-
     Game MainGame = Game(SharedMgr);
     Menu MainMenu = Menu(SharedMgr);
 
@@ -107,6 +106,13 @@ int main(int argc, char *argv[]) {
 
     SetExitKey(KEY_NULL);
 
+    if (argc == 2 && string(argv[1]) == "test")
+    {
+        MainMenu.Reset();
+        MainGame.Reload("debug");
+        InGame = true;
+    }
+
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
     Data d = {
@@ -119,7 +125,6 @@ int main(int argc, char *argv[]) {
         while (!WindowShouldClose())
             loop(&d);
     #endif
-
 
     MainMenu.Quit();
     MainGame.Quit();

@@ -22,7 +22,7 @@ Effect::Effect(double ImpactTime)
     this->ImpactTime = ImpactTime;
 }
 
-void Effect::Update(std::shared_ptr<Entity> Owner)
+void Effect::Update(std::shared_ptr<Entity> ImpactedEntity)
 {
 }
 
@@ -30,28 +30,81 @@ Burning::Burning(float Damage, double Duration, double ImpactTime) : Effect(Dura
 {
     this->Damage = Damage;
     LastDidFireParticle = 0.0f;
+    OwnerReward = 0;
+    RewardedOwner = false;
+    GradientProg = 0;
+    LastDidSFX= 0.0f;
 }
 
-Burning::Burning(double ImpactTime) : Effect(5.0f, ImpactTime)
+Burning::Burning(double ImpactTime) : Effect(10.0f, ImpactTime)
 {
-    Damage = 5.0f;
+    Damage = 15.0f;
     LastDidFireParticle = 0.0f;
+    OwnerReward = 0;
+    RewardedOwner = false;
+    GradientProg = 0;
+    LastDidSFX = 0.0f;
 }
 
-void Burning::Update(std::shared_ptr<Entity> Owner)
+void Burning::SetOwner(std::shared_ptr<Entity> Owner)
 {
-    Effect::Update(Owner);
-    Game *game = Owner->game;
-    Owner->Health -= Damage * game->GetGameDeltaTime();
-    if (game->GetGameTime() - LastDidFireParticle >= 0.025f)
+    if (Owner != nullptr)
+        this->Owner = Owner;
+}
+
+void Burning::SetOwnerReward(double Reward)
+{
+    this->OwnerReward = Reward;
+}
+
+void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
+{
+    Effect::Update(ImpactedEntity);
+    Game *game = ImpactedEntity->game;
+
+    ImpactedEntity->Health -= Damage * game->GetGameDeltaTime();
+    if (auto owner = Owner.lock())
     {
-        game->GameCamera.QuickZoom(1.15f, 0.5f);
+        if (owner != ImpactedEntity && ImpactedEntity->Health <= 0.0f && !RewardedOwner)
+        {
+            owner->Health += OwnerReward;
+            RewardedOwner = true;
+        }
+    }
+
+    float Percent = (game->GetGameTime() - ImpactTime) / Duration;
+    if (Percent <= 0.8f)
+        GradientProg = lerp(GradientProg, 1.0f, 3.0f * game->GetGameDeltaTime());
+    else
+        GradientProg = lerp(GradientProg, 0.0f, 1.75f * game->GetGameDeltaTime());
+
+    float height = ImpactedEntity->BoundingBox.height * GradientProg;
+    DrawRectangleGradientV(ImpactedEntity->BoundingBox.x, ImpactedEntity->BoundingBox.y, ImpactedEntity->BoundingBox.width, height, ColorAlpha(RED, 0.5f), BLANK);
+    Rectangle r = {0,0,ImpactedEntity->BoundingBox.width + 1.25f, ImpactedEntity->BoundingBox.height + 1.25f};
+    r.x = ImpactedEntity->GetCenter().x - r.width/2.0f;
+    r.y = ImpactedEntity->GetCenter().y - r.height/2.0f;
+    float P = 2.0f * (Percent > 0.5 ? 1.0f - Percent : Percent);
+    DrawRectangleRoundedLinesEx(r, 0.1f, 10, 5.0f * max(P, 0.75f), ColorAlpha(RED, P/2.0f));
+
+    if (game->GetGameTime() - LastDidSFX >= 0.95f)
+    {
+        float Distance = Vector2Distance(ImpactedEntity->GetCenter(), game->MainPlayer->GetCenter());
+
+        float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
+        DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
+
+        game->GameSounds.PlayGameSound((string("burn") + to_string(GetRandomValue(1,2))),
+            0.5f * DistanceMultiplier, 1.0f - GetRandomValue(-50,50)/100.0f);
+        LastDidSFX = game->GetGameTime();
+    }
+    if (game->GetGameTime() - LastDidFireParticle >= 0.2f)
+    {
         game->GameParticles.ParticleEffect({
-            Owner->GetCenter(),
-            65.0f,
+            ImpactedEntity->GetCenter(),
+            70.0f,
             ColorLerp(RED, ORANGE, 0.5f),
             5.0f,
-            3.0f,
+            6.0f,
             1.25f,
             ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
         }, -90, 35, 3);
@@ -71,10 +124,10 @@ Swiftness::Swiftness(float SpeedInc, double Duration, double ImpactTime) : Effec
     this->LastDidParticle = 0.0f;
 }
 
-void Swiftness::Update(std::shared_ptr<Entity> Owner)
+void Swiftness::Update(std::shared_ptr<Entity> ImpactedEntity)
 {
-    Effect::Update(Owner);
-    Game *game = Owner->game;
+    Effect::Update(ImpactedEntity);
+    Game *game = ImpactedEntity->game;
 
     double EffectPercentage = (game->GetGameTime() - ImpactTime) / Duration;
     float Multiplier = abs(EffectPercentage - 0.5f) / 0.5f;
@@ -84,22 +137,22 @@ void Swiftness::Update(std::shared_ptr<Entity> Owner)
     Multiplier = max(Multiplier, 0.5f);
 
     game->GameCamera.QuickZoom(0.85f, 0.5f);
-    if (Vector2Distance(Owner->GetCenter(), LastPos) > 0 && game->GetGameTime() - LastDidParticle >= 0.1f)
+    if (Vector2Distance(ImpactedEntity->GetCenter(), LastPos) > 0 && game->GetGameTime() - LastDidParticle >= 0.1f)
     {
         game->GameParticles.ParticleEffect({
-            Owner->GetCenter(),
-            Owner->GetSpeed() * 1.5f,
+            ImpactedEntity->GetCenter(),
+            ImpactedEntity->GetSpeed() * 1.5f,
             ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), ColorBrightness(SKYBLUE, 0.5f), 0.5f),
-            Owner->GetSpeed() * 2.5f,
+            ImpactedEntity->GetSpeed() * 2.5f,
             16.0f,
             0.65f,
             ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), SKYBLUE, GetRandomValue(1, 100) / 100.0f)
-        }, 180.0f - (Vector2LineAngle(Owner->GetCenter(),LastPos) * RAD2DEG), 35, GetRandomValue(1,2));
+        }, 180.0f - (Vector2LineAngle(ImpactedEntity->GetCenter(),LastPos) * RAD2DEG), 35, GetRandomValue(1,2));
         LastDidParticle = game->GetGameTime();
     }
 
-    Owner->FrameStackSpeed = SpeedInc * Multiplier;
-    LastPos = Owner->GetCenter();
+    ImpactedEntity->FrameStackSpeed = SpeedInc * Multiplier;
+    LastPos = ImpactedEntity->GetCenter();
 }
 
 Swiftness::~Swiftness()
@@ -124,10 +177,46 @@ Burning::~Burning()
 {
 }
 
+void Effects::AddEffect(EffectData data)
+{
+    switch (data.Type)
+    {
+    case DEFAULT:
+        break;
+    case SWIFTNESS:
+        {
+            Swiftness* s = new Swiftness(data.Power, data.Duration, game->GetGameTime());
+            AddEffect(s);
+            break;
+        }
+
+    case BURNING:
+        {
+            Burning* s = new Burning(data.Power, data.Duration, game->GetGameTime());
+            if (auto owner = data.Owner.lock())
+                s->SetOwner(owner);
+            s->SetOwnerReward(data.Reward);
+            AddEffect(s);
+            break;
+        }
+    }
+}
+
 void Effects::AddEffect(Effect* effect)
 {
     if (effect == nullptr)
         return;
+    std::erase_if(CurrentEffects, [this, effect](Effect* e)
+    {
+        bool sd = false;
+
+        if (e->Type == effect->Type)
+            sd = true;
+
+        if (sd)
+            delete e;
+        return sd;
+    });
     effect->ImpactTime = game->GetGameTime();
     CurrentEffects.push_back(effect);
 }
