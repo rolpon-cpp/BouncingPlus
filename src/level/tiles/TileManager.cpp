@@ -19,6 +19,7 @@ TileManager::TileManager(Game &game) {
     TileMapTex = LoadRenderTexture(1,1);
     ForceFieldTex = LoadRenderTexture(1,1);
     TileTypes[0] = NothingTileType; // air
+    TileTypes[-1] = NothingTileType; // air
     TileTypes[1] = WallTileType; // bouncy wall
     TileTypes[2] = WallTileType; // delete wall
     TileTypes[3] = EnemyTileType; // enemy

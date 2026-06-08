@@ -503,10 +503,7 @@ void Game::Clear() {
     GameMode.Clear();
     GameUI.Clear();
     MainPlayer.reset();
-
-    #ifdef PLATFORM_WEB
     GameSounds.ClearCache();
-    #endif
 }
 
 void Game::Reload(std::string MapName) {

@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 #include "raylib.h"
-using namespace std;
 
 class Game;
 class Weapon;
@@ -18,10 +17,10 @@ class ResourceManager
 {
 public:
     Game* game;
-    unordered_map<std::string, Texture2D> Textures;
-    unordered_map<std::string, Shader> Shaders;
-    unordered_map<std::string, Weapon> Weapons;
-    unordered_map<std::string, Powerup*> Powerups;
+    std::unordered_map<std::string, Texture2D> Textures;
+    std::unordered_map<std::string, Shader> Shaders;
+    std::unordered_map<std::string, Weapon> Weapons;
+    std::unordered_map<std::string, Powerup*> Powerups;
     std::vector<std::string> EnemyWeaponNamesList;
     ResourceManager();
     ~ResourceManager();

@@ -30,6 +30,10 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
         }
     }
 
+    if (tile_id < 0 || tile_id >= 15) {
+        tile_id = 0;
+    }
+
     Map.push_back(tile_id < 3 || tile_id == 12 ? tile_id : -1);
 
     float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
@@ -187,8 +191,16 @@ void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, s
         switch (i)
         {
         case 0:
-            ThisFileEntity.Type = (EntityType)std::stoi(cell);
-            break;
+            {
+                if (std::stoi(cell) >= 0 && std::stoi(cell) < End)
+                {
+                    ThisFileEntity.Type = (EntityType)std::stoi(cell);
+                } else
+                {
+                    ThisFileEntity.Type = DefaultType;
+                }
+                break;
+            }
         case 1:
             ThisFileEntity.X = (float)std::stoi(cell);
             break;

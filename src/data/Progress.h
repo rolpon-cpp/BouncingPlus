@@ -22,7 +22,7 @@ struct SaveData {
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
-    bool DevMode = true;
+    bool DevMode = false;
 };
 #pragma pack(pop)
 

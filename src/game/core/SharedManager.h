@@ -12,14 +12,13 @@
 #include "../../data/Progress.h"
 #include "../ui/UIUtils.h"
 
-using namespace std;
 using namespace nlohmann;
 
 class SharedManager
 {
 public:
     // Separate Objects
-    unordered_map<string, json> LevelData;
+    std::unordered_map<std::string, json> LevelData;
     UIAssets SharedUIAssets;
     Controls Controls;
     Progress Progress;

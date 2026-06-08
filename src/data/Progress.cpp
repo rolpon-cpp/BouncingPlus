@@ -31,7 +31,7 @@ void Progress::SaveProgress()
             outFile.write(data, sizeof(SaveData));
             outFile.close();
             return;
-        } catch (std::exception e)
+        } catch (std::exception& e)
         {
             std::cout << "Failed to save file! (" << e.what() << ")\n";
         }
@@ -63,7 +63,7 @@ void Progress::LoadProgress()
 
         buffer.clear();
         input.close();
-    } catch (std::exception e)
+    } catch (std::exception& e)
     {
         std::cout << "Failed to load save file! (unknown issue, review exception: " << e.what() << ")\n";
     }
