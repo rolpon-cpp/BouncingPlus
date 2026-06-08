@@ -1,0 +1,12 @@
+//
+// Created by lalit on 6/7/2026.
+//
+
+#ifndef BOUNCINGPLUS_GLOBALS_H
+#define BOUNCINGPLUS_GLOBALS_H
+
+#define WINDOW_WIDTH 1480.0f
+#define WINDOW_HEIGHT 920.0f
+#define SAVE_DATA_VERSION 3
+
+#endif //BOUNCINGPLUS_GLOBALS_H

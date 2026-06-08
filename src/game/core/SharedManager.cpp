@@ -3,9 +3,8 @@
 //
 
 #include "SharedManager.h"
-
+#include "../../globals.h"
 #include <iostream>
-
 #include "../../level/LevelLoader.h"
 
 bool IsWindowFullscreenCrossPlatform()
@@ -33,6 +32,13 @@ SharedManager::SharedManager()
     SharedUIAssets.Load();
     Progress.LoadProgress();
     Controls.SetDefaultBindings();
+
+    CursorWindowLock = Progress.Data.CursorWindowLock;
+    FrameRate = Progress.Data.FrameRate;
+    Volume = Progress.Data.Volume;
+    Fullscreen = Progress.Data.Fullscreen;
+    ShakeCamera = Progress.Data.ShakeCamera;
+    DevMode = Progress.Data.DevMode;
 }
 
 SharedManager::~SharedManager()
@@ -134,8 +140,8 @@ void SharedManager::Update()
     if (!Fullscreen && IsWindowFullscreenCrossPlatform())
     {
 #ifndef PLATFORM_WEB
-        SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
-        SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
+        SetWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - WINDOW_WIDTH/2, GetMonitorHeight(GetCurrentMonitor())/2 - WINDOW_HEIGHT/2);
 #endif
     }
 
@@ -161,6 +167,14 @@ void SharedManager::Update()
 
 void SharedManager::Quit()
 {
+
+    Progress.Data.CursorWindowLock = CursorWindowLock;
+    Progress.Data.FrameRate = FrameRate;
+    Progress.Data.Volume = Volume;
+    Progress.Data.Fullscreen = Fullscreen;
+    Progress.Data.ShakeCamera = ShakeCamera;
+    Progress.Data.DevMode = DevMode;
+
     Progress.SaveProgress();
     SharedUIAssets.Quit();
     Controls.Quit();

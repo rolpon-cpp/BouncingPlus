@@ -26,7 +26,7 @@ class Menu {
     float PlayButtonOffsetY;
     float SettingsButtonOffsetY;
     float CreditsButtonOffsetY;
-    float MikuOffset;
+    float EasterEggOffset;
     float MenuImgOffsetY;
     float BlackTransparency;
     bool MovingToGame;

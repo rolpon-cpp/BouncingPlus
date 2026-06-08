@@ -1,15 +1,13 @@
 #include "raylib.h"
 #include "game/Game.h"
 #include "game/ui/Menu.h"
+#include "globals.h"
 #include "game/core/SharedManager.h"
 #include "level/LevelLoader.h"
 
 #ifdef PLATFORM_WEB
 #include <emscripten/emscripten.h>
 #endif
-
-#define WINDOW_WIDTH 1480.0f
-#define WINDOW_HEIGHT 920.0f
 
 struct Data
 {
@@ -99,9 +97,8 @@ int main(int argc, char *argv[]) {
         SharedMgr.FrameRate = 60;
     #else
         SetWindowMinSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        SetWindowSize(min(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, WINDOW_WIDTH), min(GetMonitorHeight(GetCurrentMonitor()) / 1.2f, WINDOW_HEIGHT));
-        SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
-        SharedMgr.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);
+        SetWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - WINDOW_WIDTH/2, GetMonitorHeight(GetCurrentMonitor())/2 - WINDOW_HEIGHT/2);
     #endif
 
     SetExitKey(KEY_NULL);

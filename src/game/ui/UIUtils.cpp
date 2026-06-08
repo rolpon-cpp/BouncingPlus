@@ -26,8 +26,8 @@ void UIAssets::Load()
     ButtonSmallRedImg = LoadTexture("assets/ui/button_small_red.png");
     ButtonImg = LoadTexture("assets/ui/button.png");
     MenuImg = LoadTexture("assets/ui/menu_img.png");
-    MikuImg = LoadTexture(tetoChance == 2 ? "assets/ui/teto.png" : "assets/ui/miku.png");
-    MikuMusic = LoadSound(tetoChance == 2 ? "assets/ui/teto_territory.mp3" : "assets/ui/lovely_cavity.mp3");
+    EasterEggImg = LoadTexture(tetoChance == 2 ? "assets/ui/teto.png" : "assets/ui/miku.png"); // chance to load either miku or teto image
+    EasterEggMusic = LoadMusicStream(tetoChance == 2 ? "assets/ui/teto_territory.mp3" : "assets/ui/lovely_cavity.mp3"); // chance to load either miku or teto sound
     ButtonClick = LoadSound("assets/ui/button_click.wav");
     SliderDrag = LoadSound("assets/ui/slider_dragging.wav");
     CursorImg = LoadTexture("assets/ui/cursor.png");
@@ -42,12 +42,12 @@ void UIAssets::Load()
 void UIAssets::Quit()
 {
     UnloadTexture(TitleImg);
-    UnloadSound(MikuMusic);
+    UnloadMusicStream(EasterEggMusic);
     UnloadTexture(ButtonSmallImg);
     UnloadTexture(ButtonSmallRedImg);
     UnloadTexture(MenuImg);
     UnloadTexture(ButtonImg);
-    UnloadTexture(MikuImg);
+    UnloadTexture(EasterEggImg);
     UnloadTexture(CursorImg);
     UnloadSound(SliderDrag);
     UnloadSound(ButtonClick);

@@ -31,9 +31,6 @@ Menu::Menu(SharedManager& GameSettings)
     MusicLevel = 0.0f;
     this->Shared = &GameSettings;
     Reset();
-    PlaySound(this->Shared->SharedUIAssets.MikuMusic);
-    SetSoundVolume(this->Shared->SharedUIAssets.MikuMusic,0.0f);
-    PauseSound(this->Shared->SharedUIAssets.MikuMusic);
 
     AttachAudioStreamProcessor(this->Shared->SharedUIAssets.MainMenuMusic.stream, this->AudioCallback);
 }
@@ -56,7 +53,7 @@ void Menu::Reset()
     CurrentLevelsPage = 0;
     BlackTransparency = 1.0f;
     MusicLevel = 0.0f;
-    MikuOffset = 0.0f;
+    EasterEggOffset = 0.0f;
     MenuImgOffsetY = GetRandomValue(0, Shared->SharedUIAssets.MenuImg.height);
     MovingToGame = false;
     MousePos = {0, 0};
@@ -314,7 +311,8 @@ void Menu::Update()
 
     if (!IsMusicStreamPlaying(Shared->SharedUIAssets.MainMenuMusic))
         PlayMusicStream(Shared->SharedUIAssets.MainMenuMusic);
-    UpdateMusicStream(Shared->SharedUIAssets.MainMenuMusic);
+    if (!IsMusicStreamPlaying(Shared->SharedUIAssets.EasterEggMusic))
+        PlayMusicStream(Shared->SharedUIAssets.EasterEggMusic);
 
     MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
 
@@ -402,26 +400,23 @@ void Menu::Update()
     if (MovingToGame && BlackTransparency >= 1.0f)
     {
         Map = TargetMap;
-        StopSound(Shared->SharedUIAssets.MikuMusic);
         StopMusicStream(Shared->SharedUIAssets.MainMenuMusic);
+        StopMusicStream(Shared->SharedUIAssets.EasterEggMusic);
     }
 
-    DrawTexture(Shared->SharedUIAssets.MikuImg, -75, GetRenderHeight() - 20 + MikuOffset, WHITE);
+    DrawTexture(Shared->SharedUIAssets.EasterEggImg, -75, GetRenderHeight() - 20 + EasterEggOffset, WHITE);
+
+    // if the cursor is touching the easter egg screen spot
     if (GetMouseX() < 250 && GetMouseY() > GetRenderHeight() - 70)
     {
-        MikuOffset = Lerp(MikuOffset, -500, 10 * GetFrameTime());
-        if (!IsSoundPlaying(Shared->SharedUIAssets.MikuMusic))
-        {
-            SetSoundVolume(Shared->SharedUIAssets.MikuMusic, 0.2f);
-            ResumeSound(Shared->SharedUIAssets.MikuMusic);
-            SetMusicVolume(Shared->SharedUIAssets.MainMenuMusic, 0);
-        }
+        EasterEggOffset = Lerp(EasterEggOffset, -500, 10 * GetFrameTime());
+        UpdateMusicStream(Shared->SharedUIAssets.EasterEggMusic);
+        SetMusicVolume(Shared->SharedUIAssets.EasterEggMusic, 1.0f - BlackTransparency);
     }
     else
     {
-        MikuOffset = Lerp(MikuOffset, 0, 10 * GetFrameTime());
-        PauseSound(Shared->SharedUIAssets.MikuMusic);
-
+        EasterEggOffset = Lerp(EasterEggOffset, 0, 10 * GetFrameTime());
+        UpdateMusicStream(Shared->SharedUIAssets.MainMenuMusic);
         SetMusicVolume(Shared->SharedUIAssets.MainMenuMusic, 1.0f - BlackTransparency);
     }
 

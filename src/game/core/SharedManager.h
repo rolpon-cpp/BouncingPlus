@@ -26,7 +26,7 @@ public:
 
     // Settings
     float FrameRate = -1;
-    float Volume = 100.0f;
+    float Volume = 0.0f;
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;

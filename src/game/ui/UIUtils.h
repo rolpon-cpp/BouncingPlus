@@ -17,7 +17,7 @@ class UIAssets
     Texture2D ButtonImg;
     Texture2D ButtonSmallImg;
     Texture2D ButtonSmallRedImg;
-    Texture2D MikuImg;
+    Texture2D EasterEggImg;
     Texture2D CursorImg;
     Texture2D YTImg;
 
@@ -26,10 +26,10 @@ class UIAssets
     Texture2D CozPFPImg;
     Texture2D InkyPFPImg;
 
-    Sound MikuMusic;
     Sound SliderDrag;
     Sound ButtonClick;
 
+    Music EasterEggMusic;
     Music MainMenuMusic;
 
     void Load();
