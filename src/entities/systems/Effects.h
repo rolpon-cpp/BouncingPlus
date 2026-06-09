@@ -43,8 +43,10 @@ class Burning : public Effect
 {
 public:
     float Damage;
+    Color OG_Color;
     std::weak_ptr<Entity> Owner = std::weak_ptr<Entity>();
     double OwnerReward;
+    int SmokeParticleCount;
     double LastDidFireParticle;
     double LastDidSFX;
     float GradientProg;

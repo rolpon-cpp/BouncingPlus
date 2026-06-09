@@ -34,6 +34,7 @@ Burning::Burning(float Damage, double Duration, double ImpactTime) : Effect(Dura
     LastDidFireParticle = 0.0f;
     OwnerReward = 0;
     Type = BURNING;
+    SmokeParticleCount = 0;
     GradientProg = 0;
     LastDidSFX= 0.0f;
 }
@@ -43,6 +44,7 @@ Burning::Burning(double ImpactTime) : Effect(10.0f, ImpactTime)
     Damage = 15.0f;
     LastDidFireParticle = 0.0f;
     OwnerReward = 0;
+    SmokeParticleCount = 0;
     Type = BURNING;
     GradientProg = 0;
     LastDidSFX = 0.0f;
@@ -51,7 +53,10 @@ Burning::Burning(double ImpactTime) : Effect(10.0f, ImpactTime)
 void Burning::SetOwner(std::shared_ptr<Entity> Owner)
 {
     if (Owner != nullptr)
+    {
         this->Owner = Owner;
+        OG_Color = Owner->EntityColor;
+    }
 }
 
 void Burning::SetOwnerReward(double Reward)
@@ -81,6 +86,12 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
     }
 
     float Percent = (game->GetGameTime() - ImpactTime) / Duration;
+
+    if (Percent >= 0.95f)
+        ImpactedEntity->EntityColor = OG_Color;
+    else
+        ImpactedEntity->EntityColor = ColorBrightness(OG_Color, -min(Percent, 0.8f));
+
     if (Percent <= 0.8f)
         GradientProg = lerp(GradientProg, 1.0f, 3.0f * game->GetGameDeltaTime());
     else
@@ -105,7 +116,7 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
             0.5f * DistanceMultiplier, 1.0f - GetRandomValue(-50,50)/100.0f);
         LastDidSFX = game->GetGameTime();
     }
-    if (game->GetGameTime() - LastDidFireParticle >= 0.2f)
+    if (game->GetGameTime() - LastDidFireParticle >= (Percent > 0.5f ? 0.1f : 0.2f))
     {
         game->GameParticles.ParticleEffect({
             ImpactedEntity->GetCenter(),
@@ -117,6 +128,21 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
             ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
         }, -90, 35, 3);
         LastDidFireParticle = game->GetGameTime();
+
+        SmokeParticleCount++;
+        if (SmokeParticleCount > 3)
+        {
+            game->GameParticles.ParticleEffect({
+            ImpactedEntity->GetCenter(),
+            200.0f,
+            ColorAlpha(GRAY, 0.5f),
+            0.0f,
+            36.0f,
+            5.0f,
+            ColorAlpha(BLACK, 0.5f)
+        }, -90, 35, 3);
+            SmokeParticleCount = 0;
+        }
     }
 }
 

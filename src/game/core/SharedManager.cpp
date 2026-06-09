@@ -110,7 +110,7 @@ void SharedManager::ControlBindings(Vector2 Position, float Offset1, float Offse
 void SharedManager::Update()
 {
 
-    Vector2 RenderTexSize = {max(GetRenderWidth() - 850.0f, 100.0f), max(GetRenderHeight() - 350.0f, 100.0f)};
+    Vector2 RenderTexSize = {std::max(GetRenderWidth() - 850.0f, 100.0f), std::max(GetRenderHeight() - 350.0f, 100.0f)};
 
     if (!IsRenderTextureValid(ControlsRenderTexture) || ControlsRenderTexture.texture.width != RenderTexSize.x || ControlsRenderTexture.texture.height != RenderTexSize.y)
     {
@@ -156,7 +156,7 @@ void SharedManager::Update()
     {
 
 #ifndef PLATFORM_WEB
-        SetMousePosition(min(max(GetMouseX(), 25), GetRenderWidth() - 25), min(max(GetMouseY(), 25), GetRenderHeight() - 25));
+        SetMousePosition(std::min(std::max(GetMouseX(), 25), GetRenderWidth() - 25), std::min(std::max(GetMouseY(), 25), GetRenderHeight() - 25));
 #endif
     }
 
