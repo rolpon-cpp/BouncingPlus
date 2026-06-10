@@ -45,6 +45,9 @@ void UIManager::Clear()
     this->LastChangedStressShakePos = 0;
     this->RankSideSize = 100.0f;
     this->RankSizeHeight = 250.0f;
+
+    WasPausedLast = false;
+    IsChangingSettings = false;
 }
 
 void UIManager::DisplayLevelTimer()
@@ -201,7 +204,10 @@ void UIManager::GameUI()
     if (game->Paused)
         PauseMenu();
     else
+    {
         DisplayCursor();
+        WasPausedLast = false;
+    }
     
     StartingBlackScreenTrans -= 0.65f * GetFrameTime();
     DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
@@ -438,7 +444,8 @@ void UIManager::DisplayCursor()
 {
     if (!game->MainPlayer->IsPreparingForDash)
         {
-            DrawTexturePro(game->GameShared->SharedUIAssets.CursorImg, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, CursorRotation, YELLOW);
+            DrawTexturePro(game->GameShared->SharedUIAssets.CursorImg, {0, 0, 36, 36},
+                {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, CursorRotation, YELLOW);
             if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex != -1)
             {
                 if (game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown)
@@ -498,27 +505,64 @@ void UIManager::DeathMenu()
 
 void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
-    ClearBackground(game->GameControls->IsControlDown("debug2") ? BLANK : ColorAlpha(BLACK, 0.35f));
+    ClearBackground(game->GameControls->IsControlDown("debug2") ? BLANK : ColorAlpha(BLACK, 0.65f));
     EndTextureMode();
+
+    if (!WasPausedLast)
+        IsChangingSettings = false;
+
     DrawTextureRec(PauseScreen.texture, Rectangle{0, 0, (float)PauseScreen.texture.width, -(float)PauseScreen.texture.height},
-        Vector2{0, (float)GetRenderHeight() - PauseScreen.texture.height}, WHITE);
-    DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(BLACK,0.5f));
-    game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width/2,
-        (float)PauseScreen.texture.height/2-100 - (float)game->GameShared->SharedUIAssets.ButtonImg.height/2,
-        (float)game->GameShared->SharedUIAssets.ButtonImg.width, (float)game->GameShared->SharedUIAssets.ButtonImg.height},
-        GetMousePosition(), game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "RESUME");
+            Vector2{0, (float)GetRenderHeight() - PauseScreen.texture.height}, WHITE);
 
-    if (Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width/2,
-        (float)PauseScreen.texture.height/2+100 - (float)game->GameShared->SharedUIAssets.ButtonImg.height/2,
-        (float)game->GameShared->SharedUIAssets.ButtonImg.width, (float)game->GameShared->SharedUIAssets.ButtonImg.height
-    }, GetMousePosition(), game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "QUIT"))
-        game->isReturning = true;
+    if (!IsChangingSettings)
+    {
 
-    #ifndef PLATFORM_WEB
-    if (Button({(float)PauseScreen.texture.width - 320.0f, 20.0f, 300.0f, 50.0f},GetMousePosition(),
-        game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "RELOAD WEAPONS"))
-        game->GameResources.LoadWeaponData();
-    #endif
+        float TxtSize = MeasureText("BouncingBallz", 36.0f);
+        Rectangle r = {0, 0, 43.5f + TxtSize, 41.0f};
+
+        Rectangle BaseRect = {PauseScreen.texture.width/2.0f - 225, PauseScreen.texture.height/2.0f-175,450, 350};
+        DrawRectangleRec(BaseRect,ColorAlpha(BLACK,0.5f));
+
+        r.x = BaseRect.x + BaseRect.width/2.0f - r.width/2.0f;
+        r.y = BaseRect.y - r.height;
+
+        DrawRectangleRec(r, ColorAlpha(BLACK,0.5f));
+        DrawTexture(game->GameResources.Textures["player"], r.x + 2.5f, r.y + 2.5f, PINK);
+        DrawText("BouncingBallz", r.x + 41.0f, r.y + 2.5f, 36.0f, WHITE);
+
+        game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width/2,
+            (float)PauseScreen.texture.height/2-100 - (float)game->GameShared->SharedUIAssets.ButtonImg.height/2,
+            (float)game->GameShared->SharedUIAssets.ButtonImg.width, (float)game->GameShared->SharedUIAssets.ButtonImg.height},
+            GetMousePosition(), game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "RESUME");
+
+        IsChangingSettings = Button(
+            {(float)PauseScreen.texture.width/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width/2,
+            (float)PauseScreen.texture.height/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.height/2,
+            (float)game->GameShared->SharedUIAssets.ButtonImg.width, (float)game->GameShared->SharedUIAssets.ButtonImg.height},
+            GetMousePosition(), game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "SETTINGS");
+
+        if (Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width/2,
+            (float)PauseScreen.texture.height/2+100 - (float)game->GameShared->SharedUIAssets.ButtonImg.height/2,
+            (float)game->GameShared->SharedUIAssets.ButtonImg.width, (float)game->GameShared->SharedUIAssets.ButtonImg.height
+        }, GetMousePosition(), game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "QUIT"))
+            game->isReturning = true;
+
+#ifndef PLATFORM_WEB
+        if (Button({(float)PauseScreen.texture.width - 320.0f, 20.0f, 300.0f, 50.0f},GetMousePosition(),
+            game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "RELOAD WEAPONS"))
+            game->GameResources.LoadWeaponData();
+#endif
+    } else
+    {
+        game->GameShared->DisplaySettings({0.0f,0.0f}, 0.0f, 0.0f);
+        IsChangingSettings = !Button({
+                   (GetRenderWidth() / 2.0f) - 75.0f,
+                   GetRenderHeight() - 106.0f, 150, 56
+               }, GetMousePosition(),
+               game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "BACK");
+    }
+
+    WasPausedLast = true;
 }
 
 void UIManager::GameWin()

@@ -42,26 +42,41 @@ void Progress::LoadProgress()
 {
     try
     {
-        std::ifstream input( "data.bin", std::ios::binary );
-        std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
+        std::ifstream input("data.bin", std::ios::binary);
+        std::vector<unsigned char> vbuffer(std::istreambuf_iterator<char>(input), {});
 
-        if (buffer.size() != sizeof(SaveData))
+        char buffer[sizeof(vbuffer)];
+        memcpy(&buffer, vbuffer.data(), sizeof(buffer));
+
+        if (vbuffer.size() < sizeof(SaveDataV4))
         {
-            std::cout << "Failed to load save file! (wrong data size, expected size: " << sizeof(SaveData) << ", real size: " << buffer.size() << ")\n";
+            std::cout << "Failed to load save file! (wrong data size, minimum size: " << sizeof(SaveDataV4) << ", real size: " << buffer.size() << ")\n";
             return;
         }
+
+        vbuffer.clear();
+
+        // TODO: check if this code is gonna blow up or not
 
         uint32_t version;
-        memcpy(&version, buffer.data(), sizeof(uint32_t));
+        memcpy(&version, buffer, sizeof(uint32_t));
         if (version != SAVE_DATA_VERSION)
         {
-            std::cout << "Failed to load save file! (wrong version, expected version: " << SAVE_DATA_VERSION << ", real version: " << version << ")\n";
-            return;
+            std::cout << "File is in the wrong version! (expected version: " << SAVE_DATA_VERSION << ", real version: " << version << ")\n";
+            std::cout << "Attempting to convert...\n";
+
+            SaveData test = ConvertOldSave(buffer);
+            if (test.Version == 0)
+            {
+                std::cout << "Failed to convert save file!\n";
+                return;
+            }
+            Data = test;
+        } else
+        {
+            memcpy(&Data, buffer, sizeof(SaveData));
         }
 
-        memcpy(&Data, buffer.data(), sizeof(SaveData));
-
-        buffer.clear();
         input.close();
     } catch (std::exception& e)
     {

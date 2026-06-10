@@ -26,28 +26,33 @@ public:
     // Settings
     float FrameRate = -1;
     float Volume = 0.0f;
+    #ifndef PLATFORM_WEB
+        float CosmeticParticleLimit = 400.0f;
+    #else
+        float CosmeticParticleLimit = 150.0f;
+    #endif
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
     bool DevMode = true;
 
     // UI Variables
-    bool ControlBindingsMenu = false;
     bool VolumeBarInteraction = false;
     bool FrameRateBarInteraction = false;
-    float ControlSettingsScroll = 0.0f;
-    RenderTexture ControlsRenderTexture = { 0 };
+    bool ParticleBarInteraction = false;
 
-    // Processing
+    // UI Processing
     float LastVolumeBar = 100.0f;
+    float LastParticleLimitBar = 100.0f;
     float LastFrameRateBar = 60.0f;
+
+    // General Processing
     float LastFrameRate = -1;
 
     SharedManager();
     ~SharedManager();
 
     // Functions
-    void ControlBindings(Vector2 Position, float Offset1, float Offset2);
     void DisplaySettings(Vector2 Position, float Offset1, float Offset2);
     void ResetSettings();
     void ReloadLevels();

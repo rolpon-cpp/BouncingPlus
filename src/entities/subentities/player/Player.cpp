@@ -37,7 +37,8 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->FrameStressLevel = 0;
     this->EnemiesDetected = 0;
 
-    this->EntityColor = Color{game.GameShared->Progress.Data.PlayerColor[0], game.GameShared->Progress.Data.PlayerColor[1], game.GameShared->Progress.Data.PlayerColor[2], 255};
+    this->EntityColor = Color{game.GameShared->Progress.Data.PlayerColor[0], game.GameShared->Progress.Data.PlayerColor[1], game.GameShared->Progress.Data.PlayerColor[2],
+    game.GameShared->Progress.Data.PlayerColor[3]};
 }
 
 Player::Player() {
@@ -263,10 +264,12 @@ void Player::Update()
     ProcessWarningSign();
 
     // player transparency processing
-    EntityColor = ColorAlpha({game->GameShared->Progress.Data.PlayerColor[0],
+    EntityColor = ColorAlpha({
+        game->GameShared->Progress.Data.PlayerColor[0],
         game->GameShared->Progress.Data.PlayerColor[1],
         game->GameShared->Progress.Data.PlayerColor[2],
-        255}, Alpha);
+        game->GameShared->Progress.Data.PlayerColor[3]
+    }, Alpha);
     Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
 
     if (InvincibilityResetTimer > 0)

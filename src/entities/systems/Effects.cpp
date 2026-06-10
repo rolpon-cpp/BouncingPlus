@@ -87,10 +87,9 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
 
     float Percent = (game->GetGameTime() - ImpactTime) / Duration;
 
-    if (Percent >= 0.95f)
-        ImpactedEntity->EntityColor = OG_Color;
-    else
-        ImpactedEntity->EntityColor = ColorBrightness(OG_Color, -min(Percent, 0.8f));
+    float avg = ((float)ImpactedEntity->EntityColor.r + (float)ImpactedEntity->EntityColor.g + (float)ImpactedEntity->EntityColor.b) / 3.0f;
+    if (avg >= 70)
+        ImpactedEntity->EntityColor = ColorLerp(ImpactedEntity->EntityColor, BLACK, 0.5f * game->GetGameDeltaTime());
 
     if (Percent <= 0.8f)
         GradientProg = lerp(GradientProg, 1.0f, 3.0f * game->GetGameDeltaTime());

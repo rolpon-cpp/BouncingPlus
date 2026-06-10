@@ -35,7 +35,6 @@ class ParticleManager {
     Game *game;
     std::vector<Particle> Particles;
     RenderTexture ParticlesTexture;
-    int ParticleRenderLimit;
     public:
     ParticleManager();
     ParticleManager(Game &game);

@@ -16,11 +16,6 @@ ParticleManager::ParticleManager(Game &game) {
     this->game = &game;
     Particles = std::vector<Particle>();
     ParticlesTexture = LoadRenderTexture(1,1);
-    #ifndef PLATFORM_WEB
-        ParticleRenderLimit = 500;
-    #else
-        ParticleRenderLimit = 175;
-    #endif
 }
 
 void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount, EffectData PEffectData) {
@@ -67,14 +62,20 @@ void ParticleManager::Update() {
 
     BeginBlendMode(BLEND_ADDITIVE);
 
-    int ParticlesRendered = 0;
-
     std::erase_if(Particles, [this](Particle& p)
     {
         double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
         bool sd = Percent >= 1.0f;
         if (Vector2Distance(p.Position, game->MainPlayer->GetCenter()) >= 1000 && p.Effect.Type == DEFAULT)
+        {
             sd = true;
+            return sd;
+        }
+        if (!sd && p.Effect.Type == DEFAULT && Particles.size() > game->GameShared->CosmeticParticleLimit)
+        {
+            sd = true;
+            return sd;
+        }
 
         if (!sd)
         {
@@ -126,7 +127,7 @@ void ParticleManager::Update() {
 
         double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
 
-        if (ParticlesRendered < ParticleRenderLimit && ScreenPos.x >= 0 && ScreenPos.x < GetRenderWidth() && ScreenPos.y >= 0 && ScreenPos.y < GetRenderHeight())
+        if (ScreenPos.x >= 0 && ScreenPos.x < GetRenderWidth() && ScreenPos.y >= 0 && ScreenPos.y < GetRenderHeight())
         {
             DrawRectanglePro({
                 p.Position.x - game->GameCamera.RaylibCamera.target.x,
@@ -143,8 +144,6 @@ void ParticleManager::Update() {
                 p.Data.Size/1.1f,
                 ColorAlpha(p.Data.TargetColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)),
                 ColorAlpha(p.ParticleColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)));
-
-            ParticlesRendered++;
         }
     }
     EndBlendMode();

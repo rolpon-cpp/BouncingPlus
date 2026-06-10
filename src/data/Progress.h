@@ -6,6 +6,7 @@
 #define BOUNCINGPLUS_SAVE_H
 #include <cstdint>
 #include "../globals.h"
+#include "SaveConverter.h"
 
 #pragma pack(push, 1)
 struct SaveData {
@@ -14,7 +15,7 @@ struct SaveData {
 
     // Player Data
     uint32_t Money = 0;
-    uint8_t PlayerColor[3] = {255, 100, 255};
+    uint8_t PlayerColor[4] = {255, 100, 255, 255};
 
     // Settings
     float FrameRate = 240;
@@ -23,6 +24,11 @@ struct SaveData {
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
     bool DevMode = false;
+    #ifndef PLATFORM_WEB
+        float CosmeticParticleLimit = 400.0f;
+    #else
+        float CosmeticParticleLimit = 100.0f;
+    #endif
 };
 #pragma pack(pop)
 

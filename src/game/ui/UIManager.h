@@ -39,6 +39,9 @@ public:
     float RankSideSize = 100.0f;
     float RankSizeHeight = 250.0f;
 
+    bool WasPausedLast = false;
+    bool IsChangingSettings = false;
+
     Game *game;
     UIManager(Game &game);
     UIManager();
