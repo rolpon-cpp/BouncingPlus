@@ -45,7 +45,7 @@ void Progress::LoadProgress()
         std::ifstream input("data.bin", std::ios::binary);
         std::vector<unsigned char> vbuffer(std::istreambuf_iterator<char>(input), {});
 
-        char buffer[sizeof(vbuffer)];
+        char buffer[vbuffer.size()];
         memcpy(&buffer, vbuffer.data(), sizeof(buffer));
 
         if (vbuffer.size() < sizeof(SaveDataV4))
