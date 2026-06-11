@@ -240,14 +240,14 @@ void Player::SystemsInitCheck()
         this->MainEffectsSystem = Effects(shared_from_this(), *game);
         this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
 
-        auto f = game->GameShared->LevelData[game->CurrentLevelName]["player"]["inventory"];
+        auto f = game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["inventory"];
         for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
             this->MainWeaponsSystem.Weapons[i] = f[i];
             this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources.Weapons[f[i]].Ammo;
         }
-        if (game->GameResources.Powerups.count(game->GameShared->LevelData[game->CurrentLevelName]["player"]["powerup"]))
+        if (game->GameResources.Powerups.count(game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["powerup"]))
         {
-            MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->GameShared->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
+            MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["powerup"]]);
         }
         this->MainWeaponsSystem.Equip(0);
         this->SystemsInitialized = true;
@@ -355,11 +355,11 @@ void Player::ProcessKills()
 
 void Player::OnDeath()
 {
-    if (!game->CurrentLevelName.empty() && !game->GameShared->LevelData[game->CurrentLevelName]["music"].get<string>().empty())
+    if (!game->GameMode.GetCurrentLevelName().empty() && !game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["music"].get<string>().empty())
     {
         for (int i = 1; i < 5; i++)
         {
-            std::string FightTrack = game->GameShared->LevelData[game->CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
+            std::string FightTrack = game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["music"].get<string>()+"_layer"+to_string(i);
             game->GameSounds.StopGameMusic(FightTrack, true);
         }
     }

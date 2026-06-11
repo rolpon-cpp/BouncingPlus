@@ -22,9 +22,9 @@ ResourceManager::~ResourceManager()
 {
 }
 
-ResourceManager::ResourceManager(Game& game)
+ResourceManager::ResourceManager(Game* game)
 {
-    this->game = &game;
+    this->game = game;
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
     Powerups = std::unordered_map<std::string, Powerup*>();

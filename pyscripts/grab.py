@@ -1,3 +1,5 @@
+print("\n")
+
 import os
 
 lines = 0
@@ -38,7 +40,7 @@ for p in f:
         files.append([p, lf])
     if not p.endswith(".h"):
         g += (str(p).replace("\\","/")+ " ^\n")[2:]
-    g2 += (str(p).replace("\\","/")+" ")[2:]
+    g2 += (str(p).replace("\\","/")+" ")[2:] + "\n"
 print(g)
 print(g2)
 

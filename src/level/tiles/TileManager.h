@@ -70,7 +70,7 @@ class TileManager {
         RenderTexture TileMapTex;
         RenderTexture ForceFieldTex;
         TileManager();
-        TileManager(Game &game);
+        TileManager(Game *game);
         int GetTileAt(int x, int y);
         int GetTileAt(Vector2 coord);
         int GetTileAtWorldCoords(Vector2 coord);

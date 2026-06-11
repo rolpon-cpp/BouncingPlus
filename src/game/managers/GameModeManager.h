@@ -25,6 +25,7 @@ class GameModeManager
     public:
     Game *game;
     Entity* CurrentBoss;
+    std::string CurrentLevelName;
     std::string CurrentBossName;
     std::string CurrentGameMode;
     std::string WinCondition;
@@ -35,8 +36,9 @@ class GameModeManager
     bool WonLevel;
     ~GameModeManager();
     GameModeManager();
-    GameModeManager(Game &game);
-    void PrepareGameMode(nlohmann::json Data);
+    GameModeManager(Game *game);
+    std::string GetCurrentLevelName();
+    void PrepareGameMode(nlohmann::json Data, std::string LevelName);
     void Update();
     void Clear();
     void Quit();

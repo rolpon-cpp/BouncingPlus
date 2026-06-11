@@ -11,8 +11,8 @@ TileManager::TileManager() {
 
 }
 
-TileManager::TileManager(Game &game) {
-    this->game = &game;
+TileManager::TileManager(Game *game) {
+    this->game = game;
     PrevFileName = "";
     Lines = std::vector<std::string>();
     Distortions = std::vector<Distortion>();

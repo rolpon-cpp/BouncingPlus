@@ -11,7 +11,7 @@
 
 #include "../player/Player.h"
 #include "behaviors/WeaponBehavior.h"
-#include "../../../game/ui/UIManager.h"
+#include "../../../game/ui/gameplay_ui/GameplayUI.h"
 #include "../../../game/Game.h"
 
 Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
@@ -72,7 +72,7 @@ void Enemy::Wander() {
             Angle += GetRandomValue(-30, 30);
             float X = cos(Angle * (2 * PI / 360))*900;
             float Y = sin(Angle * (2 * PI / 360))*900;
-            RayCastData d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            RayCastData d = game->GameEngineTools.RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
             if (!S)
             {
                 BestPos = d.HitPosition;
@@ -117,7 +117,7 @@ void Enemy::OnDeath()
             }, Rotation - 180, 360, 15);
     if (GetRandomValue(1, 100) <= 25 && MainWeaponsSystem.CurrentWeaponIndex >= 0 && MainWeaponsSystem.CurrentWeaponIndex <= 2 && !MyWeapon.empty())
     {
-        game->PlaceWeaponPickup({
+        game->GameEngineTools.PlaceWeaponPickup({
             {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
             RED,
             40,
@@ -171,7 +171,7 @@ void Enemy::Update() {
     {
         bool IsTouchingFreezeZone = false;
 
-        for (std::pair rec : game->FreezeZones)
+        for (std::pair rec : game->GameEngineTools.FreezeZones)
         {
             if (CheckCollisionRecs(BoundingBox, rec.first))
             {

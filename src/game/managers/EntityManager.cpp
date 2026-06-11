@@ -13,9 +13,9 @@ EntityManager::EntityManager()
 {
 }
 
-EntityManager::EntityManager(Game& game)
+EntityManager::EntityManager(Game* game)
 {
-    this->game = &game;
+    this->game = game;
     #ifndef PLATFORM_WEB
         PhysicsFPS = 200.0f;
     #else

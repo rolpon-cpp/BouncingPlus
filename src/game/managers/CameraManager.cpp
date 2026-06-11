@@ -38,8 +38,8 @@ void CameraManager::Clear() {
     RaylibCamera = {{0,0}, {0, 0}, 0, 1.0f};
 }
 
-CameraManager::CameraManager(Game &game) {
-    this->game = &game;
+CameraManager::CameraManager(Game *game) {
+    this->game = game;
     CamTextureInitialized = false;
     IntendedScreenWidth = 1480;
     IntendedScreenHeight = 920;

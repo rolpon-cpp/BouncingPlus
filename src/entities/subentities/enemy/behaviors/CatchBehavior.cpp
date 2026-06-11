@@ -39,7 +39,7 @@ void CatchBehavior::Update()
     Owner->Movement = CurrentDir;
     Owner->Rotation = 180 - (Vector2LineAngle({Owner->BoundingBox.x, Owner->BoundingBox.y}, LastPosition) * RAD2DEG);
 
-    if (game->GetGameTime() - LastChangedDirCooldown >= 5.0f && !game->RayCastPoint(Owner->GetCenter(), Owner->GetCenter() + (CurrentDir * 100.0f)).HitAir)
+    if (game->GetGameTime() - LastChangedDirCooldown >= 5.0f && !game->GameEngineTools.RayCastPoint(Owner->GetCenter(), Owner->GetCenter() + (CurrentDir * 100.0f)).HitAir)
     {
         ResetDirection();
         LastChangedDirCooldown= game->GetGameTime();

@@ -37,7 +37,7 @@ class ParticleManager {
     RenderTexture ParticlesTexture;
     public:
     ParticleManager();
-    ParticleManager(Game &game);
+    ParticleManager(Game *game);
     void ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount, EffectData PEffectData = {DEFAULT, std::weak_ptr<Entity>(), 0, 0, 0});
     void Clear();
     void Update();

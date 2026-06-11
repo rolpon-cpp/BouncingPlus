@@ -19,15 +19,16 @@ GameModeManager::GameModeManager()
 {
 }
 
-GameModeManager::GameModeManager(Game& game)
+GameModeManager::GameModeManager(Game* game)
 {
-    this->game = &game;
+    this->game = game;
     Clear();
 }
 
-void GameModeManager::PrepareGameMode(nlohmann::json Data)
+void GameModeManager::PrepareGameMode(nlohmann::json Data, std::string LevelName)
 {
     Clear();
+    this->CurrentLevelName = LevelName;
     if (Data.contains("game"))
     {
         if (Data["game"].contains("win"))
@@ -113,11 +114,17 @@ void GameModeManager::Update()
     }
 }
 
+std::string GameModeManager::GetCurrentLevelName()
+{
+    return CurrentLevelName;
+}
+
 void GameModeManager::Clear()
 {
     this->CurrentBoss = nullptr;
     this->CurrentBossName = "";
     this->WinCondition = "";
+    this->CurrentLevelName = "";
     this->LevelTimer = -1;
     this->CurrentGameMode = "";
     this->CurrentWave = 0;

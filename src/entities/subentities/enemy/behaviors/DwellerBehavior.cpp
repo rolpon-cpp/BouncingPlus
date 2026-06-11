@@ -43,7 +43,7 @@ void DwellerBehavior::ChooseNewMovementSpot()
     Vector2 MovementDir = Vector2Normalize({RandomX,RandomY});
 
     Vector2 Targ = Owner->GetCenter() + (MovementDir * 2000);
-    RayCastData d = game->RayCastPoint(Owner->GetCenter(), Targ);
+    RayCastData d = game->GameEngineTools.RayCastPoint(Owner->GetCenter(), Targ);
     
     d.HitPosition.x /= game->GameTiles.TileSize;
     d.HitPosition.y /= game->GameTiles.TileSize;
@@ -95,7 +95,7 @@ void DwellerBehavior::Update()
     } else
     {
         float PlrDistance = Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter());
-        if (PlrDistance < 250 && game->RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
+        if (PlrDistance < 250 && game->GameEngineTools.RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
         {
             Owner->Movement = Vector2Subtract(game->MainPlayer->GetCenter(),Owner->GetCenter());
             Owner->MainWeaponsSystem.Attack(game->MainPlayer->GetCenter());

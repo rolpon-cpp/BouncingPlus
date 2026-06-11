@@ -12,8 +12,8 @@
 ParticleManager::ParticleManager() {
 }
 
-ParticleManager::ParticleManager(Game &game) {
-    this->game = &game;
+ParticleManager::ParticleManager(Game *game) {
+    this->game = game;
     Particles = std::vector<Particle>();
     ParticlesTexture = LoadRenderTexture(1,1);
 }
@@ -66,7 +66,7 @@ void ParticleManager::Update() {
     {
         double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
         bool sd = Percent >= 1.0f;
-        if (Vector2Distance(p.Position, game->MainPlayer->GetCenter()) >= 1000 && p.Effect.Type == DEFAULT)
+        if (Vector2Distance(p.Position, game->MainPlayer->GetCenter()) >= 3000 && p.Effect.Type == DEFAULT)
         {
             sd = true;
             return sd;

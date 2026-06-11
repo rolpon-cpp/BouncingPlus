@@ -21,7 +21,7 @@ em++ ^
     src/entities/systems/Powerups.cpp ^
     src/entities/systems/Weapons.cpp ^
     src/game/core/Controls.cpp ^
-    src/game/core/Profiler.cpp ^
+    src/game/core/BaseProfiler.cpp ^
     src/game/core/SharedManager.cpp ^
     src/game/Game.cpp ^
     src/game/managers/CameraManager.cpp ^

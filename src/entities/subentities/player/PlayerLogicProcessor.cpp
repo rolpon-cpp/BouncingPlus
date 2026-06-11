@@ -85,11 +85,11 @@ void PlayerLogicProcessor::HandleFightMusic()
         return;
     if (MyPlayer->game->isReturning || MyPlayer->game->ShouldReturn)
         return;
-    if (MyPlayer->game->CurrentLevelName.empty())
+    if (MyPlayer->game->GameMode.GetCurrentLevelName().empty())
         return;
-    if (!MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName].count("music"))
+    if (!MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()].count("music"))
         return;
-    if (MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["music"].empty())
+    if (MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["music"].empty())
         return;
 
     if (LayerSwitchCooldown <= 0)
@@ -119,7 +119,7 @@ void PlayerLogicProcessor::HandleFightMusic()
     FightMusicLayer = Lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
 
     int ChosenLayer = (int)round(FightMusicLayer);
-    std::string FightTrack = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
+    std::string FightTrack = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
     if (ChosenLayer == 4 && MyPlayer->StressLevel >= 0.4f)
     {
         LayerSwitchCooldown += 3.0f;
@@ -212,7 +212,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         float EnemyConcentration = 0.8f + (MyPlayer->FrameStressLevel*1.2f);
 
         EnemyConcentration = max(min(EnemyConcentration, 5.0f), 1.0f);
-        EnemyConcentration *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
+        EnemyConcentration *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
         Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.1f), 5.5f);
@@ -377,26 +377,26 @@ void PlayerLogicProcessor::DashLogic()
         }
     }
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && MyPlayer->IsPreparingForDash && MyPlayer->Health > 0 && MyPlayer->game->GetGameTime() - DashTimeStart >= 0.35f) {
-        DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
+        DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
         MyPlayer->VelocityMovement = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera.RaylibCamera), {MyPlayer->BoundingBox.x+MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y+MyPlayer->BoundingBox.height/2});
-        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>()
+        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_base_power"].get<float>()
         * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         MyPlayer->VelocityPower /= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 1.1f);
-        MyPlayer->VelocityPower *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
+        MyPlayer->VelocityPower *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_power_multiplier"].get<float>();
         MyPlayer->game->GameSounds.PlayGameSound("dash");
-        MyPlayer->PlayerFrozenTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_frozen_multiplier"].get<float>() *
-            min(max((MyPlayer->VelocityPower / MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
+        MyPlayer->PlayerFrozenTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_frozen_multiplier"].get<float>() *
+            min(max((MyPlayer->VelocityPower / MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
         if (!MyPlayer->isInvincible)
         {
             MyPlayer->ToggleInvincibility();
-            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_iframe_time"].get<float>();
+            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_iframe_time"].get<float>();
         }
         if (IsMouseButtonDown(1)) {
             MyPlayer->VelocityPower *= 1.5f;
             MyPlayer->Dodging = true;
-            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_iframe_time"].get<float>() * 3.0f;
-            DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_cooldown"].get<float>();
+            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dodge_iframe_time"].get<float>() * 3.0f;
+            DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dodge_cooldown"].get<float>();
         }
         MyPlayer->IsPreparingForDash = false;
 

@@ -114,7 +114,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
             if (owner->Type != PlayerType)
                 owner->Health += HealthGain;
             else if (!game->MainPlayer->isInvincible)
-                owner->Health += HealthGain * game->GameShared->LevelData[game->CurrentLevelName]["player"]["weapon_health_gain_buff"].get<float>();
+                owner->Health += HealthGain * game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["weapon_health_gain_buff"].get<float>();
         }
         if (owner->Type == PlayerType)
             game->MainPlayer->Kills += 1;

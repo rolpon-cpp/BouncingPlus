@@ -123,7 +123,7 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
             {
                 if (CurrentWeaponIndex == i)
                     Unequip();
-                game->PlaceWeaponPickup({
+                game->GameEngineTools.PlaceWeaponPickup({
                     DropLoc,
                     GREEN,
                     50,
@@ -191,7 +191,7 @@ void WeaponsSystem::DisplayWeaponCone()
             float Angle = LeftAngle + i * opti;
             float X = cos(Angle * (2 * PI / 360))*Dist;
             float Y = sin(Angle * (2 * PI / 360))*Dist;
-            auto p = game->RayCastPoint({cx,cy},{cx+X,cy+Y});
+            auto p = game->GameEngineTools.RayCastPoint({cx,cy},{cx+X,cy+Y});
             DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.HitPosition), Angle - opti/2, Angle + opti/2, 1, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         }
     }
@@ -255,7 +255,7 @@ void WeaponsSystem::DisplayWeaponReflectance()
 
     for (int i = 0; i < 6; i++)
     {
-        auto RayCastData = game->RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera.IntendedScreenWidth * 1.5f));
+        auto RayCastData = game->GameEngineTools.RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera.IntendedScreenWidth * 1.5f));
 
         Vector2 Hit = RayCastData.HitPosition;
 
@@ -360,7 +360,7 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         AngleDifference -= 360;
 
     // if enemy is in sight & within range, attack!
-    if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
+    if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->GameEngineTools.RayCast(Owner->GetCenter(), entity->GetCenter()))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
@@ -461,7 +461,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
         cX += Owner->GetCenter().x;
         cY += Owner->GetCenter().y;
 
-        bool Valid = game->RayCast(Owner->GetCenter(), {cX, cY});
+        bool Valid = game->GameEngineTools.RayCast(Owner->GetCenter(), {cX, cY});
 
         std::string s = CurrentWeapon->sound[GetRandomValue(0, CurrentWeapon->sound.size()-1)];
 
@@ -495,7 +495,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->CurrentLevelName]["game"]["friendly_fire"].get<bool>())
+            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["game"]["friendly_fire"].get<bool>())
             {
                 std::vector<shared_ptr<Entity>>* array = &game->GameEntities.Entities[EnemyType];
                 for (int i = 0; i < array->size(); i++) {

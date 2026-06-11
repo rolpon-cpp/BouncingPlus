@@ -8,53 +8,77 @@
 
 #include "Progress.h"
 
-void* Version4_Convert(void* save)
+std::vector<unsigned char> Version3_Convert(std::vector<unsigned char> save)
 {
-    SaveDataV4 v4_data;
-    memcpy(&v4_data, save, sizeof(v4_data));
+    std::vector<unsigned char> result;
 
-    SaveData* newSaveData = new SaveData{};
-    newSaveData->CursorWindowLock = v4_data.CursorWindowLock;
-    memcpy(newSaveData->PlayerColor, v4_data.PlayerColor, sizeof(v4_data.PlayerColor));
-    newSaveData->DevMode = v4_data.DevMode;
-    newSaveData->FrameRate = v4_data.FrameRate;
-    newSaveData->Money = v4_data.Money;
-    newSaveData->Volume = v4_data.Volume;
-    newSaveData->Fullscreen = v4_data.Fullscreen;
-    newSaveData->ShakeCamera = v4_data.ShakeCamera;
+    SaveDataV3* v3_data = (SaveDataV3*)save.data();
 
-    delete static_cast<SaveData*>(save);
-    return newSaveData;
+    SaveDataV4 newSaveData = SaveDataV4{};
+    newSaveData.Version = 4;
+    newSaveData.CursorWindowLock = v3_data->CursorWindowLock;
+    memcpy(newSaveData.PlayerColor, v3_data->PlayerColor, sizeof(v3_data->PlayerColor));
+    newSaveData.DevMode = v3_data->DevMode;
+    newSaveData.FrameRate = v3_data->FrameRate;
+    newSaveData.Money = v3_data->Money;
+    newSaveData.Volume = v3_data->Volume;
+    newSaveData.Fullscreen = v3_data->Fullscreen;
+    newSaveData.ShakeCamera = v3_data->ShakeCamera;
+    newSaveData.CosmeticParticleLimit = 400.0f;
+
+    result.resize(sizeof(newSaveData));
+    memcpy(result.data(), &newSaveData, sizeof(newSaveData));
+
+    return result;
 }
 
-SaveData ConvertOldSave(void* save)
+std::vector<unsigned char> Version4_Convert(std::vector<unsigned char> save)
 {
-    uint32_t version;
-    memcpy(&version, save, sizeof(version));
-    if (version == SAVE_DATA_VERSION)
-    {
-        SaveData f = *static_cast<SaveData*>(save);
-        delete static_cast<SaveData*>(save);
-        return f;
-    }
+    std::vector<unsigned char> result;
 
-    std::cout << "Attempting to convert " << version << " to version " << version + 1 << "...\n";
-    if (ConversionFunctions.contains(version))
+    SaveDataV4* v4_data = (SaveDataV4*)save.data();
+
+    SaveData newSaveData = SaveData{};
+    newSaveData.CursorWindowLock = v4_data->CursorWindowLock;
+    memcpy(newSaveData.PlayerColor, v4_data->PlayerColor, sizeof(v4_data->PlayerColor));
+    newSaveData.DevMode = v4_data->DevMode;
+    newSaveData.FrameRate = v4_data->FrameRate;
+    newSaveData.Money = v4_data->Money;
+    newSaveData.Volume = v4_data->Volume;
+    newSaveData.Fullscreen = v4_data->Fullscreen;
+    newSaveData.ShakeCamera = v4_data->ShakeCamera;
+    newSaveData.CosmeticParticleLimit = v4_data->CosmeticParticleLimit;
+
+    result.resize(sizeof(newSaveData));
+    memcpy(result.data(), &newSaveData, sizeof(newSaveData));
+
+    return result;
+}
+
+SaveData ConvertSave(std::vector<unsigned char> save)
+{
+    uint32_t versionId;
+    memcpy(&versionId, save.data(), sizeof(versionId));
+
+    if (versionId != SAVE_DATA_VERSION)
     {
-        void* convertedObj = ConversionFunctions[version](save);
-        uint32_t converted_version;
-        memcpy(&converted_version, convertedObj, sizeof(converted_version));
-        if (converted_version != SAVE_DATA_VERSION)
+        std::cout << "Attempting conversion on " << versionId << "...\n";
+        if (ConversionFunctions.contains(versionId))
         {
-            std::cout << "Conversion successful, but save file is still " << SAVE_DATA_VERSION - converted_version << " behind modern version. Attempting another conversion...\n";
-            return ConvertOldSave(convertedObj);
+            std::vector<unsigned char> converted = ConversionFunctions[versionId](save);
+            uint32_t versionId;
+            memcpy(&versionId, converted.data(), sizeof(versionId));
+
+            std::cout << "Conversion successful!" << (versionId == SAVE_DATA_VERSION ? "" : " (Still not modern, attempting another conversion...)") << "\n";
+            return ConvertSave(converted);
         }
-        std::cout << "Conversion successful!\n";
-        SaveData f = *static_cast<SaveData*>(convertedObj);
-        delete static_cast<SaveData*>(convertedObj);
-        return f;
+    } else
+    {
+        SaveData d;
+        memcpy(&d, save.data(), sizeof(d));
+        return d;
     }
 
-    std::cout << "No conversion function found, failed to convert.\n";
+    std::cout << "Failed conversion!\n";
     return SaveData{0};
 }

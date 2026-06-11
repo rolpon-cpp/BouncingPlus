@@ -24,7 +24,7 @@ public:
     std::vector<std::string> EnemyWeaponNamesList;
     ResourceManager();
     ~ResourceManager();
-    ResourceManager(Game& game);
+    ResourceManager(Game* game);
     void LoadWeaponData();
     void Load();
     void Quit();

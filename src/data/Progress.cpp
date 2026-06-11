@@ -43,29 +43,22 @@ void Progress::LoadProgress()
     try
     {
         std::ifstream input("data.bin", std::ios::binary);
-        std::vector<unsigned char> vbuffer(std::istreambuf_iterator<char>(input), {});
+        std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
 
-        char buffer[vbuffer.size()];
-        memcpy(&buffer, vbuffer.data(), sizeof(buffer));
-
-        if (vbuffer.size() < sizeof(SaveDataV4))
+        if (buffer.size() < sizeof(SaveDataV3))
         {
-            std::cout << "Failed to load save file! (wrong data size, minimum size: " << sizeof(SaveDataV4) << ", real size: " << buffer.size() << ")\n";
+            std::cout << "Failed to load save file! (wrong data size, minimum size: " << sizeof(SaveDataV3) << ", real size: " << buffer.size() << ")\n";
             return;
         }
 
-        vbuffer.clear();
-
-        // TODO: check if this code is gonna blow up or not
-
         uint32_t version;
-        memcpy(&version, buffer, sizeof(uint32_t));
+        memcpy(&version, buffer.data(), sizeof(uint32_t));
         if (version != SAVE_DATA_VERSION)
         {
             std::cout << "File is in the wrong version! (expected version: " << SAVE_DATA_VERSION << ", real version: " << version << ")\n";
             std::cout << "Attempting to convert...\n";
 
-            SaveData test = ConvertOldSave(buffer);
+            SaveData test = ConvertSave(buffer);
             if (test.Version == 0)
             {
                 std::cout << "Failed to convert save file!\n";
@@ -74,7 +67,7 @@ void Progress::LoadProgress()
             Data = test;
         } else
         {
-            memcpy(&Data, buffer, sizeof(SaveData));
+            memcpy(&Data, buffer.data(), sizeof(SaveData));
         }
 
         input.close();

@@ -22,7 +22,7 @@ public:
     std::unordered_map<EntityType, std::vector<std::shared_ptr<Entity>>> Entities;
     float PhysicsFPS;
     EntityManager();
-    EntityManager(Game &game);
+    EntityManager(Game *game);
     ~EntityManager();
     void AddEntity(EntityType Type, std::shared_ptr<Entity> EntityToAdd);
     void Update();

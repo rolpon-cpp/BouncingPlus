@@ -279,7 +279,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
         Armor = 0.0f;
         break;
     }
-    float Multiplier = 1.0f + 0.15f * (game->GameShared->LevelData[game->CurrentLevelName]["difficulty"].get<int>()-3);
+    float Multiplier = 1.0f + 0.15f * (game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["difficulty"].get<int>()-3);
     Armor *= Multiplier;
     Speed *= Multiplier;
     Health *= Multiplier;

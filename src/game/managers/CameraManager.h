@@ -51,7 +51,7 @@ class CameraManager {
         Camera2D RaylibCamera;
         float CameraZoom;
         float ShaderPixelPower;
-        CameraManager(Game &game);
+        CameraManager(Game *game);
         CameraManager();
         ~CameraManager();
         void BeginRenderTexture(RenderTexture &Tex, bool UseMainCamera = false);

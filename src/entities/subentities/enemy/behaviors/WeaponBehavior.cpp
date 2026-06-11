@@ -46,10 +46,10 @@ void WeaponBehavior::MoveForCover()
                 continue;
             float X = cos(Angle * (2 * PI / 360)) * 2000.0f;
             float Y = sin(Angle * (2 * PI / 360)) * 2000.0f;
-            RayCastData d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            RayCastData d = game->GameEngineTools.RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
             if ((!d.HitAir) || Vector2Distance({plr_center_x,plr_center_y}, d.HitPosition) >= 500) // if we hit wall?
             {
-                RayCastData p = game->RayCastPoint({plr_center_x,plr_center_y}, d.HitPosition);
+                RayCastData p = game->GameEngineTools.RayCastPoint({plr_center_x,plr_center_y}, d.HitPosition);
                 if (Vector2Distance(p.HitPosition, d.HitPosition) >= 150 && !p.HitAir && Vector2Distance({plr_center_x,plr_center_y}, d.HitPosition) >= 150)
                 {
                     CoverPosition = d.HitPosition;
@@ -73,7 +73,7 @@ void WeaponBehavior::MoveForCover()
 
 bool WeaponBehavior::FindPlayer()
 {
-    if (game->RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
+    if (game->GameEngineTools.RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
     {
         Target = game->MainPlayer->GetCenter();
         return true;
@@ -97,7 +97,7 @@ bool WeaponBehavior::FindPlayer()
         int tries = 0;
         while (tries < 3)
         {
-            RayCastData d = game->RayCastPoint(Origin, Origin + (Vector2Normalize(Direction) * 800.0f));
+            RayCastData d = game->GameEngineTools.RayCastPoint(Origin, Origin + (Vector2Normalize(Direction) * 800.0f));
 
             if (!HitSet)
             {
@@ -107,7 +107,7 @@ bool WeaponBehavior::FindPlayer()
 
             float RayAngle = 180.0f - Vector2LineAngle(Origin, d.HitPosition) * RAD2DEG;
             float PlayerAngle = 180.0f - Vector2LineAngle(Origin, game->MainPlayer->GetCenter()) * RAD2DEG;
-            if (abs(RayAngle - PlayerAngle) <= 5 && game->RayCast(Origin,game->MainPlayer->GetCenter()))
+            if (abs(RayAngle - PlayerAngle) <= 5 && game->GameEngineTools.RayCast(Origin,game->MainPlayer->GetCenter()))
             {
                 Target = HitSetP;
                 return true;

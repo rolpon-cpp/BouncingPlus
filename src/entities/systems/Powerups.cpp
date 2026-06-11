@@ -105,14 +105,14 @@ FreezePowerup::FreezePowerup()
 
 void FreezePowerup::Complete(std::shared_ptr<Player> Owner)
 {
-    auto r = Owner->game->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera.RaylibCamera));
+    auto r = Owner->game->GameEngineTools.RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera.RaylibCamera));
     float w = GetRandomValue(400, 600);
     float h = GetRandomValue(400, 600);
 
     w *= 1.0f + (Owner->StressLevel / 2.0f);
 
     Rectangle rec = {r.HitPosition.x - w/2, r.HitPosition.y - h/2, w, h};
-    Owner->game->FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
+    Owner->game->GameEngineTools.FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
 
     Powerup::Complete(Owner);
 }

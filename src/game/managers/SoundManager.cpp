@@ -8,8 +8,8 @@
 #include <iostream>
 #include <raymath.h>
 
-SoundManager::SoundManager(Game &game) {
-    this->game = &game;
+SoundManager::SoundManager(Game *game) {
+    this->game = game;
 
     MaxSoundPoolSize = 10;
     #ifdef PLATFORM_WEB
