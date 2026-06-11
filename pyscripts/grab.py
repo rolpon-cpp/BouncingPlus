@@ -44,7 +44,6 @@ for p in f:
 print(g)
 print(g2)
 
-print(str(lines) + " lines of code")
 greatest_lines = -1
 greatest_name = "none"
 
@@ -59,5 +58,7 @@ for g in files:
 
 avg_lines /= len(files)
 
-print("biggest code file: " + greatest_name + ", with " + str(greatest_lines) + " lines of code")
-print("avg lines per file: " + str(avg_lines))
+print("\nbiggest code file: " + greatest_name + ", with " + str(greatest_lines) + " lines of code")
+print("avg lines per file: " + str(int(avg_lines)))
+print("number of code files: " + str(len(files)))
+print(str(f"{lines:,}") + " total lines of code")
