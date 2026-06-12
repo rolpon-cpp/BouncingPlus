@@ -42,10 +42,10 @@ for metadata.json:
     "sword": "Enemy Sword"
   }
 
-for map_data.csv, you need the tiled map editor software and tileset. u can get the tileset from the BouncingPlus github repo
-make a map in tiled. once done, export the map as .csv and save as map_data.csv
+for map_data.csv, you need the tiled map editor software and tileset OR use the map making python script
+make a map in tiled/python script. once done, export the map as .csv and save as map_data.csv
 
-for entities.csv:
+for entities.csv: (modify thru python map maker aswell)
 c&p this line into your file "Type,X,Y,Width,Height,Health,Armor,Speed,Weapon"
 now, u can add in custom entities
 rn it only supports enemies, so put "1, "

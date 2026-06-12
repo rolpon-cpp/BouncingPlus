@@ -1,13 +1,13 @@
 
   "EnemiesCanUse": false, // can enemies spawn with/utilize this weapon?
   "isMelee": false, // is the weapon melee?
-  "Flames": false, // does the weapon release flames instead of bullets? (useless on melee weps)
+  "Flames": false, // does the weapon release flames instead of bullets? (useless on melee/throw weps)
   "Throw": false, // is the weapon throwable/spear based?
   "ShakeScreen": false, // does the weapon induce screen shake?
   "ChargeSpeed": 20, // how fast throwable weapon charges up
   "SlowdownOverTime": false, // should bullets the weapon fires slow down over time?
   "Speed": 400, // how fast are the bullets? (pixels per second) / if melee weapon, how fast is the melee animation?
-  "WeaponWeightSpeedMultiplier": 1, // should entities have their speeds reduced due to this weapon?
+  "WeaponWeightSpeedMultiplier": 1, // should entities have their speeds reduced due to this weapon? (multiplier, be careful!) (0-2)
   "PushbackForce": 450, // wep pushback force (0 for no pushback)
   "WeaponSize": 1, // weapon texture size multiplier
   "Ammo": -1 // how much ammo/ shots fired before reload (-1 for unlimited ammo)
@@ -17,15 +17,15 @@
   "Damage": 20, // how much damage does each bullet/each swing do? (hp points)
   "HealthGain": 20, // how much health is gained upon killing an enemy? (hp points)
   "Cooldown": 0.2, // cooldown (in seconds)
-  "AngleRange": 0.0, // angle range of the bullets/sword swing (degrees)
-  "Range": 0.0, // range of the swing (pixels)
+  "AngleRange": 90.0, // angle range of the bullets/sword swing (degrees)
+  "Range": 110.0, // distance of the swing OR the distance from guntip to player (pixels)
   "Bullets": 1, // amount of bullets fired per shot
   "BulletLifetime": 10 // how long the bullets can last in the game world
   "Intensity": 0, // how intense is the screen shake + sound volume? (0-1)
   "texture": "", // texture name
   "bullet_tex": "", // bullet texture name (leave blank if melee or u want regular bullet texture)
-  "sound": [""] // sound effect name(s). put sounds in a list for multiple different sounds,
-  "icon": "" // icon texture name
+  "sound": [""], // sound effect name(s). put sounds in a list for multiple different sounds
+  "icon": "", // icon texture name
 
 day 21
 

@@ -1,3 +1,4 @@
 .idea/editor.xml
 CMakeLists.txt
 src/firebase_keys.h
+firebase_cpp_sdk
