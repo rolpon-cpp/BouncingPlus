@@ -51,7 +51,7 @@ Game::Game(SharedManager& Shared)
     GameSounds = SoundManager(this);
     GameMode = GameModeManager(this);
     GameResources = ResourceManager(this);
-    GameEngineTools = GameMisc(this);
+    GameMiscTools = GameMisc(this);
 
     // game speed & timing
     GameSpeed = 1.0f;
@@ -74,7 +74,7 @@ Game::Game(SharedManager& Shared)
 
 void Game::SetGameData() {
     GameResources.Load();
-    GameEngineTools.SetGameData();
+    GameMiscTools.SetGameData();
     BannedWeaponDrops.emplace_back("Default Gun");
     BannedWeaponDrops.emplace_back("Player Gun");
 }
@@ -147,26 +147,26 @@ void Game::Update() {
 
         GameCamera.Begin();
 
-        GameEngineTools.GameProfiler.ProfilerLog("misc");
+        GameMiscTools.GameProfiler.ProfilerLog("misc");
         ProcessSlowdownAnimation();
-        GameEngineTools.Update();
+        GameMiscTools.Update();
 
-        GameEngineTools.GameProfiler.ProfilerLog("tiles");
+        GameMiscTools.GameProfiler.ProfilerLog("tiles");
         GameTiles.Update();
 
-        GameEngineTools.GameProfiler.ProfilerLog("particles");
+        GameMiscTools.GameProfiler.ProfilerLog("particles");
         GameParticles.Update();
 
-        GameEngineTools.GameProfiler.ProfilerLog("entities");
+        GameMiscTools.GameProfiler.ProfilerLog("entities");
         GameEntities.Update();
 
-        GameEngineTools.GameProfiler.ProfilerLog("sound");
+        GameMiscTools.GameProfiler.ProfilerLog("sound");
         GameSounds.Update();
 
-        GameEngineTools.GameProfiler.ProfilerLog("gamemode");
+        GameMiscTools.GameProfiler.ProfilerLog("gamemode");
         GameMode.Update();
 
-        GameEngineTools.GameProfiler.StopLog();
+        GameMiscTools.GameProfiler.StopLog();
 
         GameCamera.End();
 
@@ -176,7 +176,7 @@ void Game::Update() {
 
     GameUI.GameUI();
 
-    GameEngineTools.DisplayProfilerInfo();
+    GameMiscTools.DisplayProfilerInfo();
 
     if (isReturning)
     {
@@ -208,7 +208,7 @@ void Game::Clear() {
     BannedWeaponDrops.clear();
     EnemyRoleWeapons.clear();
     GameTiles.Clear();
-    GameEngineTools.Clear();
+    GameMiscTools.Clear();
     GameParticles.Clear();
     GameSounds.Clear();
     GameCamera.Clear();
@@ -256,5 +256,5 @@ void Game::Quit() {
     EnemyRoleWeapons.clear();
     GameResources.Weapons.clear();
     BannedWeaponDrops.clear();
-    GameEngineTools.Quit();
+    GameMiscTools.Quit();
 }

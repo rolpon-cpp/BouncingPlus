@@ -52,7 +52,7 @@ class Game {
         SoundManager GameSounds;
         GameModeManager GameMode;
         ResourceManager GameResources;
-        GameMisc GameEngineTools;
+        GameMisc GameMiscTools;
 
         shared_ptr<Player> MainPlayer;
 

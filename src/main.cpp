@@ -7,6 +7,8 @@
 
 #ifdef PLATFORM_WEB
 #include <emscripten/emscripten.h>
+#else
+#include "data/Leaderboard.h"
 #endif
 
 struct Data
@@ -81,9 +83,12 @@ int main(int argc, char *argv[]) {
     InitAudioDevice();
 
     #ifndef PLATFORM_WEB
-        Image t =LoadImage("assets/img/enemy.png");
+        Image t = LoadImage("assets/img/enemy.png");
         SetWindowIcon(t);
         UnloadImage(t);
+
+        Leaderboard MainLeaderboard = Leaderboard();
+        double LastUpdatedLeaderboard = 0.0f;
     #endif
 
     SharedManager SharedMgr = SharedManager();
@@ -120,7 +125,17 @@ int main(int argc, char *argv[]) {
         emscripten_set_main_loop_arg(loop, &d, 0, 1);
     #else
         while (!WindowShouldClose())
+        {
             loop(&d);
+#ifndef PLATFORM_WEB
+            if (GetTime() - LastUpdatedLeaderboard >= 120.0f)
+            {
+                MainLeaderboard.UpdateData();
+                LastUpdatedLeaderboard = GetTime();
+            }
+#endif
+        }
+        MainLeaderboard.Quit();
     #endif
 
     MainMenu.Quit();

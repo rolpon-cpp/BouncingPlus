@@ -34,11 +34,13 @@ f = s.split(" ")
 g = ""
 g2 = ""
 for p in f:
+    if "firebase_cpp_sdk" in p:
+        continue
     if len(p)>0:
         lf = count_lines(p)
         lines += lf
         files.append([p, lf])
-    if not p.endswith(".h"):
+    if (not p.endswith(".h")) and ("leaderboard" not in p.lower()) and ("firebase" not in p.lower()):
         g += (str(p).replace("\\","/")+ " ^\n")[2:]
     g2 += (str(p).replace("\\","/")+" ")[2:] + "\n"
 print(g)

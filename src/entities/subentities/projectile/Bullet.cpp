@@ -161,7 +161,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
 
             if (IsVisible())
                 game->GameTiles.DistortArea(Distortion{
-                game->GameEngineTools.RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).HitPosition,
+                game->GameMiscTools.RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).HitPosition,
                 3.0f,
                 BoundingBox.width * 12.5f
                 });
