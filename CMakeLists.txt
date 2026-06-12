@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
+if (FIREBASE)
 # ── Firebase ──────────────────────────────────────────────────────────────────
 # Set this to wherever you extracted the SDK. A relative path keeps it portable.
 set(FIREBASE_CPP_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/firebase_cpp_sdk")
@@ -21,6 +22,7 @@ set(FIREBASE_LIBS
         firebase_database   # remove/add as needed
         firebase_app        # must be last
 )
+endif ()
 
 # Dependencies
 set(RAYLIB_VERSION 5.5)
@@ -116,20 +118,27 @@ add_executable(BouncingPlus src/data/Progress.cpp
         src/level/tiles/TileManagerFileRead.cpp
         src/level/tiles/TileManagerRendering.cpp
         src/level/tiles/TileType.h
-        src/main.cpp
-        src/data/Leaderboard.cpp
-        src/data/Leaderboard.h
-        src/firebase_keys.h)
+        src/main.cpp)
+
+if (FIREBASE)
+    add_executable(BouncingPlus
+            src/data/Leaderboard.cpp
+            src/data/Leaderboard.h
+            src/firebase_keys.h)
+endif ()
+
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
 target_link_libraries(BouncingPlus PRIVATE ${FIREBASE_LIBS})
 
+if (FIREBASE)
 add_custom_command(TARGET BouncingPlus POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${FIREBASE_CPP_SDK_DIR}/libs/windows/VS2019/MD/x64/Release"
         $<TARGET_FILE_DIR:BouncingPlus>
         COMMENT "Copying Firebase DLLs..."
 )
+endif ()
 
 if (MINGW)
     target_link_options(BouncingPlus PRIVATE

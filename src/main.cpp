@@ -7,7 +7,7 @@
 
 #ifdef PLATFORM_WEB
 #include <emscripten/emscripten.h>
-#else
+#elseif FIREBASE
 #include "data/Leaderboard.h"
 #endif
 
@@ -86,9 +86,10 @@ int main(int argc, char *argv[]) {
         Image t = LoadImage("assets/img/enemy.png");
         SetWindowIcon(t);
         UnloadImage(t);
-
+#ifdef FIREBASE
         Leaderboard MainLeaderboard = Leaderboard();
         double LastUpdatedLeaderboard = 0.0f;
+#endif
     #endif
 
     SharedManager SharedMgr = SharedManager();
@@ -128,14 +129,18 @@ int main(int argc, char *argv[]) {
         {
             loop(&d);
 #ifndef PLATFORM_WEB
+#ifdef FIREBASE
             if (GetTime() - LastUpdatedLeaderboard >= 120.0f)
             {
                 MainLeaderboard.UpdateData();
                 LastUpdatedLeaderboard = GetTime();
             }
 #endif
+#endif
         }
+#ifdef FIRBASE
         MainLeaderboard.Quit();
+#endif
     #endif
 
     MainMenu.Quit();
