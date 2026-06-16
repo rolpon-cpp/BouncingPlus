@@ -320,6 +320,7 @@ void Player::ProcessKills()
     ComboTime = min(max(3.0f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.15f), 3.0f);
     // did we get a kill?
     if (Kills != LastKills) {
+        game->GameShared->Progress.Data.Money += 15.0f;
         game->GameSounds.PlayGameSound("death");
         ExtraSpeed += 14;
 

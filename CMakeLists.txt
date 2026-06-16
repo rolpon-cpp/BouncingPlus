@@ -1,30 +1,52 @@
 cmake_minimum_required(VERSION 4.0)
 project(BouncingPlus)
+
+# Base flags
 set(CMAKE_CXX_STANDARD 20)
-
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(FIREBASE_SOURCES "")
 
-if (FIREBASE)
-# ── Firebase ──────────────────────────────────────────────────────────────────
-# Set this to wherever you extracted the SDK. A relative path keeps it portable.
-set(FIREBASE_CPP_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/firebase_cpp_sdk")
+# --------------------------- GAME CONFIG FLAGS START ---------------------------
+option(FIREBASE False)
+option(FPS_BOOST True)
+# --------------------------- GAME CONFIG FLAGS END ---------------------------
 
-# Firebase's own CMake needs this hint on Windows
-set(FIREBASE_WINDOWS_BUILD TRUE)
+if (OPTIMIZED_REL)
+    message(STATUS "Enabling FPS Boost automatically")
+    set(FPS_BOOST True)
+endif ()
 
-add_subdirectory(${FIREBASE_CPP_SDK_DIR} bin/firebase EXCLUDE_FROM_ALL)
+# Adding in firebase
+if (MSVC)
+    if (FIREBASE)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
-# Pick only the Firebase products you actually use, but firebase_app is ALWAYS required last.
-# Common targets: firebase_auth, firebase_database, firebase_firestore,
-#                 firebase_storage, firebase_functions, firebase_remote_config
-set(FIREBASE_LIBS
-        firebase_auth       # remove/add as needed
-        firebase_database   # remove/add as needed
-        firebase_app        # must be last
-)
+        set(FIREBASE_SOURCES src/data/Leaderboard.cpp src/data/Leaderboard.h src/data/keys/firebase_keys.h)
+
+        # Set this to wherever you extracted the SDK. A relative path keeps it portable.
+        set(FIREBASE_CPP_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/firebase_cpp_sdk")
+
+        # Firebase's own CMake needs this hint on Windows
+        set(FIREBASE_WINDOWS_BUILD TRUE)
+
+        add_subdirectory(${FIREBASE_CPP_SDK_DIR} bin/firebase EXCLUDE_FROM_ALL)
+
+        # Pick only the Firebase products you actually use, but firebase_app is ALWAYS required last.
+        # Common targets: firebase_auth, firebase_database, firebase_firestore,
+        #                 firebase_storage, firebase_functions, firebase_remote_config
+        set(FIREBASE_LIBS
+                firebase_auth       # remove/add as needed
+                firebase_database   # remove/add as needed
+                firebase_app        # must be last
+        )
+    else ()
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif ()
 endif ()
 
 # Dependencies
+
+# Raylib
 set(RAYLIB_VERSION 5.5)
 find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
 if (NOT raylib_FOUND) # If there's none, fetch and build raylib
@@ -40,7 +62,11 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
         FetchContent_MakeAvailable(raylib)
     endif()
 endif()
+
+# JSON Library
 find_package(nlohmann_json CONFIG REQUIRED)
+
+# Adding all .cpp + .h files
 add_executable(BouncingPlus src/data/Progress.cpp
         src/data/Progress.h
         src/data/SaveConverter.cpp
@@ -118,34 +144,47 @@ add_executable(BouncingPlus src/data/Progress.cpp
         src/level/tiles/TileManagerFileRead.cpp
         src/level/tiles/TileManagerRendering.cpp
         src/level/tiles/TileType.h
-        src/main.cpp)
+        src/main.cpp
+        ${FIREBASE_SOURCES}
+)
 
-if (FIREBASE)
-    add_executable(BouncingPlus
-            src/data/Leaderboard.cpp
-            src/data/Leaderboard.h
-            src/firebase_keys.h)
+if (MSVC)
+    if (FIREBASE)
+        target_compile_options(BouncingPlus PRIVATE -DFIREBASE)
+        add_custom_command(TARGET BouncingPlus POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${FIREBASE_CPP_SDK_DIR}/libs/windows/VS2019/MD/x64/Release"
+                $<TARGET_FILE_DIR:BouncingPlus>
+                COMMENT "Copying Firebase DLLs..."
+        )
+    endif ()
 endif ()
 
+# Linking all of the libraries together
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
 target_link_libraries(BouncingPlus PRIVATE ${FIREBASE_LIBS})
 
-if (FIREBASE)
-add_custom_command(TARGET BouncingPlus POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${FIREBASE_CPP_SDK_DIR}/libs/windows/VS2019/MD/x64/Release"
-        $<TARGET_FILE_DIR:BouncingPlus>
-        COMMENT "Copying Firebase DLLs..."
-)
+# Optional FPS Boost Flag
+if (FPS_BOOST)
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+
+if (ipo_supported)
+    set_target_properties(BouncingPlus PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+    )
+endif ()
 endif ()
 
+# MinGW support
 if (MINGW)
     target_link_options(BouncingPlus PRIVATE
             -static
     )
 endif ()
 
+# Win32 / Game icon
 if(WIN32)
     target_sources(BouncingPlus PRIVATE resources.rc)
 endif()

@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-#include "../firebase_keys.h"
+#include "keys/firebase_keys.h"
 
 Leaderboard::Leaderboard()
 {

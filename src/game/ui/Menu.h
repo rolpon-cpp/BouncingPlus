@@ -26,6 +26,10 @@ class Menu {
     float PlayButtonOffsetY;
     float SettingsButtonOffsetY;
     float CreditsButtonOffsetY;
+    float ShopButtonOffsetY;
+#ifndef PLATFORM_WEB
+    float QuitButtonOffsetY;
+#endif
     float EasterEggOffset;
     float MenuImgOffsetY;
     float BlackTransparency;
@@ -40,6 +44,10 @@ class Menu {
     void ShopStuff();
     void LevelSelect();
     void Credits();
+    void EasterEgg();
+    void BlackScreenFade();
+    void UpdateOffsets();
+    void TitleScreen();
 
     public:
         Menu(SharedManager& GameSettings);

@@ -5,13 +5,15 @@
 #ifndef BOUNCINGPLUS_SAVECONVERTER_H
 #define BOUNCINGPLUS_SAVECONVERTER_H
 
+#include <cstdint>
 #include <unordered_map>
+#include <vector>
 
 struct SaveData;
 
 #pragma pack(push, 1)
 struct SaveDataV4 {
-    uint32_t Version;
+    std::uint32_t Version;
     uint32_t Money;
     uint8_t PlayerColor[3];
     float FrameRate;

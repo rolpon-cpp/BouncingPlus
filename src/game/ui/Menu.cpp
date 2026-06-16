@@ -42,8 +42,12 @@ void Menu::Reset()
     TitleImgY = -Shared->SharedUIAssets.TitleImg.height;
     TitleImgOffsetY = 0;
     PlayButtonOffsetY = -100;
-    SettingsButtonOffsetY = -200;
-    CreditsButtonOffsetY = -300;
+    ShopButtonOffsetY = -200;
+    SettingsButtonOffsetY = -300;
+    CreditsButtonOffsetY = -400;
+#ifndef PLATFORM_WEB
+    QuitButtonOffsetY = -500;
+#endif
     CameraX = 0;
     CameraTargetX = 0;
     Offset1 = 0;
@@ -137,7 +141,7 @@ void Menu::LevelSelect()
                         str_prog++;
 
                     std::string txt = description.substr(last_str_prog, str_prog - last_str_prog);
-                    if (txt.front() == ' ')
+                    if (!txt.empty() && txt.front() == ' ')
                         txt.erase(txt.begin());
                     //description.substr(max((float)(i * (description.size() / lines)), 0.0f), min((i+1) * (description.size() / lines), description.size())).c_str()
 
@@ -177,15 +181,15 @@ void Menu::LevelSelect()
     };
     DrawRectangleRec({r.x - CameraX, r.y, r.width, r.height}, ColorAlpha(BLACK, 0.5f));
 
-#ifndef PLATFORM_WEB
-    if (Button({
-                   LevelSelectPanelRectangle.x + 25 - CameraX,
-                   LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40
-               },
-               GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick,
-               "RELOAD LEVELS"))
-        Shared->ReloadLevels();
-#endif
+    #ifndef PLATFORM_WEB
+        if (Button({
+                       LevelSelectPanelRectangle.x + 25 - CameraX,
+                       LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40
+                   },
+                   GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick,
+                   "RELOAD LEVELS"))
+            Shared->ReloadLevels();
+    #endif
 
     if (Button({r.x + r.width * 0.85f - 25 - CameraX, r.y + r.height / 2 - 25, 50, 50}, GetMousePosition(),
                Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, ">"))
@@ -284,7 +288,7 @@ void Menu::Credits()
 
 void Menu::ShopStuff()
 {
-    std::string moneyTxt = "MONEY: $" + to_string(Shared->Progress.Data.Money);
+    std::string moneyTxt = "$" + to_string(Shared->Progress.Data.Money);
     float fntSize = 40.0f;
     float txtSize = MeasureText(moneyTxt.c_str(), fntSize);
 
@@ -299,41 +303,17 @@ void Menu::ShopStuff()
     DrawText(moneyTxt.c_str(), r.x + (r.width / 2.0f) - (txtSize/2.0f),
         r.y + (r.height/2.0f) - (fntSize/2.0f), fntSize, ColorLerp(WHITE, GREEN,
         min(Shared->Progress.Data.Money/1000.0f, 1.0f)));
+
+    Vector2 ShopPanelSize = Vector2{(float)GetRenderWidth() - 200.0f, (float)GetRenderHeight() - 180.0f};
+    Rectangle ShopPanelRect = {
+        (float)-GetRenderWidth() + (float)GetRenderWidth() / 2.0f - ShopPanelSize.x / 2.0f,
+        25 + (Offset2 / 1.5f), ShopPanelSize.x, ShopPanelSize.y
+    };
+    Panel(ShopPanelRect, "SHOP", Offset2);
 }
 
-void Menu::Update()
+void Menu::TitleScreen()
 {
-    if (!MovingToGame)
-    {
-        CameraX = Lerp(CameraX, CameraTargetX * GetRenderWidth(), 2.0f * GetFrameTime());
-        MousePos = {(float)GetMouseX() + CameraX, (float)GetMouseY()};
-    }
-
-    if (!IsMusicStreamPlaying(Shared->SharedUIAssets.MainMenuMusic))
-        PlayMusicStream(Shared->SharedUIAssets.MainMenuMusic);
-    if (!IsMusicStreamPlaying(Shared->SharedUIAssets.EasterEggMusic))
-        PlayMusicStream(Shared->SharedUIAssets.EasterEggMusic);
-
-    MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
-
-    Offset1 = -sin((GetTime() - 20.0f) * 3.5f) * 15;
-    Offset2 = -sin((GetTime() + 20.0f) * 3.5f) * 15;
-    Offset3 = -sin(GetTime() * 3.5f) * 15;
-
-    Offset1 += MenuMusicLevel * 80.5f;
-    Offset2 += MenuMusicLevel * 60.5f;
-    Offset3 += MenuMusicLevel * 40.5f;
-
-    TitleImgY = Lerp(TitleImgY, -100, 5 * GetFrameTime());
-    TitleImgOffsetY = Offset1;
-    if (abs(TitleImgY + 100) <= 10)
-        PlayButtonOffsetY = Lerp(PlayButtonOffsetY, 550, 5 * GetFrameTime());
-    if (abs(PlayButtonOffsetY - 550) <= 45)
-        SettingsButtonOffsetY = Lerp(SettingsButtonOffsetY, 624, 7 * GetFrameTime());
-    if (abs(SettingsButtonOffsetY - 624) <= 45)
-        CreditsButtonOffsetY = Lerp(CreditsButtonOffsetY, 698, 9 * GetFrameTime());
-
-    MenuImgOffsetY += GetFrameTime() * 15;
     float zoom = 1.45f;
     DrawTexturePro(Shared->SharedUIAssets.MenuImg, {0, MenuImgOffsetY / 10.0f, 118.0f, 73.0f},
                    {
@@ -349,22 +329,22 @@ void Menu::Update()
                 (int)(GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.TitleImg.width / 2.0f) - CameraX,
                 (int)TitleImgY - (int)TitleImgOffsetY, WHITE);
 
-    Shared->DisplaySettings(Vector2{-CameraX + GetRenderWidth(), 0}, Offset1, Offset2);
-
-    Rectangle play_bbox = {
-        (GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width / 2.0f),
-        (float)PlayButtonOffsetY + Offset3, 150, 56
-    };
-    if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(),
+    if (Button({
+                   (GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width / 2.0f) - CameraX,
+                   (float)PlayButtonOffsetY + Offset3, 150, 56
+               }, GetMousePosition(),
                Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "PLAY"))
     {
         CameraTargetX = -1;
     }
 
-    Credits();
-
     if (Button({
                    GetRenderWidth() * 2 + (GetRenderWidth() / 2.0f) - 75.0f - CameraX,
+                   GetRenderHeight() - 106.0f + (Offset1 + Offset3) / 2, 150, 56
+               }, GetMousePosition(),
+               Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "BACK") ||
+               Button({
+                   GetRenderWidth() * -2 + (GetRenderWidth() / 2.0f) - 75.0f - CameraX,
                    GetRenderHeight() - 106.0f + (Offset1 + Offset3) / 2, 150, 56
                }, GetMousePosition(),
                Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "BACK") ||
@@ -389,6 +369,50 @@ void Menu::Update()
                GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "CREDITS"))
         CameraTargetX = 2;
 
+    if (Button({
+                   (GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width / 2.0f) - CameraX,
+                   (float)ShopButtonOffsetY + Offset2, 150, 56
+               },
+               GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "SHOP"))
+        CameraTargetX = -2;
+
+    #ifndef PLATFORM_WEB
+        if (Button({
+                       (GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width / 2.0f) - CameraX,
+                       (float)QuitButtonOffsetY + (Offset2 + Offset1 + Offset3) / 3.0f, 150, 56
+                   },
+                   GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "QUIT"))
+            Shared->RequestQuit();
+    #endif
+}
+
+void Menu::UpdateOffsets()
+{
+    Offset1 = -sin((GetTime() - 20.0f) * 3.5f) * 15;
+    Offset2 = -sin((GetTime() + 20.0f) * 3.5f) * 15;
+    Offset3 = -sin(GetTime() * 3.5f) * 15;
+
+    Offset1 += MenuMusicLevel * 80.5f;
+    Offset2 += MenuMusicLevel * 60.5f;
+    Offset3 += MenuMusicLevel * 40.5f;
+
+    TitleImgY = Lerp(TitleImgY, -100, 5 * GetFrameTime());
+    TitleImgOffsetY = Offset1;
+    if (abs(TitleImgY + 100) <= 10)
+        PlayButtonOffsetY = Lerp(PlayButtonOffsetY, 476, 5 * GetFrameTime());
+    if (abs(PlayButtonOffsetY - 476) <= 45)
+        SettingsButtonOffsetY = Lerp(SettingsButtonOffsetY, 550, 7 * GetFrameTime());
+    if (abs(SettingsButtonOffsetY - 550) <= 45)
+        ShopButtonOffsetY = Lerp(ShopButtonOffsetY, 624, 9 * GetFrameTime());
+    if (abs(ShopButtonOffsetY - 624) <= 45)
+        CreditsButtonOffsetY = Lerp(CreditsButtonOffsetY, 698, 9 * GetFrameTime());
+    if (abs(CreditsButtonOffsetY - 698) <= 45)
+        QuitButtonOffsetY = Lerp(QuitButtonOffsetY, 772, 9 * GetFrameTime());
+    MenuImgOffsetY += GetFrameTime() * 15;
+}
+
+void Menu::BlackScreenFade()
+{
     if (isStarting && BlackTransparency > 0)
         BlackTransparency -= 0.65f * GetFrameTime();
     else
@@ -404,6 +428,11 @@ void Menu::Update()
         StopMusicStream(Shared->SharedUIAssets.EasterEggMusic);
     }
 
+    DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, BlackTransparency));
+}
+
+void Menu::EasterEgg()
+{
     DrawTexture(Shared->SharedUIAssets.EasterEggImg, -75, GetRenderHeight() - 20 + EasterEggOffset, WHITE);
 
     // if the cursor is touching the easter egg screen spot
@@ -419,11 +448,30 @@ void Menu::Update()
         UpdateMusicStream(Shared->SharedUIAssets.MainMenuMusic);
         SetMusicVolume(Shared->SharedUIAssets.MainMenuMusic, 1.0f - BlackTransparency);
     }
+}
 
+void Menu::Update()
+{
+    if (!MovingToGame)
+    {
+        CameraX = Lerp(CameraX, CameraTargetX * GetRenderWidth(), 2.0f * GetFrameTime());
+        MousePos = {(float)GetMouseX() + CameraX, (float)GetMouseY()};
+    }
+
+    if (!IsMusicStreamPlaying(Shared->SharedUIAssets.MainMenuMusic))
+        PlayMusicStream(Shared->SharedUIAssets.MainMenuMusic);
+    if (!IsMusicStreamPlaying(Shared->SharedUIAssets.EasterEggMusic))
+        PlayMusicStream(Shared->SharedUIAssets.EasterEggMusic);
+    MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
+
+    UpdateOffsets();
+    TitleScreen();
+    Shared->DisplaySettings(Vector2{-CameraX + GetRenderWidth(), 0}, Offset1, Offset2);
     LevelSelect();
     ShopStuff();
-
-    DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, BlackTransparency));
+    Credits();
+    EasterEgg();
+    BlackScreenFade();
 }
 
 std::string Menu::LeaveMenu()

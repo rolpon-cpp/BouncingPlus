@@ -6,9 +6,9 @@
 #include "level/LevelLoader.h"
 
 #ifdef PLATFORM_WEB
-#include <emscripten/emscripten.h>
-#elseif FIREBASE
-#include "data/Leaderboard.h"
+    #include <emscripten/emscripten.h>
+#elif FIREBASE
+    #include "data/Leaderboard.h"
 #endif
 
 struct Data
@@ -45,9 +45,9 @@ void loop(void* arg)
             MainGame.ShouldReturn = false;
             MainGame.Clear();
 
-#ifndef PLATFORM_WEB
-            ShowCursor();
-#endif
+            #ifndef PLATFORM_WEB
+                ShowCursor();
+            #endif
         } else
             MainGame.Update();
         // i am scared!!! i scare you!!!
@@ -55,9 +55,9 @@ void loop(void* arg)
         MainMenu.Update();
         std::string map = MainMenu.LeaveMenu();
         if (!map.empty()) {
-#ifndef PLATFORM_WEB
-            HideCursor();
-#endif
+            #ifndef PLATFORM_WEB
+                HideCursor();
+            #endif
             InGame = true;
             MainGame.ShouldReturn = false;
             MainGame.Reload(map);
@@ -65,13 +65,13 @@ void loop(void* arg)
     }
     DrawFPS(0,0);
 
-#ifdef PLATFORM_WEB
-    // This returns the current size of the WASM heap in bytes
-    uint32_t heapSize = EM_ASM_INT({
-        return HEAP8.length;
-    });
-    DrawText(TextFormat("WASM Heap: %u MB", heapSize / (1024 * 1024)), 0, 20, 20, GREEN);
-#endif
+    #ifdef PLATFORM_WEB
+        // This returns the current size of the WASM heap in bytes
+        uint32_t heapSize = EM_ASM_INT({
+            return HEAP8.length;
+        });
+        DrawText(TextFormat("WASM Heap: %u MB", heapSize / (1024 * 1024)), 0, 20, 20, GREEN);
+    #endif
 
     EndDrawing();
 }
@@ -86,10 +86,10 @@ int main(int argc, char *argv[]) {
         Image t = LoadImage("assets/img/enemy.png");
         SetWindowIcon(t);
         UnloadImage(t);
-#ifdef FIREBASE
-        Leaderboard MainLeaderboard = Leaderboard();
-        double LastUpdatedLeaderboard = 0.0f;
-#endif
+        #ifdef FIREBASE
+            Leaderboard MainLeaderboard = Leaderboard();
+            double LastUpdatedLeaderboard = 0.0f;
+        #endif
     #endif
 
     // test commit
@@ -128,20 +128,24 @@ int main(int argc, char *argv[]) {
     #else
         while (!WindowShouldClose())
         {
-            loop(&d);
-#ifndef PLATFORM_WEB
-#ifdef FIREBASE
-            if (GetTime() - LastUpdatedLeaderboard >= 120.0f)
+            if (!d.SharedManager.QuitGame)
             {
-                MainLeaderboard.UpdateData();
-                LastUpdatedLeaderboard = GetTime();
+                loop(&d);
+                #ifdef FIREBASE
+                    if (GetTime() - LastUpdatedLeaderboard >= 120.0f)
+                    {
+                        MainLeaderboard.UpdateData();
+                        LastUpdatedLeaderboard = GetTime();
+                    }
+                #endif
+            } else
+            {
+                break;
             }
-#endif
-#endif
         }
-#ifdef FIRBASE
+    #ifdef FIREBASE
         MainLeaderboard.Quit();
-#endif
+    #endif
     #endif
 
     MainMenu.Quit();

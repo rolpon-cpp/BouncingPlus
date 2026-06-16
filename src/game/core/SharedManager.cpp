@@ -56,12 +56,17 @@ void SharedManager::DisplaySettings(Vector2 Position, float Offset1, float Offse
 {
     Panel(Rectangle{Position.x + 200, Position.y + 25, GetRenderWidth() - 400.0f, GetRenderHeight() - 200.0f}, "SETTINGS", -(Offset1 + Offset2)/4);
     Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, "VOLUME", &this->Volume, &LastVolumeBar, &VolumeBarInteraction, 0, 100.0f);
-    Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 60}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, "FRAMERATE", &this->FrameRate, &LastFrameRateBar, &FrameRateBarInteraction, 30, 240);
+    Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 60}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, "FRAMERATE", &this->FrameRate, &LastFrameRateBar, &FrameRateBarInteraction, 30, 300);
     Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 120}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, "MAX PARTICLES", &this->CosmeticParticleLimit, &LastParticleLimitBar, &ParticleBarInteraction, 0, 600);
     Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 180}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "CURSOR WINDOW LOCK", &CursorWindowLock);
     Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 240}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "DEVELOPER MODE", &DevMode);
     Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 300}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "SHAKE CAMERA", &ShakeCamera);
     Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 150 + (Offset1 + Offset2)/4 + 360}, GetMousePosition(), this->SharedUIAssets.SliderDrag, this->SharedUIAssets.ButtonSmallImg, this->SharedUIAssets.ButtonSmallRedImg, "FULLSCREEN", &Fullscreen);
+}
+
+void SharedManager::RequestQuit()
+{
+    QuitGame = true;
 }
 
 void SharedManager::ResetSettings()
@@ -73,49 +78,32 @@ void SharedManager::ResetSettings()
 
 void SharedManager::Update()
 {
-
+    #ifndef PLATFORM_WEB
     if (FrameRate != LastFrameRate)
-    {
-        #ifndef PLATFORM_WEB
-            SetTargetFPS((int)FrameRate);
-        #endif
-    }
-    LastFrameRate = FrameRate;
+        SetTargetFPS(FrameRate);
 
     if (Controls.IsControlPressed("fullscreen"))
         Fullscreen = !Fullscreen;
 
     if (Fullscreen && !IsWindowFullscreenCrossPlatform())
-    {
-#ifndef PLATFORM_WEB
         SetWindowSize(GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()));
-#endif
-    }
 
     if (!Fullscreen && IsWindowFullscreenCrossPlatform())
     {
-#ifndef PLATFORM_WEB
         SetWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - WINDOW_WIDTH/2, GetMonitorHeight(GetCurrentMonitor())/2 - WINDOW_HEIGHT/2);
-#endif
     }
 
     if (IsWindowFullscreen() != Fullscreen)
-    {
-        #ifndef PLATFORM_WEB
         ToggleFullscreen();
-        #endif
-    }
 
     if (CursorWindowLock && !IsCursorOnScreenCrossPlatform())
-    {
-
-#ifndef PLATFORM_WEB
         SetMousePosition(std::min(std::max(GetMouseX(), 25), GetRenderWidth() - 25), std::min(std::max(GetMouseY(), 25), GetRenderHeight() - 25));
-#endif
-    }
+
+    #endif
 
     SetMasterVolume(Volume / 100.0f);
+    LastFrameRate = FrameRate;
 
     Controls.Update();
 }

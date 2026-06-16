@@ -28,17 +28,30 @@ if not os.path.exists(dst):
 
 p = '../cmake-build-release/BouncingPlus.exe'
 
-if os.path.exists('../cmake-build-release/BouncingPlus.exe') and os.path.exists('../cmake-build-debug/BouncingPlus.exe'):
+if os.path.exists('../cmake-build-release/BouncingPlus.exe') and os.path.exists('../cmake-build-debug/BouncingPlus.exe') and os.path.exists('../cmake-build-optimized-release/BouncingPlus.exe'):
     f1 = os.path.getmtime('../cmake-build-release/BouncingPlus.exe')
     f2 = os.path.getmtime('../cmake-build-debug/BouncingPlus.exe')
+    f3 = os.path.getmtime('../cmake-build-optimized-release/BouncingPlus.exe')
 
-    if f2 > f1:
+    print(f1, f2, f3)
+
+    maxf = max(f1, max(f2, f3))
+    if maxf == f1:
+        print(maxf, f1)
+        p = '../cmake-build-release/BouncingPlus.exe'
+    elif maxf == f2:
+        print(maxf, f2)
         p = '../cmake-build-debug/BouncingPlus.exe'
+    elif maxf == f3:
+        print(maxf, f3)
+        p = '../cmake-build-optimized-release/BouncingPlus.exe'
 
-shutil.copy("../cmake-build-release/BouncingPlus.exe", dst)
-for file in os.listdir("../cmake-build-release"):
+p = '../cmake-build-release/BouncingPlus.exe'
+print(p)
+shutil.copy(p, dst)
+for file in os.listdir(p.replace("/BouncingPlus.exe", "")):
     if file.endswith(".dll"):
-        shutil.copy("../cmake-build-release/"+file, dst)
+        shutil.copy(p.replace("BouncingPlus.exe", "")+file, dst)
 shutil.copytree("../assets", dst+"/assets")
 
 epik_file_name = "Bouncing Plus - Version "+str(version)+" (EXE Dev Build)"
