@@ -55,7 +55,7 @@ void PlayerLogicProcessor::ProcessStress()
     for (int i = 0; i < bulletArray.size(); i++)
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete)
             if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 600)
-                MyPlayer->FrameStressLevel += 0.01f;
+                MyPlayer->FrameStressLevel += 0.02f;
 
     std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities.Entities[TurretType];
     for (int i = 0; i < turretArray.size(); i++)
@@ -63,7 +63,7 @@ void PlayerLogicProcessor::ProcessStress()
             if (entity->CurrentState != LOOKING)
                 MyPlayer->FrameStressLevel += 0.1f;
 
-    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.075f;
+    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.1f;
 
     if (MyPlayer->game->GameMode.InWave)
         MyPlayer->FrameStressLevel += 0.15f;
@@ -71,7 +71,7 @@ void PlayerLogicProcessor::ProcessStress()
     MyPlayer->FrameStressLevel = min(max(MyPlayer->FrameStressLevel, 0.0f), 1.0f);
 
     if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.0f * MyPlayer->game->GetGameDeltaTime());
     else
         MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.25f * MyPlayer->game->GetGameDeltaTime());
 
@@ -120,11 +120,16 @@ void PlayerLogicProcessor::HandleFightMusic()
 
     int ChosenLayer = (int)round(FightMusicLayer);
     std::string FightTrack = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
-    if (ChosenLayer == 4 && MyPlayer->StressLevel >= 0.4f)
+    if (ChosenLayer == 4 && MyPlayer->StressLevel >= 0.6f)
     {
-        LayerSwitchCooldown += 3.0f;
-        LayerSwitchCooldown = min((float)LayerSwitchCooldown, 10.0f);
+        LayerSwitchCooldown += 2.5f * MyPlayer->game->GetGameDeltaTime();
+
+    } else if (ChosenLayer == 4)
+    {
+        LayerSwitchCooldown -= 1.25f * MyPlayer->game->GetGameDeltaTime();
     }
+
+    LayerSwitchCooldown = min((float)LayerSwitchCooldown, 5.0f);
 
     if (PreviousFightTrack != FightTrack)
     {

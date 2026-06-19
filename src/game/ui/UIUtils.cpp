@@ -20,14 +20,15 @@ Color GetHealthColor(float Percent, float Armor) {
 
 void UIAssets::Load()
 {
-    int tetoChance = GetRandomValue(1, 3);
+    int tetoChance = GetRandomValue(1, 4);
+    int neruChance = GetRandomValue(1, 3);
     TitleImg = LoadTexture("assets/ui/title.png");
     ButtonSmallImg = LoadTexture("assets/ui/button_small.png");
     ButtonSmallRedImg = LoadTexture("assets/ui/button_small_red.png");
     ButtonImg = LoadTexture("assets/ui/button.png");
     MenuImg = LoadTexture("assets/ui/menu_img.png");
-    EasterEggImg = LoadTexture(tetoChance == 2 ? "assets/ui/teto.png" : "assets/ui/miku.png"); // chance to load either miku or teto image
-    EasterEggMusic = LoadMusicStream(tetoChance == 2 ? "assets/ui/teto_territory.mp3" : "assets/ui/lovely_cavity.mp3"); // chance to load either miku or teto sound
+    EasterEggImg = LoadTexture(neruChance == 2 ? "assets/ui/neru.png" : tetoChance <= 3 ? "assets/ui/teto.png" : "assets/ui/miku.png"); // chance to load either miku or teto image
+    EasterEggMusic = LoadMusicStream(neruChance == 2 ? "assets/ui/flop_era.mp3" : tetoChance <= 3 ? "assets/ui/teto_territory.mp3" : "assets/ui/lovely_cavity.mp3"); // chance to load either miku or teto sound
     ButtonClick = LoadSound("assets/ui/button_click.wav");
     SliderDrag = LoadSound("assets/ui/slider_dragging.wav");
     CursorImg = LoadTexture("assets/ui/cursor.png");
