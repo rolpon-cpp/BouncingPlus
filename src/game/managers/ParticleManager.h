@@ -1,5 +1,5 @@
 //
-// Created by lalit on 10/19/2025.
+// Created by Rolpon on 10/19/2025.
 //
 
 #ifndef BOUNCINGPLUS_PARTICLESYSTEM_H
@@ -34,7 +34,6 @@ struct Particle {
 class ParticleManager {
     Game *game;
     std::vector<Particle> Particles;
-    RenderTexture ParticlesTexture;
     public:
     ParticleManager();
     ParticleManager(Game *game);

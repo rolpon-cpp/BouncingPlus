@@ -1,17 +1,20 @@
 //
-// Created by lalit on 8/28/2025.
+// Created by Rolpon on 8/28/2025.
 //
 
 #include "iostream"
 #include "Enemy.h"
-
 #include <raymath.h>
-
 #include "raylib.h"
-
 #include "../player/Player.h"
 #include "behaviors/WeaponBehavior.h"
-#include "../../../game/ui/gameplay_ui/GameplayUI.h"
+#include "../../../game/managers/ParticleManager.h"
+#include "../../../game/managers/SoundManager.h"
+#include "../../../game/managers/ResourceManager.h"
+#include "../../../game/core/SharedManager.h"
+#include "../../../game/core/GameMisc.h"
+#include "../../../level/tiles/TileManager.h"
+#include "../../../level/tiles/TileType.h"
 #include "../../../game/Game.h"
 
 Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
@@ -72,7 +75,7 @@ void Enemy::Wander() {
             Angle += GetRandomValue(-30, 30);
             float X = cos(Angle * (2 * PI / 360))*900;
             float Y = sin(Angle * (2 * PI / 360))*900;
-            RayCastData d = game->GameMiscTools.RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            RayCastData d = game->GameMiscTools->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
             if (!S)
             {
                 BestPos = d.HitPosition;
@@ -106,7 +109,7 @@ void Enemy::OnDelete() {
 
 void Enemy::OnDeath()
 {
-    game->GameParticles.ParticleEffect({
+    game->GameParticles->ParticleEffect({
                 {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2},
                 300,
                 ColorLerp(WHITE, RED, 0.6f),
@@ -117,7 +120,7 @@ void Enemy::OnDeath()
             }, Rotation - 180, 360, 15);
     if (GetRandomValue(1, 100) <= 25 && MainWeaponsSystem.CurrentWeaponIndex >= 0 && MainWeaponsSystem.CurrentWeaponIndex <= 2 && !MyWeapon.empty())
     {
-        game->GameMiscTools.PlaceWeaponPickup({
+        game->GameMiscTools->PlaceWeaponPickup({
             {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
             RED,
             40,
@@ -171,7 +174,7 @@ void Enemy::Update() {
     {
         bool IsTouchingFreezeZone = false;
 
-        for (std::pair rec : game->GameMiscTools.FreezeZones)
+        for (std::pair rec : game->GameMiscTools->FreezeZones)
         {
             if (CheckCollisionRecs(BoundingBox, rec.first))
             {
@@ -238,7 +241,7 @@ void Enemy::Update() {
     this->MainEffectsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->GameResources.Textures["armor_overlay"], {0, 0, 36.0f, 36.0f}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
+        DrawTexturePro(game->GameResources->Textures["armor_overlay"], {0, 0, 36.0f, 36.0f}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()
@@ -250,8 +253,8 @@ void Enemy::MoveAwayFromWalls()
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
-    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
-    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
+    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles->TileSize);
+    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles->TileSize);
     for (int y = 0; y < 3; y++)
     {
         for (int x = 0; x < 3; x++)
@@ -259,16 +262,16 @@ void Enemy::MoveAwayFromWalls()
             int curr_tile_x = tile_x + x - 1;
             int curr_tile_y = tile_y + y - 1;
             Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
-            int tile_id = game->GameTiles.GetTileAt(coord);
+            int tile_id = game->GameTiles->GetTileAt(coord);
 
-            float bbox_x = curr_tile_x * game->GameTiles.TileSize;
-            float bbox_y = curr_tile_y * game->GameTiles.TileSize;
+            float bbox_x = curr_tile_x * game->GameTiles->TileSize;
+            float bbox_y = curr_tile_y * game->GameTiles->TileSize;
 
-            float plr_center_x = bbox_x + (game->GameTiles.TileSize / 2);
-            float plr_center_y = bbox_y + (game->GameTiles.TileSize / 2);
+            float plr_center_x = bbox_x + (game->GameTiles->TileSize / 2);
+            float plr_center_y = bbox_y + (game->GameTiles->TileSize / 2);
 
             float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
-            if (game->GameTiles.TileTypes[tile_id] == WallTileType)
+            if (game->GameTiles->TileTypes[tile_id] == WallTileType)
             {
                 nothing_found = false;
                 Vector2 d={0,0};

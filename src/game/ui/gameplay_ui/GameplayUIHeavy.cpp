@@ -1,19 +1,26 @@
 //
-// Created by lalit on 6/11/2026.
+// Created by Rolpon on 6/11/2026.
 //
 
-#include "GameplayUI.h"
 #include <algorithm>
+
+#include "GameplayUI.h"
 #include <raymath.h>
 #include "../../Game.h"
+#include "../../../entities/subentities/player/Player.h"
+#include "../../core/Controls.h"
+#include "../../managers/ResourceManager.h"
+#include "../../managers/GameModeManager.h"
+#include "../../managers/CameraManager.h"
+#include "../../core/SharedManager.h"
 
 void GameplayUI::DisplayLevelTimer()
 {
-    if (game->GameMode.LevelTimer > 0)
+    if (game->GameMode->LevelTimer > 0)
     {
         int minutes = (int)(this
-            ->game->GameMode.LevelTimer / 60);
-        int seconds = (int)(this->game->GameMode.LevelTimer - (minutes * 60.0f));
+            ->game->GameMode->LevelTimer / 60);
+        int seconds = (int)(this->game->GameMode->LevelTimer - (minutes * 60.0f));
         std::string txt = to_string(minutes) + ":" + to_string(seconds);
         if (seconds < 10)
             txt = to_string(minutes) + ":0" + to_string(seconds);
@@ -30,12 +37,12 @@ void GameplayUI::DisplayLevelTimer()
         DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
         std::string o_txt = "TIME LEFT";
-        if (game->GameMode.CurrentGameMode == "wave")
+        if (game->GameMode->CurrentGameMode == "wave")
         {
-            if (!game->GameMode.InWave)
-                o_txt = "INTERMISSION " + to_string(game->GameMode.CurrentWave + 1);
+            if (!game->GameMode->InWave)
+                o_txt = "INTERMISSION " + to_string(game->GameMode->CurrentWave + 1);
             else
-                o_txt = "WAVE " + to_string(game->GameMode.CurrentWave);
+                o_txt = "WAVE " + to_string(game->GameMode->CurrentWave);
         }
 
         DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
@@ -104,7 +111,7 @@ void GameplayUI::DisplayInventoryIndicator()
     for (int i = 0; i < 3; i++)
     {
         std::string WepName = game->MainPlayer->MainWeaponsSystem.Weapons[i];
-        if (WepName.empty() || !game->GameResources.Weapons.contains(WepName) || game->GameResources.Weapons[WepName].Icon.empty() || !game->GameResources.Textures.contains(game->GameResources.Weapons[WepName].Icon))
+        if (WepName.empty() || !game->GameResources->Weapons.contains(WepName) || game->GameResources->Weapons[WepName].Icon.empty() || !game->GameResources->Textures.contains(game->GameResources->Weapons[WepName].Icon))
             continue;
         Rectangle thisTileRect = {
             rectangle.x + (i * 32.0f) + ((i+1) * Margin),
@@ -114,7 +121,7 @@ void GameplayUI::DisplayInventoryIndicator()
         };
         if (i == game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex)
             DrawRectangleRec(thisTileRect, ColorAlpha(WHITE, 0.5f*InvIndTrans*UITransparency));
-        DrawTexturePro(game->GameResources.Textures[game->GameResources.Weapons[WepName].Icon], {0, 0, 32.0f, 32.0f}, thisTileRect, {0.0f,0.0f}, 0.0f, ColorAlpha(WHITE, InvIndTrans * UITransparency));
+        DrawTexturePro(game->GameResources->Textures[game->GameResources->Weapons[WepName].Icon], {0, 0, 32.0f, 32.0f}, thisTileRect, {0.0f,0.0f}, 0.0f, ColorAlpha(WHITE, InvIndTrans * UITransparency));
     }
 }
 
@@ -219,14 +226,14 @@ void GameplayUI::DisplayCursor()
                 CursorMiddleTrans = Lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
                 CursorRotation = Lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
             }
-            DrawTexturePro(game->GameResources.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 7.5f, 7.5f},
+            DrawTexturePro(game->GameResources->Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 7.5f, 7.5f},
                     {3.75f, 3.75f}, CursorRotation, ColorAlpha(YELLOW, CursorMiddleTrans));
         } else {
-            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
+            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
             float cx = game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width / 2;
             float cy = game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height / 2;
             float FinalAngle = atan2(cy - Target.y, cx - Target.x) * RAD2DEG - 90;
-            DrawTexturePro(game->GameResources.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, FinalAngle, ORANGE);
+            DrawTexturePro(game->GameResources->Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, FinalAngle, ORANGE);
             CursorMiddleTrans = Lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
             CursorRotation = Lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
         }

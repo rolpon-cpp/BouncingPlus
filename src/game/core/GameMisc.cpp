@@ -1,10 +1,15 @@
 //
-// Created by lalit on 6/11/2026.
+// Created by Rolpon on 6/11/2026.
 //
 
 #include "GameMisc.h"
+#include "../../level/tiles/TileManager.h"
+#include "Controls.h"
 #include "../Game.h"
+#include "../../entities/subentities/player/Player.h"
+#include "../managers/ResourceManager.h"
 #include "raymath.h"
+#include "../../entities/systems/Weapons.h"
 
 GameMisc::GameMisc()
 {
@@ -33,12 +38,7 @@ GameMisc::~GameMisc()
 
 void GameMisc::SetGameData()
 {
-    uOutlineSize = GetShaderLocation(game->GameResources.Shaders["weps_outline"], "outlineSize");
-    uOutlineColor = GetShaderLocation(game->GameResources.Shaders["weps_outline"], "outlineColor");
-    uTextureSize = GetShaderLocation(game->GameResources.Shaders["weps_outline"], "GOODtextureSize");
-    uThreshold = GetShaderLocation(game->GameResources.Shaders["weps_outline"], "threshold");
 
-    WeaponPickupTex = LoadRenderTexture(150, 150);
 }
 
 void GameMisc::Update()
@@ -57,7 +57,6 @@ void GameMisc::Clear()
 void GameMisc::Quit()
 {
     WeaponPickups.clear();
-    UnloadRenderTexture(WeaponPickupTex);
 }
 
 void GameMisc::DisplayProfilerInfo()
@@ -72,7 +71,7 @@ void GameMisc::DisplayProfilerInfo()
         int i = 0;
         for (auto [name,val] : times)
         {
-            DrawText((name + ", " + to_string(val * 1000.0f) + "ms").c_str(), 250, 150 + i * 50, 50, RED);
+            DrawText((name + ", " + std::to_string(val * 1000.0f) + "ms").c_str(), 250, 150 + i * 50, 50, RED);
             i++;
         }
         if (AverageDeltaTime > LastAverageDeltaTime && AverageDeltaTime >= LastAverageDeltaTime * 1.25f)
@@ -108,7 +107,7 @@ void GameMisc::DisplayProfilerInfo()
     if (StutterCooldown > 0.0f)
     {
         if (DisplayProfiler)
-            DrawText(("stutter detected " + to_string(Stutters)).c_str(), 700, 700, 50, RED);
+            DrawText(("stutter detected " + std::to_string(Stutters)).c_str(), 700, 700, 50, RED);
         StutterCooldown -= GetFrameTime();
     } else
     {
@@ -120,13 +119,13 @@ void GameMisc::DisplayProfilerInfo()
 
 RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
 {
-    int q_check = game->GameTiles.GetTileAtWorldCoords(Origin);
-    if (game->GameTiles.TileTypes[q_check] == WallTileType || game->GameTiles.TileTypes[q_check] == EnemyWallTileType)
+    int q_check = game->GameTiles->GetTileAtWorldCoords(Origin);
+    if (game->GameTiles->TileTypes[q_check] == WallTileType || game->GameTiles->TileTypes[q_check] == EnemyWallTileType)
     {
         return RayCastData{false, Origin, q_check};
     }
-    Vector2 vRayStart = Vector2{Origin.x / game->GameTiles.TileSize, Origin.y / game->GameTiles.TileSize};
-    Vector2 vRayTarget = Vector2{Target.x / game->GameTiles.TileSize, Target.y / game->GameTiles.TileSize};
+    Vector2 vRayStart = Vector2{Origin.x / game->GameTiles->TileSize, Origin.y / game->GameTiles->TileSize};
+    Vector2 vRayTarget = Vector2{Target.x / game->GameTiles->TileSize, Target.y / game->GameTiles->TileSize};
     Vector2 vRayDir = Vector2Normalize(vRayTarget - vRayStart);
 
     Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
@@ -187,10 +186,10 @@ RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
         }
 
         // Test tile at new test point
-        if (vMapCheck.x >= 0 && vMapCheck.x < game->GameTiles.MapWidth && vMapCheck.y >= 0 && vMapCheck.y < game->GameTiles.MapHeight)
+        if (vMapCheck.x >= 0 && vMapCheck.x < game->GameTiles->MapWidth && vMapCheck.y >= 0 && vMapCheck.y < game->GameTiles->MapHeight)
         {
-            id = game->GameTiles.GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y});
-            int t_id = game->GameTiles.TileTypes[id];
+            id = game->GameTiles->GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y});
+            int t_id = game->GameTiles->TileTypes[id];
             if (t_id == WallTileType || t_id == EnemyWallTileType)
             {
                 bTileFound = true;
@@ -200,10 +199,10 @@ RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
     }
 
     // Calculate intersection location
-    Vector2 vIntersection = Origin - Vector2Normalize(Origin - Target) * fDistance * game->GameTiles.TileSize;
+    Vector2 vIntersection = Origin - Vector2Normalize(Origin - Target) * fDistance * game->GameTiles->TileSize;
 
     if (game->DebugDraw)
-        DrawLine(vIntersection.x, vIntersection.y,vRayStart.x*game->GameTiles.TileSize,vRayStart.y*game->GameTiles.TileSize,RED);
+        DrawLine(vIntersection.x, vIntersection.y,vRayStart.x*game->GameTiles->TileSize,vRayStart.y*game->GameTiles->TileSize,RED);
 
     return RayCastData{!bTileFound, vIntersection, id};
 }
@@ -221,7 +220,7 @@ void GameMisc::PlaceWeaponPickup(WeaponPickup Pickup) {
 void GameMisc::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || game->GetGameTime() - pickup.CreationTime >= 45 || !game->GameResources.Weapons.count(pickup.Weapon);
+            return pickup.PickedUp || game->GetGameTime() - pickup.CreationTime >= 45 || !game->GameResources->Weapons.count(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
@@ -229,65 +228,24 @@ void GameMisc::DisplayPickups()
             continue;
         // get floating offset
         float AnimationOffset = sin((game->GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
-        Weapon& PickupWeapon = game->GameResources.Weapons.at(pickup.Weapon);
+        Weapon& PickupWeapon = game->GameResources->Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
-        if (game->GameResources.Textures.count(PickupWeapon.texture))
+        if (game->GameResources->Textures.count(PickupWeapon.texture))
             TexString=PickupWeapon.texture;
-
-        Vector2 siz = {(float)game->GameResources.Textures[TexString].width, (float)game->GameResources.Textures[TexString].height};
-        siz = Vector2Normalize(siz);
-        siz = Vector2Multiply(siz, {pickup.Radius*2.5f, pickup.Radius*2.5f});
-
-        float outlineSize = 3.0f;
-        float threshold = 0.5f;
-        Color outlineColor = pickup.PickupColor;
 
         DrawCircle(pickup.Position.x, pickup.Position.y, pickup.Radius / 1.125f, ColorAlpha(BLACK, 0.2f));
 
-        game->GameCamera.BeginRenderTexture(WeaponPickupTex);
-        ClearBackground(BLANK);
+        float sizeWOutline = game->GameResources->Textures[TexString].width * pickup.Radius * 2.5f;
+        float sizeHOutline = game->GameResources->Textures[TexString].height * pickup.Radius * 2.5f;
+        sizeWOutline *= 1.1f;
+        sizeHOutline *= 1.1f;
+        DrawTextureEx(game->GameResources->Textures[TexString], pickup.Position -
+            Vector2{sizeWOutline / 2.0f, sizeHOutline / 2.0f}, 0.0f, pickup.Radius / max(sizeWOutline,sizeHOutline), {255, 0, 0, 255});
 
-        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-
-        DrawTexturePro(game->GameResources.Textures[TexString], {
-            0,
-            0,
-            (float)game->GameResources.Textures[TexString].width,
-            (float)game->GameResources.Textures[TexString].height
-        }, {
-            WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f,
-            siz.x,
-            siz.y
-
-        }, {siz.x / 2, siz.y / 2}, 0, WHITE);
-        EndBlendMode();
-        game->GameCamera.EndRenderTexture();
-
-        Vector2 texSize = {(float)WeaponPickupTex.
-            texture.width,
-            (float)WeaponPickupTex.texture.height};
-        float outlineColorRGB[4] = {
-            (float)outlineColor.r / 255.0f,
-                (float)outlineColor.g / 255.0f,
-                (float)outlineColor.b / 255.0f,
-                    (float)outlineColor.a / 255.0f
-        };
-
-        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-        BeginShaderMode(game->GameResources.Shaders["weps_outline"]);
-        SetShaderValue(game->GameResources.Shaders["weps_outline"], uTextureSize, &texSize, SHADER_UNIFORM_VEC2);
-        SetShaderValue(game->GameResources.Shaders["weps_outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(game->GameResources.Shaders["weps_outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(game->GameResources.Shaders["weps_outline"], uOutlineColor, &outlineColorRGB, SHADER_UNIFORM_VEC4);
-        DrawTexturePro(WeaponPickupTex.texture, {0,0,(float)WeaponPickupTex.texture.width,
-            (float)-WeaponPickupTex.texture.height
-        }, {pickup.Position.x,
-            pickup.Position.y - AnimationOffset,
-            (float)WeaponPickupTex.texture.width,
-                (float)WeaponPickupTex.texture.height},
-            {WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f}, 0, WHITE);
-        EndBlendMode();
-        EndShaderMode();
+        float sizeW = game->GameResources->Textures[TexString].width * pickup.Radius * 2.5f;
+        float sizeH = game->GameResources->Textures[TexString].height * pickup.Radius * 2.5f;
+        DrawTextureEx(game->GameResources->Textures[TexString], pickup.Position -
+            Vector2{sizeW / 2.0f, sizeH / 2.0f}, 0.0f, pickup.Radius / max(sizeW,sizeH), WHITE);
 
         if (game->DebugDraw)
             DrawCircleV({pickup.Position.x,

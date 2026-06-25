@@ -1,5 +1,5 @@
 //
-// Created by lalit on 6/11/2026.
+// Created by Rolpon on 6/11/2026.
 //
 
 #ifndef BOUNCINGPLUS_ENGINETOOLS_H
@@ -29,13 +29,6 @@ struct RayCastData
 class GameMisc
 {
     public:
-
-    // Weapon texture stuff
-    RenderTexture2D WeaponPickupTex;
-    int uTextureSize;
-    int uOutlineSize;
-    int uOutlineColor;
-    int uThreshold;
 
     // Profiler
     BaseProfiler GameProfiler;

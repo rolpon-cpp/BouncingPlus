@@ -1,9 +1,7 @@
-//
-// Created by lalit on 2/22/2026.
-//
+
 
 #include "BaseProfiler.h"
-
+#include "raylib.h"
 #include "../Game.h"
 
 BaseProfiler::BaseProfiler()

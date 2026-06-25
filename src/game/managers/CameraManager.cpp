@@ -1,13 +1,10 @@
-//
-// Created by lalit on 10/23/2025.
-//
-
 #include "CameraManager.h"
-
-#include <iostream>
+#include "../../level/tiles/TileManager.h"
 #include <raymath.h>
-
+#include "../core/SharedManager.h"
+#include "ResourceManager.h"
 #include "../Game.h"
+#include "../../entities/subentities/player/Player.h"
 
 void CameraManager::Clear() {
     if (CamTextureInitialized)
@@ -60,22 +57,22 @@ void CameraManager::QuickZoom(float Zoom, double Time, bool Instant) {
 }
 
 void CameraManager::Display(int ImpactFrame, float ImpactFrameRadius) {
-    BeginShaderMode(game->GameResources.Shaders["main_game"]);
+    BeginShaderMode(game->GameResources->Shaders["main_game"]);
     int w = CameraRenderTexture.texture.width;
     int h = CameraRenderTexture.texture.height;
     if (uWidth == -1 || uHeight == -1 || uPixelSize == -1 || uImpactFrame == -1 || uImpactFrameRadius == -1) {
-        uWidth = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "renderWidth");
-        uHeight = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "renderHeight");
-        uPixelSize = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "pixelSize");
-        uImpactFrame = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "impactFrame");
-        uImpactFrameRadius = GetShaderLocation(this->game->GameResources.Shaders["main_game"], "impactFrameRadius");
+        uWidth = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "renderWidth");
+        uHeight = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "renderHeight");
+        uPixelSize = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "pixelSize");
+        uImpactFrame = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "impactFrame");
+        uImpactFrameRadius = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "impactFrameRadius");
     }
 
-    SetShaderValue(game->GameResources.Shaders["main_game"], uWidth, &w, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["main_game"], uHeight, &h, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["main_game"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(game->GameResources.Shaders["main_game"], uImpactFrame, &ImpactFrame, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["main_game"], uImpactFrameRadius, &ImpactFrameRadius, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->GameResources->Shaders["main_game"], uWidth, &w, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources->Shaders["main_game"], uHeight, &h, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources->Shaders["main_game"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->GameResources->Shaders["main_game"], uImpactFrame, &ImpactFrame, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources->Shaders["main_game"], uImpactFrameRadius, &ImpactFrameRadius, SHADER_UNIFORM_FLOAT);
 
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetRenderWidth(), (float)-GetRenderHeight()}, {0, 0, (float)GetRenderWidth(), (float)GetRenderHeight()}, {0,0},0, WHITE);
@@ -125,21 +122,20 @@ void CameraManager::BackgroundLines() {
         }
     } else
     {
-        Texture& bg = game->GameResources.Textures["bg"+to_string(BGTexture)];
+        Texture& bg = game->GameResources->Textures["bg"+ std::to_string(BGTexture)];
 
-        int times_x = (int) ((game->GameTiles.MapWidth * game->GameTiles.TileSize) / bg.width) + 1;
-        int times_y = (int) ((game->GameTiles.MapHeight * game->GameTiles.TileSize) / bg.height) + 1;
+        float Size = game->GameTiles->MapWidth * game->GameTiles->TileSize;
+        Size /= 1.5f;
 
-        DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
-            -(ParallaxCamX/2.0f) + CameraPosition.x,
-            -(ParallaxCamY/2.0f) + CameraPosition.y,
-            (float)bg.width*times_x,(float)bg.height*times_y}, {bg.width*(float)(times_x/2.0f),bg.height*(float)(times_y/2.0f)},0, WHITE);
+        DrawTexturePro(bg, {0, 0, (float)bg.width, (float)bg.height}, {
+            (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) * RaylibCamera.target.x,
+                (game->GameTiles->MapHeight * game->GameTiles->TileSize / 2.0f) +(1.0f / BackgroundDepth) * RaylibCamera.target.y,
+            //((game->GameTiles.MapWidth * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamX + RaylibCamera.target.x,
+            //((game->GameTiles.MapHeight * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamY + RaylibCamera.target.y,
+            Size, Size
+        }, {Size / 2.0f, Size / 2.0f}, 0.0f, ColorAlpha(WHITE, 0.5f));
 
-        DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
-            -ParallaxCamX + CameraPosition.x,
-            -ParallaxCamY + CameraPosition.y,
-            (float)bg.width*times_x,(float)bg.height*times_y}, {bg.width*(float)(times_x/2.0f),bg.height*(float)(times_y/2.0f)},0, WHITE);
-
+        //cout << RaylibCamera.target.x << " " << (game->GameTiles.MapWidth * game->GameTiles.TileSize * .5f) << " " << ParallaxCamX << " " << (game->GameTiles.MapWidth * game->GameTiles.TileSize * .5f) / BackgroundDepth << "\n";
     }
 }
 

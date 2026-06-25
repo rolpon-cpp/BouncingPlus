@@ -1,10 +1,12 @@
 //
-// Created by lalit on 5/27/2026.
+// Created by Rolpon on 5/27/2026.
 //
 
 #include "TileManager.h"
 #include <raymath.h>
-#include <string>
+#include "../../game/managers/CameraManager.h"
+#include "../../game/managers/SoundManager.h"
+#include "../../game/managers/ResourceManager.h"
 #include <nlohmann/json.hpp>
 #include "../../game/Game.h"
 
@@ -87,10 +89,9 @@ void TileManager::DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_t
 
 void TileManager::DrawTileMap()
 {
+    std::vector<Vector2> ForceFieldPos;
 
-    vector<Vector2> ForceFieldPos;
-
-    Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
+    Vector2 *CameraPosition = &this->game->GameCamera->CameraPosition;
     int tile_x = static_cast<int> ((CameraPosition->x + GetRenderWidth()/2) / TileSize);
     int tile_y = static_cast<int> ((CameraPosition->y + GetRenderHeight()/2) / TileSize);
     for (int y = 0; y < UpdateDistance.y; y++) {
@@ -100,9 +101,9 @@ void TileManager::DrawTileMap()
             int tile_id = GetTileAt(curr_tile_x,curr_tile_y);
             Texture* tile_tex = nullptr;
             if (tile_id == 1)
-                tile_tex = &game->GameResources.Textures["bouncy_wall"];
+                tile_tex = &game->GameResources->Textures["bouncy_wall"];
             if (tile_id == 2)
-                tile_tex = &game->GameResources.Textures["delete_wall"];
+                tile_tex = &game->GameResources->Textures["delete_wall"];
             if (tile_id == 12)
                 ForceFieldPos.push_back(Vector2{(float)curr_tile_x, (float)curr_tile_y});
 
@@ -159,44 +160,35 @@ void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
     if (!found)
         return;
 
-    game->GameCamera.EndRenderTexture();
-    game->GameCamera.BeginRenderTexture(ForceFieldTex,true);
-
-    ClearBackground(BLANK);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     for (Vector2 p : ForceFieldPos)
     {
         Rectangle rec = {p.x*TileSize, p.y*TileSize, TileSize, TileSize};
-        DrawTexturePro(game->GameResources.Textures["noise"], {(p.x * TileSize / 2) + (float)(game->GetGameTime()),0,rec.width, rec.height},rec,{0,0},0,WHITE);
+        DrawTexturePro(game->GameResources->Textures["noise"], {(p.x * TileSize / 2) + (float)(game->GetGameTime()),0,rec.width, rec.height},rec,{0,0},0,WHITE);
         DrawRectangleLinesEx(rec, 4.0f + sin(game->GetGameTime()) * 2.0f, ColorLerp(GREEN, DARKGREEN, cos(game->GetGameTime())/3.0f));
     }
     EndBlendMode();
 
-    game->GameCamera.EndRenderTexture();
-    game->GameCamera.BeginRenderTexture(TileMapTex);
-    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-    DrawTextureRec(ForceFieldTex.texture,{0,0,(float)ForceFieldTex.texture.width,-(float)ForceFieldTex.texture.height},{0,0},WHITE);
-    EndBlendMode();
 }
 
 void TileManager::ProcessUniformLocations()
 {
     if (DistortionUniformLocations.size() <= 0)
     {
-        BeginShaderMode(game->GameResources.Shaders["bounce_distort"]);
+        BeginShaderMode(game->GameResources->Shaders["bounce_distort"]);
 
         for (int i = 0; i < 100; i++)
         {
 
-            int loc1 = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], ("distortions[" + to_string(i) + "].position").c_str());
-            int loc2 = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], ("distortions[" + to_string(i) + "].strength").c_str());
-            int loc3 = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], ("distortions[" + to_string(i) + "].radius").c_str());
+            int loc1 = GetShaderLocation(game->GameResources->Shaders["bounce_distort"], ("distortions[" + std::to_string(i) + "].position").c_str());
+            int loc2 = GetShaderLocation(game->GameResources->Shaders["bounce_distort"], ("distortions[" + std::to_string(i) + "].strength").c_str());
+            int loc3 = GetShaderLocation(game->GameResources->Shaders["bounce_distort"], ("distortions[" + std::to_string(i) + "].radius").c_str());
             std::tuple locs(loc1, loc2, loc3);
 
             DistortionUniformLocations.push_back(locs);
         }
 
-        DistortionCountLocation = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], "distortionCount");
+        DistortionCountLocation = GetShaderLocation(game->GameResources->Shaders["bounce_distort"], "distortionCount");
 
         EndShaderMode();
     }
@@ -204,36 +196,34 @@ void TileManager::ProcessUniformLocations()
 
 void TileManager::Update() {
 
+    UpdateDistance = Vector2{round(game->GameCamera->IntendedScreenWidth / TileSize) + 1, round(game->GameCamera->IntendedScreenHeight / TileSize) + 1};
+
     if (TileMapTex.texture.width != GetRenderWidth() || TileMapTex.texture.height != GetRenderHeight()) {
         UnloadRenderTexture(TileMapTex);
         TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
-    if (ForceFieldTex.texture.width != GetRenderWidth() || ForceFieldTex.texture.height != GetRenderHeight()) {
-        UnloadRenderTexture(ForceFieldTex);
-        ForceFieldTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
-    }
 
-    UpdateDistance = Vector2{round(GetRenderWidth() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3, round(GetRenderHeight() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3};
+    UpdateDistance = Vector2{round(GetRenderWidth() / game->GameCamera->RaylibCamera.zoom / TileSize) + 3, round(GetRenderHeight() / game->GameCamera->RaylibCamera.zoom / TileSize) + 3};
 
     ProcessUniformLocations();
     ProcessDistortions();
 
-    game->GameCamera.BeginRenderTexture(TileMapTex, true);
+    game->GameCamera->BeginRenderTexture(TileMapTex, true);
     BeginBlendMode(BLEND_ALPHA);
     ClearBackground(BLANK);
 
     DrawTileMap();
 
     EndBlendMode();
-    game->GameCamera.EndRenderTexture();
+    game->GameCamera->EndRenderTexture();
 
-    game->GameCamera.StopCamera();
+    game->GameCamera->StopCamera();
 
-    BeginShaderMode(game->GameResources.Shaders["bounce_distort"]);
+    BeginShaderMode(game->GameResources->Shaders["bounce_distort"]);
 
-    int DistortionCount = (int)min(100.0f, (float)Distortions.size());
+    int DistortionCount = (int)std::min(100.0f, (float)Distortions.size());
 
-    SetShaderValue(game->GameResources.Shaders["bounce_distort"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources->Shaders["bounce_distort"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
 
     BeginBlendMode(BLEND_ALPHA);
     DrawTexturePro(TileMapTex.texture, {0, 0, (float)TileMapTex.texture.width, (float)-TileMapTex.texture.height}, {
@@ -242,7 +232,7 @@ void TileManager::Update() {
     EndBlendMode();
     EndShaderMode();
 
-    game->GameCamera.BeginCamera();
+    game->GameCamera->BeginCamera();
 }
 
 void TileManager::DistortArea(Distortion DistortionForArea)
@@ -272,22 +262,22 @@ void TileManager::ProcessDistortions()
         else if (game->GetGameTime() - d.SpawnTime >= 0.125)
             d.Strength = FXLifetime - (game->GetGameTime() - d.SpawnTime - (FXLifetime/2)) / (FXLifetime/2);
 
-        d.Strength = clamp((float)pow(d.Strength, 2) * 3.1f, 0.0f, 3.1f);
+        d.Strength = std::ranges::clamp((float)pow(d.Strength, 2) * 3.1f, 0.0f, 3.1f);
     }
 
-    int DistortionCount = (int)min(100.0f, (float)Distortions.size());
+    int DistortionCount = (int)std::min(100.0f, (float)Distortions.size());
     for (int i = 0; i < DistortionCount; i++)
     {
         int PositionLocation = get<0>(DistortionUniformLocations[i]);
         int StrengthLocation = get<1>(DistortionUniformLocations[i]);
         int RadiusLocation = get<2>(DistortionUniformLocations[i]);
 
-        Vector2 SPosition = GetWorldToScreen2D(Distortions[i].Position, game->GameCamera.RaylibCamera);
+        Vector2 SPosition = GetWorldToScreen2D(Distortions[i].Position, game->GameCamera->RaylibCamera);
         if (game->DebugDraw)
             DrawCircle(Distortions[i].Position.x, Distortions[i].Position.y, 5, ColorAlpha(PINK, 0.5f));
 
-        SetShaderValue(game->GameResources.Shaders["bounce_distort"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
-        SetShaderValue(game->GameResources.Shaders["bounce_distort"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(game->GameResources.Shaders["bounce_distort"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources->Shaders["bounce_distort"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
+        SetShaderValue(game->GameResources->Shaders["bounce_distort"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources->Shaders["bounce_distort"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
     }
 }

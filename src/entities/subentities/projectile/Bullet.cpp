@@ -1,16 +1,19 @@
 //
-// Created by lalit on 8/29/2025.
+// Created by Rolpon on 8/29/2025.
 //
 
 #include "Bullet.h"
 #include "typeinfo"
 #include <cmath>
-#include <ostream>
-#include <iostream>
+#include "../../../game/managers/CameraManager.h"
+#include "../../../game/managers/ParticleManager.h"
+#include "../../../game/core/GameMisc.h"
+#include "../../../game/managers/EntityManager.h"
+#include "../../../entities/subentities/player/Player.h"
+#include "../../../level/tiles/TileManager.h"
+#include "../../../level/tiles/TileType.h"
+#include "../../../game/core/SharedManager.h"
 #include <raymath.h>
-
-#include "../enemy/Enemy.h"
-#include "math.h"
 #include "../../../game/Game.h"
 
 Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, {0, 0, 1, 1}, Speed, game) {
@@ -51,21 +54,21 @@ std::pair<bool,vector<Vector2>> Bullet::BulletCollision()
     std::vector<Vector2> BouncedTiles;
     bool can_move = true;
 
-    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
-    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
+    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles->TileSize);
+    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles->TileSize);
 
     for (int y = 0; y < 3; y++) {
         for (int x = 0; x < 3; x++) {
             int curr_tile_x = tile_x + x - 1;
             int curr_tile_y = tile_y + y - 1;
-            int tile_id = game->GameTiles.GetTileAt(curr_tile_x, curr_tile_y);
-            if (game->GameTiles.TileTypes[tile_id] == WallTileType || game->GameTiles.TileTypes[tile_id] == EnemyWallTileType) {
-                float bbox_x = curr_tile_x * game->GameTiles.TileSize;
-                float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
+            int tile_id = game->GameTiles->GetTileAt(curr_tile_x, curr_tile_y);
+            if (game->GameTiles->TileTypes[tile_id] == WallTileType || game->GameTiles->TileTypes[tile_id] == EnemyWallTileType) {
+                float bbox_x = curr_tile_x * game->GameTiles->TileSize;
+                float bbox_y = curr_tile_y * game->GameTiles->TileSize;
+                Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles->TileSize, game->GameTiles->TileSize};
                 if (CheckCollisionCircleRec(GetCenter(), BoundingBox.height, bbox)) {
                     can_move = false;
-                    if (game->GameTiles.TileTypes[tile_id] == EnemyWallTileType)
+                    if (game->GameTiles->TileTypes[tile_id] == EnemyWallTileType)
                         ShouldDelete = true;
                     if (tile_id == 2)
                         ShouldDelete = true;
@@ -118,19 +121,20 @@ void Bullet::PhysicsUpdate(float dt, double time) {
             
             for (Vector2 TilePos : BouncedTiles)
             {
-                Rectangle TileBBox = {TilePos.x * game->GameTiles.TileSize, TilePos.y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                Rectangle TileBBox = {TilePos.x * game->GameTiles->TileSize, TilePos.y * game->GameTiles->TileSize,
+                    game->GameTiles->TileSize, game->GameTiles->TileSize};
                 LowestX = min(TileBBox.x, LowestX);
                 LowestY = min(TileBBox.y, LowestY);
                 HigherX = max(TileBBox.x, HigherX);
                 HigherY = max(TileBBox.y, HigherY);
             }
 
-            HigherX += game->GameTiles.TileSize;
-            HigherY += game->GameTiles.TileSize;
+            HigherX += game->GameTiles->TileSize;
+            HigherY += game->GameTiles->TileSize;
 
             Rectangle bbox = {LowestX, LowestY, HigherX - LowestX, HigherY - LowestY};
 
-            if (!(bbox.width == game->GameTiles.TileSize*2 && bbox.height == game->GameTiles.TileSize*2))
+            if (!(bbox.width == game->GameTiles->TileSize*2 && bbox.height == game->GameTiles->TileSize*2))
             {
                 float DeltaX = GetCenter().x - (bbox.x + bbox.width / 2);
                 float DeltaY = GetCenter().y - (bbox.y + bbox.width / 2);
@@ -160,8 +164,8 @@ void Bullet::PhysicsUpdate(float dt, double time) {
             }
 
             if (IsVisible())
-                game->GameTiles.DistortArea(Distortion{
-                game->GameMiscTools.RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).HitPosition,
+                game->GameTiles->DistortArea(Distortion{
+                game->GameMiscTools->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).HitPosition,
                 3.0f,
                 BoundingBox.width * 12.5f
                 });
@@ -208,7 +212,7 @@ void Bullet::Update() {
         ShouldDelete = true;
     }
     auto Owner = OwnerPtr.lock();
-    for (shared_ptr entity : game->GameEntities.Entities[EnemyType]) {
+    for (shared_ptr entity : game->GameEntities->Entities[EnemyType]) {
         if (entity != nullptr && entity != Owner && !entity->ShouldDelete) {
             Attack(entity);
         }

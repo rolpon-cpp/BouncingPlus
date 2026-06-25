@@ -1,12 +1,13 @@
 //
-// Created by lalit on 2/2/2026.
+// Created by Rolpon on 2/2/2026.
 //
 
 #include "CatchBehavior.h"
-
-#include <iostream>
 #include <raymath.h>
-
+#include "../../player/Player.h"
+#include "../../../../game/managers/CameraManager.h"
+#include "../../../../game/managers/SoundManager.h"
+#include "../../../../game/core/GameMisc.h"
 #include "../Enemy.h"
 #include "../../../../game/Game.h"
 
@@ -39,7 +40,7 @@ void CatchBehavior::Update()
     Owner->Movement = CurrentDir;
     Owner->Rotation = 180 - (Vector2LineAngle({Owner->BoundingBox.x, Owner->BoundingBox.y}, LastPosition) * RAD2DEG);
 
-    if (game->GetGameTime() - LastChangedDirCooldown >= 5.0f && !game->GameMiscTools.RayCastPoint(Owner->GetCenter(), Owner->GetCenter() + (CurrentDir * 100.0f)).HitAir)
+    if (game->GetGameTime() - LastChangedDirCooldown >= 5.0f && !game->GameMiscTools->RayCastPoint(Owner->GetCenter(), Owner->GetCenter() + (CurrentDir * 100.0f)).HitAir)
     {
         ResetDirection();
         LastChangedDirCooldown= game->GetGameTime();
@@ -53,8 +54,8 @@ void CatchBehavior::Update()
         if (distance < 100)
         {
             Owner->DamageOther(game->MainPlayer, 10);
-            game->GameCamera.ShakeCamera(0.15f);
-            game->GameSounds.PlayGameSound("dash_hit", 0.1f);
+            game->GameCamera->ShakeCamera(0.15f);
+            game->GameSounds->PlayGameSound("dash_hit", 0.1f);
             AttackCooldown = game->GetGameTime();
         }
 

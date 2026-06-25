@@ -1,8 +1,12 @@
 //
-// Created by lalit on 6/11/2026.
+// Created by Rolpon on 6/11/2026.
 //
 
 #include "GameplayUI.h"
+#include "../../../entities/subentities/player/Player.h"
+#include "../../core/Controls.h"
+#include "../../core/SharedManager.h"
+#include "../../managers/ResourceManager.h"
 #include "../../Game.h"
 
 void GameplayUI::DeathMenu()
@@ -13,7 +17,7 @@ void GameplayUI::DeathMenu()
 
     int ey = GetRenderHeight()-400;
     int es = 50;
-    std::string txt = "YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES";
+    std::string txt = "YOU KILLED " + std::to_string(game->MainPlayer->Kills) + " ENEMIES";
     if (game->MainPlayer->Kills == 1)
         txt = "YOU KILLED 1 ENEMY";
     if (game->MainPlayer->Kills == 0)
@@ -23,7 +27,7 @@ void GameplayUI::DeathMenu()
     float size = MeasureText(txt.c_str(), es);
     float size2 = MeasureText(txt_2.c_str(), es);
 
-    std::string txt_3 = "FINAL SCORE: " + to_string(game->GameScore);
+    std::string txt_3 = "FINAL SCORE: " + std::to_string(game->GameScore);
 
     DrawText(txt.c_str(), GetRenderWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
     DrawText(txt_2.c_str(), GetRenderWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
@@ -56,7 +60,7 @@ void GameplayUI::PauseMenu() {
         r.y = BaseRect.y - r.height;
 
         DrawRectangleRec(r, ColorAlpha(BLACK,0.5f));
-        DrawTexture(game->GameResources.Textures["player"], r.x + 2.5f, r.y + 2.5f, PINK);
+        DrawTexture(game->GameResources->Textures["player"], r.x + 2.5f, r.y + 2.5f, PINK);
         DrawText("BouncingBallz", r.x + 41.0f, r.y + 2.5f, 36.0f, WHITE);
 
         game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width/2,
@@ -79,7 +83,7 @@ void GameplayUI::PauseMenu() {
 #ifndef PLATFORM_WEB
         if (Button({(float)PauseScreen.texture.width - 320.0f, 20.0f, 300.0f, 50.0f},GetMousePosition(),
             game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick, "RELOAD WEAPONS"))
-            game->GameResources.LoadWeaponData();
+            game->GameResources->LoadWeaponData();
 #endif
     } else
     {

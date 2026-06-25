@@ -1,10 +1,9 @@
 //
-// Created by lalit on 3/14/2026.
+// Created by Rolpon on 3/14/2026.
 //
 
 #include "SharedManager.h"
 #include "../../globals.h"
-#include <iostream>
 #include "../../level/LevelLoader.h"
 
 bool IsWindowFullscreenCrossPlatform()

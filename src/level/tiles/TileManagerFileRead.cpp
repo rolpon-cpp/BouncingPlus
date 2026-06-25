@@ -1,8 +1,12 @@
 //
-// Created by lalit on 5/27/2026.
+// Created by Rolpon on 5/27/2026.
 //
 
 #include "TileManager.h"
+#include "../../game/managers/EntityManager.h"
+#include "../../game/managers/ResourceManager.h"
+#include "../../game/managers/GameModeManager.h"
+#include "../../game/core/SharedManager.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -52,7 +56,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
         break;
     case SpawnerTileType: {
             std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
-            game->GameEntities.AddEntity(SpawnerType, spawner);
+            game->GameEntities->AddEntity(SpawnerType, spawner);
             break;
     }
     case BossTileType: {
@@ -61,29 +65,29 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
     };
     case UpgradeStationTileType: {
             std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
-            game->GameEntities.AddEntity(UpgradeStationType, station);
+            game->GameEntities->AddEntity(UpgradeStationType, station);
             break;
     }
     case TurretTileType: {
             std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
                 "Sniper", bbox_x, bbox_y);
-            game->GameEntities.AddEntity(TurretType, t);
+            game->GameEntities->AddEntity(TurretType, t);
             break;
     }
     case CatchEnemyTileType:
         {
 
-            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "", game->GameResources.Textures["enemy"], *game);
+            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "", game->GameResources->Textures["enemy"], *game);
             std::unique_ptr<EnemyBehavior> catch_behavior = std::make_unique<CatchBehavior>(*e, *game);
             e->Behavior.reset();
             e->Behavior = std::move(catch_behavior);
 
-            game->GameEntities.AddEntity(EnemyType, e);
+            game->GameEntities->AddEntity(EnemyType, e);
             break;
         }
     case DwellerEnemyTileType:
         {
-            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "Enemy Sword", game->GameResources.Textures["enemy"], *game);
+            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "Enemy Sword", game->GameResources->Textures["enemy"], *game);
             std::unique_ptr<EnemyBehavior> dwell_behavior = std::make_unique<DwellerBehavior>(*e, *game);
             auto* db = dynamic_cast<DwellerBehavior*>(dwell_behavior.get());
             db->HasMovedIntoPlace = true;
@@ -91,7 +95,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             e->Behavior.reset();
             e->Behavior = std::move(dwell_behavior);
 
-            game->GameEntities.AddEntity(EnemyType, e);
+            game->GameEntities->AddEntity(EnemyType, e);
             break;
         }
     case NothingTileType:
@@ -168,13 +172,14 @@ void TileManager::CreateFileEntity(FileEntity& NewFileEntity)
 
     if (NewFileEntity.Type == EnemyType)
     {
-        NewEntity = make_shared<Enemy>(NewFileEntity.X, NewFileEntity.Y, NewFileEntity.Health, NewFileEntity.Speed, NewFileEntity.Armor, NewFileEntity.Weapon, game->GameResources.Textures["enemy"], *game);
+        NewEntity = make_shared<Enemy>(NewFileEntity.X, NewFileEntity.Y, NewFileEntity.Health, NewFileEntity.Speed,
+            NewFileEntity.Armor, NewFileEntity.Weapon, game->GameResources->Textures["enemy"], *game);
     }
 
     NewEntity->BoundingBox.width = NewFileEntity.W;
     NewEntity->BoundingBox.height = NewFileEntity.H;
 
-    game->GameEntities.AddEntity(NewEntity->Type, NewEntity);
+    game->GameEntities->AddEntity(NewEntity->Type, NewEntity);
 }
 
 void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, std::string cell)
@@ -279,9 +284,9 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
         Armor = 0.0f;
         break;
     }
-    float Multiplier = 1.0f + 0.15f * (game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["difficulty"].get<int>()-3);
+    float Multiplier = 1.0f + 0.15f * (game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["difficulty"].get<int>()-3);
     Armor *= Multiplier;
     Speed *= Multiplier;
     Health *= Multiplier;
-    game->GameEntities.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources.Textures["enemy"], *game));
+    game->GameEntities->AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources->Textures["enemy"], *game));
 }

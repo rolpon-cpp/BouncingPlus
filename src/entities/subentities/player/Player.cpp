@@ -1,14 +1,20 @@
 //
-// Created by lalit on 8/27/2025.
+// Created by Rolpon on 8/27/2025.
 //
 
 #include "Player.h"
-
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include "../../../game/Game.h"
 #include "raylib.h"
 #include <raymath.h>
+
+#include "../../../game/managers/CameraManager.h"
+#include "../../../game/managers/ParticleManager.h"
+#include "../../../game/managers/SoundManager.h"
+#include "../../../game/managers/ResourceManager.h"
+#include "../../../game/managers/GameModeManager.h"
+#include "../../../game/core/Controls.h"
+#include "../../../game/core/SharedManager.h"
 
 using namespace std;
 
@@ -108,13 +114,13 @@ void Player::OnWallVelocityBump(float Power)
     if (Power >= 400)
     {
         if (VelocityPower > 150 && !Dodging)
-            game->GameSounds.PlayGameSound("dash_wall_hit", 0.25f);
+            game->GameSounds->PlayGameSound("dash_wall_hit", 0.25f);
         VelocityPower *= 0.45f;
         Entity::OnWallVelocityBump(Power);
         int ParticleAmount = round(Power / 600.0f);
         bool PURPLE_OR_BLUE = GetRandomValue(1,2)==1;
         if (ParticleAmount > 0)
-            game->GameParticles.ParticleEffect({
+            game->GameParticles->ParticleEffect({
                 GetCenter(),
                 Power / 1.5f,
                 PURPLE_OR_BLUE ? PURPLE : BLUE,
@@ -156,7 +162,7 @@ void Player::PlayerControls()
         //Vector2 WorldMousePos = Vector2{0, 0};
         if ((IsMouseButtonDown(0) || game->GameControls->IsControlDown("attack_other")) && !IsPreparingForDash)
         {
-            MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera));
+            MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera));
         }
 
         // reload logic
@@ -240,14 +246,14 @@ void Player::SystemsInitCheck()
         this->MainEffectsSystem = Effects(shared_from_this(), *game);
         this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
 
-        auto f = game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["inventory"];
+        auto f = game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["inventory"];
         for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
             this->MainWeaponsSystem.Weapons[i] = f[i];
-            this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources.Weapons[f[i]].Ammo;
+            this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources->Weapons[f[i]].Ammo;
         }
-        if (game->GameResources.Powerups.count(game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["powerup"]))
+        if (game->GameResources->Powerups.count(game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["powerup"]))
         {
-            MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["powerup"]]);
+            MainPowerupSystem.SetPowerup(game->GameResources->Powerups[game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["powerup"]]);
         }
         this->MainWeaponsSystem.Equip(0);
         this->SystemsInitialized = true;
@@ -312,7 +318,7 @@ void Player::ProcessWarningSign()
         LastWarningSign = game->GetGameTime();
     }
     if (Health > 0 && HealthConcern && WarningSign)
-        DrawTexturePro(game->GameResources.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
+        DrawTexturePro(game->GameResources->Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
 }
 
 void Player::ProcessKills()
@@ -321,7 +327,7 @@ void Player::ProcessKills()
     // did we get a kill?
     if (Kills != LastKills) {
         game->GameShared->Progress.Data.Money += 15.0f;
-        game->GameSounds.PlayGameSound("death");
+        game->GameSounds->PlayGameSound("death");
         ExtraSpeed += 14;
 
         std::string KillName = "Kill";
@@ -356,12 +362,12 @@ void Player::ProcessKills()
 
 void Player::OnDeath()
 {
-    if (!game->GameMode.GetCurrentLevelName().empty() && !game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["music"].get<string>().empty())
+    if (!game->GameMode->GetCurrentLevelName().empty() && !game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["music"].get<string>().empty())
     {
         for (int i = 1; i < 5; i++)
         {
-            std::string FightTrack = game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["music"].get<string>()+"_layer"+to_string(i);
-            game->GameSounds.StopGameMusic(FightTrack, true);
+            std::string FightTrack = game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["music"].get<string>()+"_layer"+to_string(i);
+            game->GameSounds->StopGameMusic(FightTrack, true);
         }
     }
     Entity::OnDeath();

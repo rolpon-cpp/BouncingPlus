@@ -1,9 +1,11 @@
 //
-// Created by lalit on 6/11/2026.
+// Created by Rolpon on 6/11/2026.
 //
 
 #include "GameplayUI.h"
-#include <algorithm>
+#include "../../../entities/subentities/player/Player.h"
+#include "../../managers/CameraManager.h"
+#include "../../ui/UIUtils.h"
 #include <raymath.h>
 #include "../../Game.h"
 
@@ -53,18 +55,18 @@ void GameplayUI::DisplayKillMeter()
     if (KillsNumber > 99)
         KillsNumber = 99;
 
-    float TX_SZE_1 = MeasureText(to_string(KillsNumber).c_str(), s2);
-    float TX_SZE_2 = game->MainPlayer->EnemyCombo > 1 ? MeasureText(("+"+to_string(game->MainPlayer->EnemyCombo-1)).c_str(), s2 / 2.5f) : 0;
+    float TX_SZE_1 = MeasureText(std::to_string(KillsNumber).c_str(), s2);
+    float TX_SZE_2 = game->MainPlayer->EnemyCombo > 1 ? MeasureText(("+"+ std::to_string(game->MainPlayer->EnemyCombo-1)).c_str(), s2 / 2.5f) : 0;
 
     float s = TX_SZE_1 + TX_SZE_2 + 5;
 
     float CS = (game->GetGameTime() - game->MainPlayer->LastKilledAnEnemy) / game->MainPlayer->ComboTime;
     CS = min(max(CS, 0.0f), 1.0f);
 
-    DrawText(to_string(KillsNumber).c_str(), (int)(GetRenderWidth()-(125+Margin) + 125/2 - s/2),
-    WeaponUITexture.texture.height - (100+Margin) + 10, s2, WHITE);
+    DrawText(std::to_string(KillsNumber).c_str(), (int)(GetRenderWidth()-(125+Margin) + 125/2 - s/2),
+             WeaponUITexture.texture.height - (100+Margin) + 10, s2, WHITE);
     if (game->MainPlayer->EnemyCombo > 1)
-        DrawText(("+"+to_string(game->MainPlayer->EnemyCombo-1)).c_str(), (int)(GetRenderWidth()-(125+Margin) + 125/2 - s/2 + TX_SZE_1 + 5), WeaponUITexture.texture.height - (100+Margin) + 10 + s2 - (s2/2.5f),
+        DrawText(("+"+ std::to_string(game->MainPlayer->EnemyCombo-1)).c_str(), (int)(GetRenderWidth()-(125+Margin) + 125/2 - s/2 + TX_SZE_1 + 5), WeaponUITexture.texture.height - (100+Margin) + 10 + s2 - (s2/2.5f),
         s2 / 2.5f, ColorAlpha(GetHealthColor(1.0f-CS), 1.0f - (CS / 2.0f)));
 
     float s3 = 20;
@@ -114,7 +116,7 @@ void GameplayUI::DisplayHealthMeter()
         float mov = 0.15f * (abs(PlrHealth-LastHealth)/8.0f);
 
         HealthBarAnimRot = max(min(limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth)) * (mov / 0.1f), 35.0f), -35.0f);
-        game->GameCamera.QuickZoom(PlrHealth - LastHealth > 0 ? 1.0f - min(0.15f, mov) : 1.0f + min(0.15f, mov), 0.1f);
+        game->GameCamera->QuickZoom(PlrHealth - LastHealth > 0 ? 1.0f - min(0.15f, mov) : 1.0f + min(0.15f, mov), 0.1f);
     }
     if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
         FntSize = 135;

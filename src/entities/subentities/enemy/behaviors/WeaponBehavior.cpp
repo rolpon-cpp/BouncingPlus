@@ -1,12 +1,15 @@
 //
-// Created by lalit on 1/31/2026.
+// Created by Rolpon on 1/31/2026.
 //
 
 #include "WeaponBehavior.h"
 
 #include <iostream>
-
+#include "../../enemy/Enemy.h"
+#include "../../player/Player.h"
 #include "../../../../game/Game.h"
+#include "../../../../game/core/GameMisc.h"
+#include "../../../../level/tiles/TileManager.h"
 #include <raymath.h>
 
 WeaponBehavior::WeaponBehavior()
@@ -46,10 +49,10 @@ void WeaponBehavior::MoveForCover()
                 continue;
             float X = cos(Angle * (2 * PI / 360)) * 2000.0f;
             float Y = sin(Angle * (2 * PI / 360)) * 2000.0f;
-            RayCastData d = game->GameMiscTools.RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            RayCastData d = game->GameMiscTools->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
             if ((!d.HitAir) || Vector2Distance({plr_center_x,plr_center_y}, d.HitPosition) >= 500) // if we hit wall?
             {
-                RayCastData p = game->GameMiscTools.RayCastPoint({plr_center_x,plr_center_y}, d.HitPosition);
+                RayCastData p = game->GameMiscTools->RayCastPoint({plr_center_x,plr_center_y}, d.HitPosition);
                 if (Vector2Distance(p.HitPosition, d.HitPosition) >= 150 && !p.HitAir && Vector2Distance({plr_center_x,plr_center_y}, d.HitPosition) >= 150)
                 {
                     CoverPosition = d.HitPosition;
@@ -73,7 +76,7 @@ void WeaponBehavior::MoveForCover()
 
 bool WeaponBehavior::FindPlayer()
 {
-    if (game->GameMiscTools.RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
+    if (game->GameMiscTools->RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
     {
         Target = game->MainPlayer->GetCenter();
         return true;
@@ -97,7 +100,7 @@ bool WeaponBehavior::FindPlayer()
         int tries = 0;
         while (tries < 3)
         {
-            RayCastData d = game->GameMiscTools.RayCastPoint(Origin, Origin + (Vector2Normalize(Direction) * 800.0f));
+            RayCastData d = game->GameMiscTools->RayCastPoint(Origin, Origin + (Vector2Normalize(Direction) * 800.0f));
 
             if (!HitSet)
             {
@@ -107,20 +110,20 @@ bool WeaponBehavior::FindPlayer()
 
             float RayAngle = 180.0f - Vector2LineAngle(Origin, d.HitPosition) * RAD2DEG;
             float PlayerAngle = 180.0f - Vector2LineAngle(Origin, game->MainPlayer->GetCenter()) * RAD2DEG;
-            if (abs(RayAngle - PlayerAngle) <= 5 && game->GameMiscTools.RayCast(Origin,game->MainPlayer->GetCenter()))
+            if (abs(RayAngle - PlayerAngle) <= 5 && game->GameMiscTools->RayCast(Origin,game->MainPlayer->GetCenter()))
             {
                 Target = HitSetP;
                 return true;
             }
 
-            int tile_x = (int) (d.HitPosition.x / game->GameTiles.TileSize);
-            int tile_y = (int) (d.HitPosition.y / game->GameTiles.TileSize);
+            int tile_x = (int) (d.HitPosition.x / game->GameTiles->TileSize);
+            int tile_y = (int) (d.HitPosition.y / game->GameTiles->TileSize);
 
             if (!d.HitAir && d.HitTile == 1)
             {
                 Vector2 Normal = {0, 0};
 
-                Rectangle bbox = {tile_x * game->GameTiles.TileSize,tile_y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                Rectangle bbox = {tile_x * game->GameTiles->TileSize,tile_y * game->GameTiles->TileSize, game->GameTiles->TileSize, game->GameTiles->TileSize};
 
                 float DeltaX = d.HitPosition.x - (bbox.x + bbox.width / 2);
                 float DeltaY = d.HitPosition.y - (bbox.y + bbox.width / 2);

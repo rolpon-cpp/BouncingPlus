@@ -1,11 +1,12 @@
 //
-// Created by lalit on 11/5/2025.
+// Created by Rolpon on 11/5/2025.
 //
 
 #include "SoundManager.h"
 #include "../Game.h"
 #include <filesystem>
-#include <iostream>
+#include "../../game/managers/ResourceManager.h"
+#include "../../game/managers/CameraManager.h"
 #include <raymath.h>
 
 SoundManager::SoundManager(Game *game) {
@@ -69,7 +70,7 @@ void SoundManager::Clear() {
 
 void SoundManager::Update() {
 
-    std::erase_if(MusicTransitions, [&](tuple<string, float, float>& value) {
+    std::erase_if(MusicTransitions, [&](std::tuple<std::string, float, float>& value) {
         std::string& s = std::get<0>(value);
         float& f1 = std::get<1>(value);
         float& f2 = std::get<2>(value);
@@ -85,7 +86,7 @@ void SoundManager::Update() {
         return false;
         });
 
-    for (tuple<string, float, float>& value : MusicTransitions)
+    for (std::tuple<std::string, float, float>& value : MusicTransitions)
     {
         std::string& s = std::get<0>(value);
         float& f1 = std::get<1>(value);
@@ -120,10 +121,11 @@ void SoundManager::Update() {
             }
             return SoundCondition;
         });
-        std::string dbg_txt = "audio: " + name + ", amount: " + to_string(value.size());
+        std::string dbg_txt = "audio: " + name + ", amount: " + std::to_string(value.size());
         if (game->DebugDraw && value.size() > 0)
         {
-            DrawText(dbg_txt.c_str(), GetRenderWidth()/2 + game->GameCamera.RaylibCamera.target.x, GetRenderHeight()/2 + game->GameCamera.RaylibCamera.target.y + (25*i), 25, GREEN);
+            DrawText(dbg_txt.c_str(), GetRenderWidth()/2 + game->GameCamera->RaylibCamera.target.x,
+                GetRenderHeight()/2 + game->GameCamera->RaylibCamera.target.y + (25*i), 25, GREEN);
             i++;
         }
     }

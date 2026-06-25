@@ -1,9 +1,15 @@
 //
-// Created by lalit on 10/19/2025.
+// Created by Rolpon on 10/19/2025.
 //
 
 #include "ParticleManager.h"
-
+#include "../../entities/subentities/player/Player.h"
+#include "../../level/tiles/TileManager.h"
+#include "../../game/managers/SoundManager.h"
+#include "../../game/managers/EntityManager.h"
+#include "../../game/managers/CameraManager.h"
+#include "../../game/core/SharedManager.h"
+#include "../../level/tiles/TileType.h"
 #include <iostream>
 #include <raymath.h>
 
@@ -15,7 +21,6 @@ ParticleManager::ParticleManager() {
 ParticleManager::ParticleManager(Game *game) {
     this->game = game;
     Particles = std::vector<Particle>();
-    ParticlesTexture = LoadRenderTexture(1,1);
 }
 
 void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount, EffectData PEffectData) {
@@ -42,23 +47,10 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
 }
 
 void ParticleManager::Clear() {
-    if (IsRenderTextureValid(ParticlesTexture))
-        UnloadRenderTexture(ParticlesTexture);
-    ParticlesTexture = LoadRenderTexture(1,1);
     Particles.clear();
 }
 
 void ParticleManager::Update() {
-
-    if (ParticlesTexture.texture.width != GetRenderWidth() || ParticlesTexture.texture.height != GetRenderHeight()) {
-        if (IsRenderTextureValid(ParticlesTexture))
-            UnloadRenderTexture(ParticlesTexture);
-        ParticlesTexture = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
-    }
-
-    game->GameCamera.BeginRenderTexture(ParticlesTexture);
-
-    ClearBackground(BLANK);
 
     BeginBlendMode(BLEND_ADDITIVE);
 
@@ -83,15 +75,15 @@ void ParticleManager::Update() {
             if (p.Velocity <= 0)
                 p.Velocity = 0;
 
-            int tile = game->GameTiles.TileTypes[game->GameTiles.GetTileAtWorldCoords(p.Position)];
+            int tile = game->GameTiles->TileTypes[game->GameTiles->GetTileAtWorldCoords(p.Position)];
             if (tile != WallTileType && tile != EnemyWallTileType)
                 p.Position += p.Target * p.Velocity * game->GetGameDeltaTime();
 
-            p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, min((float)Percent / 0.2f, 1.0f));
+            p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, std::min((float)Percent / 0.2f, 1.0f));
 
             if (p.Effect.Type != DEFAULT)
             {
-                for (shared_ptr entity : game->GameEntities.Entities[EnemyType]) {
+                for (std::shared_ptr entity : game->GameEntities->Entities[EnemyType]) {
                     if (entity != nullptr && entity != p.Effect.Owner.lock() && !entity->ShouldDelete) {
                         auto enemy = dynamic_pointer_cast<Enemy>(entity);
                         if (CheckCollisionCircleRec(p.Position, p.Data.Size/2.0f, entity->BoundingBox))
@@ -123,15 +115,15 @@ void ParticleManager::Update() {
     for (int i = 0; i < Particles.size(); i++)
     {
         Particle &p = Particles[i];
-        Vector2 ScreenPos = GetWorldToScreen2D(p.Position, game->GameCamera.RaylibCamera);
+        Vector2 ScreenPos = GetWorldToScreen2D(p.Position, game->GameCamera->RaylibCamera);
 
         double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
 
         if (ScreenPos.x >= 0 && ScreenPos.x < GetRenderWidth() && ScreenPos.y >= 0 && ScreenPos.y < GetRenderHeight())
         {
             DrawRectanglePro({
-                p.Position.x - game->GameCamera.RaylibCamera.target.x,
-                p.Position.y - game->GameCamera.RaylibCamera.target.y,
+                p.Position.x,
+                p.Position.y,
                 p.Data.Size,p.Data.Size},
                 {p.Data.Size/2, p.Data.Size/2},
                 (game->GetGameTime() - p.SpawnTime) * 100 * (1-Percent),
@@ -139,8 +131,8 @@ void ParticleManager::Update() {
                 );
 
             DrawCircleGradient(
-            p.Position.x - game->GameCamera.RaylibCamera.target.x,
-                p.Position.y - game->GameCamera.RaylibCamera.target.y,
+            p.Position.x,
+                p.Position.y,
                 p.Data.Size/1.1f,
                 ColorAlpha(p.Data.TargetColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)),
                 ColorAlpha(p.ParticleColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)));
@@ -148,23 +140,14 @@ void ParticleManager::Update() {
     }
     EndBlendMode();
 
-    game->GameCamera.EndRenderTexture();
-
-    BeginBlendMode(BLEND_ADDITIVE);
-    DrawTexturePro(ParticlesTexture.texture,{0,0,(float)ParticlesTexture.texture.width, (float)-ParticlesTexture.texture.height}, {
-        game->GameCamera.RaylibCamera.target.x, game->GameCamera.RaylibCamera.target.y, (float)ParticlesTexture.texture.width, (float)ParticlesTexture.texture.height
-    }, {0, 0}, 0, WHITE);
-    EndBlendMode();
-
     if (game->DebugDraw)
     {
-        float siz = MeasureText((string("particles: ") +to_string(Particles.size())).c_str(), 50.0f);
-        DrawText((string("particles: ") +to_string(Particles.size())).c_str(), (int)(game->MainPlayer->GetCenter().x - siz/2.0f), (int)(game->MainPlayer->GetCenter().y + 100.0f), 50.0f, PURPLE);
+        float siz = MeasureText((std::string("particles: ") + std::to_string(Particles.size())).c_str(), 50.0f);
+        DrawText((std::string("particles: ") + std::to_string(Particles.size())).c_str(), (int)(game->MainPlayer->GetCenter().x - siz/2.0f), (int)(game->MainPlayer->GetCenter().y + 100.0f), 50.0f, PURPLE);
     }
 
 }
 
 void ParticleManager::Quit() {
-    if (IsRenderTextureValid(ParticlesTexture))
-        UnloadRenderTexture(ParticlesTexture);
+    Clear();
 }

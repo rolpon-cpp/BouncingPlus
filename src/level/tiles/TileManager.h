@@ -1,5 +1,5 @@
 //
-// Created by lalit on 8/27/2025.
+// Created by Rolpon on 8/27/2025.
 //
 
 #ifndef BOUNCINGPLUS_TILEMANAGER_H
@@ -68,7 +68,6 @@ class TileManager {
         std::vector<Vector2> EnemySpawnLocations;
         std::vector<int> Map;
         RenderTexture TileMapTex;
-        RenderTexture ForceFieldTex;
         TileManager();
         TileManager(Game *game);
         int GetTileAt(int x, int y);

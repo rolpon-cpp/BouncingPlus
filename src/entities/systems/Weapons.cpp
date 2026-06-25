@@ -1,5 +1,5 @@
 //
-// Created by lalit on 9/14/2025.
+// Created by Rolpon on 9/14/2025.
 //
 
 #include "raylib.h"
@@ -8,12 +8,18 @@
 #include "../subentities/projectile/Bullet.h"
 #include "../../game/Game.h"
 #include "Weapons.h"
-
 #include <nlohmann/json.hpp>
-
 #include "../subentities/player/Player.h"
 #include "../subentities/enemy/Enemy.h"
-#include "iostream"
+#include "../../game/managers/CameraManager.h"
+#include "../../game/managers/ParticleManager.h"
+#include "../../level/tiles/TileManager.h"
+#include "../../game/managers/SoundManager.h"
+#include "../../game/managers/EntityManager.h"
+#include "../../game/managers/ResourceManager.h"
+#include "../../game/managers/GameModeManager.h"
+#include "../../game/core/GameMisc.h"
+#include "../../game/core/SharedManager.h"
 #include "../subentities/stationary/Turret.h"
 #include "../subentities/enemy/behaviors/WeaponBehavior.h"
 
@@ -56,9 +62,9 @@ void WeaponsSystem::DisplayWeaponTexture() { // HATSUNE MIKU!!!!
     if (!CanDisplayWeaponTex)
         return;
     auto Owner = OwnerPtr.lock();
-    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
+    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
     float Range = CurrentWeapon->Range;
-    MeleeAnimTexture = &game->GameResources.Textures[CurrentWeapon->texture];
+    MeleeAnimTexture = &game->GameResources->Textures[CurrentWeapon->texture];
     float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
     float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
     if (Owner->Type == EnemyType)
@@ -92,7 +98,7 @@ bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
         if (Weapons[i].empty())
         {
             Weapons[i] = WeaponName;
-            WeaponAmmo[i] = (Ammo == -1) ? game->GameResources.Weapons[WeaponName].Ammo : Ammo;
+            WeaponAmmo[i] = (Ammo == -1) ? game->GameResources->Weapons[WeaponName].Ammo : Ammo;
             return true;
         }
     }
@@ -123,7 +129,7 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
             {
                 if (CurrentWeaponIndex == i)
                     Unequip();
-                game->GameMiscTools.PlaceWeaponPickup({
+                game->GameMiscTools->PlaceWeaponPickup({
                     DropLoc,
                     GREEN,
                     50,
@@ -158,7 +164,7 @@ void WeaponsSystem::DisplayWeaponCone()
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
         if (Owner->Type == PlayerType)
-            MeleeDisplayRenderTarget = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
+            MeleeDisplayRenderTarget = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
         else if (Owner->Type == EnemyType)
         {
             std::shared_ptr<Enemy> ptr = dynamic_pointer_cast<Enemy>(Owner);
@@ -191,7 +197,7 @@ void WeaponsSystem::DisplayWeaponCone()
             float Angle = LeftAngle + i * opti;
             float X = cos(Angle * (2 * PI / 360))*Dist;
             float Y = sin(Angle * (2 * PI / 360))*Dist;
-            auto p = game->GameMiscTools.RayCastPoint({cx,cy},{cx+X,cy+Y});
+            auto p = game->GameMiscTools->RayCastPoint({cx,cy},{cx+X,cy+Y});
             DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.HitPosition), Angle - opti/2, Angle + opti/2, 1, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         }
     }
@@ -248,14 +254,14 @@ void WeaponsSystem::Update() {
 void WeaponsSystem::DisplayWeaponReflectance()
 {
     auto Owner = OwnerPtr.lock();
-    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
+    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
 
     Vector2 Origin = Owner->GetCenter();
     Vector2 Direction = Vector2Normalize(Vector2Subtract(Target,Origin));
 
     for (int i = 0; i < 6; i++)
     {
-        auto RayCastData = game->GameMiscTools.RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera.IntendedScreenWidth * 1.5f));
+        auto RayCastData = game->GameMiscTools->RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera->IntendedScreenWidth * 1.5f));
 
         Vector2 Hit = RayCastData.HitPosition;
 
@@ -266,18 +272,18 @@ void WeaponsSystem::DisplayWeaponReflectance()
 
         float SZ_INC = 2.5f;
         float OriginHitDist = Vector2Distance(Origin,Hit);
-        DrawTexturePro(game->GameResources.Textures["dotted_line"], {0.0f, (float)-game->GetGameTime() * (10.0f + (50.0f * game->MainPlayer->StressLevel)), 1.0f, OriginHitDist / SZ_INC}, {
+        DrawTexturePro(game->GameResources->Textures["dotted_line"], {0.0f, (float)-game->GetGameTime() * (10.0f + (50.0f * game->MainPlayer->StressLevel)), 1.0f, OriginHitDist / SZ_INC}, {
             OriginHitCenter.x, OriginHitCenter.y, SZ_INC, OriginHitDist
         }, {SZ_INC / 2.0f, OriginHitDist / 2.0f}, (180.0f - Vector2LineAngle(Origin,Hit) * RAD2DEG) + 90.0f, ColorAlpha(WHITE, 0.5f));
 
-        int tile_x = (int) (Hit.x / game->GameTiles.TileSize);
-        int tile_y = (int) (Hit.y / game->GameTiles.TileSize);
+        int tile_x = (int) (Hit.x / game->GameTiles->TileSize);
+        int tile_y = (int) (Hit.y / game->GameTiles->TileSize);
 
         if (RayCastData.HitTile == 1)
         {
             Vector2 Normal = {0, 0};
 
-            Rectangle bbox = {tile_x * game->GameTiles.TileSize,tile_y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+            Rectangle bbox = {tile_x * game->GameTiles->TileSize,tile_y * game->GameTiles->TileSize, game->GameTiles->TileSize, game->GameTiles->TileSize};
 
             float DeltaX = Hit.x - (bbox.x + bbox.width / 2);
             float DeltaY = Hit.y - (bbox.y + bbox.width / 2);
@@ -360,7 +366,7 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         AngleDifference -= 360;
 
     // if enemy is in sight & within range, attack!
-    if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->GameMiscTools.RayCast(Owner->GetCenter(), entity->GetCenter()))
+    if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->GameMiscTools->RayCast(Owner->GetCenter(), entity->GetCenter()))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
@@ -370,7 +376,7 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 
     if (!CurrentWeapon->Flames)
     {
-        std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources.Textures.count(CurrentWeapon->BulletTexture))
+        std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources->Textures.count(CurrentWeapon->BulletTexture))
                 ? CurrentWeapon->BulletTexture : "bullet";
 
         float BulletLifetime = 8.5f;
@@ -386,18 +392,18 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 
             // create bullet with weapon settings
             shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
-                                                            game->GameResources.Textures[BulletTexture], Owner, *game);
+                                                            game->GameResources->Textures[BulletTexture], Owner, *game);
             bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
             bullet->HealthGain = CurrentWeapon->HealthGain;
             if (Owner->Type == PlayerType)
                 bullet->EntityColor = {255, 180, 255, 255};
             if (Owner->Type == EnemyType)
                 bullet->EntityColor = {255, 182, 217, 255};
-            game->GameEntities.AddEntity(BulletType, bullet);
+            game->GameEntities->AddEntity(BulletType, bullet);
         }
     } else
     {
-        game->GameParticles.ParticleEffect({
+        game->GameParticles->ParticleEffect({
             {cX, cY},
             CurrentWeapon->Speed,
             ColorLerp(RED, ORANGE, 0.5f),
@@ -461,24 +467,24 @@ void WeaponsSystem::Attack(Vector2 Target) {
         cX += Owner->GetCenter().x;
         cY += Owner->GetCenter().y;
 
-        bool Valid = game->GameMiscTools.RayCast(Owner->GetCenter(), {cX, cY});
+        bool Valid = game->GameMiscTools->RayCast(Owner->GetCenter(), {cX, cY});
 
         std::string s = CurrentWeapon->sound[GetRandomValue(0, CurrentWeapon->sound.size()-1)];
 
         // Play weapon sound
-        if (game->GameSounds.Sounds.count(s) && (CurrentWeapon->isMelee || Valid)) {
+        if (game->GameSounds->Sounds.count(s) && (CurrentWeapon->isMelee || Valid)) {
             float Distance = Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter());
 
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
             DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
 
-            game->GameSounds.PlayGameSound(s, CurrentWeapon->Intensity * DistanceMultiplier,
+            game->GameSounds->PlayGameSound(s, CurrentWeapon->Intensity * DistanceMultiplier,
                 1.0f + GetRandomValue(-20, 20) / 100.0f);
         }
 
         // Shake camera
         if (CurrentWeapon->ShakeScreen && Owner->Type == PlayerType && (CurrentWeapon->isMelee || Valid))
-            game->GameCamera.ShakeCamera(CurrentWeapon->Intensity);
+            game->GameCamera->ShakeCamera(CurrentWeapon->Intensity);
 
         // Gun attack
         if (Valid && !CurrentWeapon->isMelee) {
@@ -487,7 +493,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
             // Get angle, set basic starting variables
             this->MeleeAnim = true;
             this->MeleeAnimPercent = 0;
-            this->MeleeAnimTexture = &game->GameResources.Textures[CurrentWeapon->texture];
+            this->MeleeAnimTexture = &game->GameResources->Textures[CurrentWeapon->texture];
             this->MeleeAnimAngle = TargetAngle - 90;
 
             // player attack check
@@ -495,9 +501,9 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["game"]["friendly_fire"].get<bool>())
+            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["game"]["friendly_fire"].get<bool>())
             {
-                std::vector<shared_ptr<Entity>>* array = &game->GameEntities.Entities[EnemyType];
+                std::vector<shared_ptr<Entity>>* array = &game->GameEntities->Entities[EnemyType];
                 for (int i = 0; i < array->size(); i++) {
                     if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
                         MeleeAttack(entity, TargetAngle);
@@ -524,7 +530,7 @@ void WeaponsSystem::Equip(int Index) {
         CurrentWeaponIndex = Index;
         ChargingProgress = 0.0f;
         TriedChargingThisFrame = false;
-        CurrentWeapon = &game->GameResources.Weapons[Weapons[CurrentWeaponIndex]];
+        CurrentWeapon = &game->GameResources->Weapons[Weapons[CurrentWeaponIndex]];
         TimeStartedReloading = -1;
     }
 }

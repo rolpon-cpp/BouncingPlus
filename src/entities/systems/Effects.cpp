@@ -1,13 +1,15 @@
 //
-// Created by lalit on 4/20/2026.
+// Created by Rolpon on 4/20/2026.
 //
 
-#include "Effects.h"
-
 #include <iostream>
-
+#include "Effects.h"
+#include "../Entity.h"
+#include "../subentities/player/Player.h"
+#include "../../game/managers/SoundManager.h"
+#include "../../game/managers/CameraManager.h"
+#include "../../game/managers/ParticleManager.h"
 #include "../../game/Game.h"
-
 #include "raymath.h"
 
 Effect::Effect(double Duration, double ImpactTime)
@@ -111,13 +113,13 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
         float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
         DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
 
-        game->GameSounds.PlayGameSound((string("burn") + to_string(GetRandomValue(1,2))),
+        game->GameSounds->PlayGameSound((string("burn") + to_string(GetRandomValue(1,2))),
             0.5f * DistanceMultiplier, 1.0f - GetRandomValue(-50,50)/100.0f);
         LastDidSFX = game->GetGameTime();
     }
     if (game->GetGameTime() - LastDidFireParticle >= (Percent > 0.5f ? 0.1f : 0.2f))
     {
-        game->GameParticles.ParticleEffect({
+        game->GameParticles->ParticleEffect({
             ImpactedEntity->GetCenter(),
             70.0f,
             ColorLerp(RED, ORANGE, 0.5f),
@@ -131,7 +133,7 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
         SmokeParticleCount++;
         if (SmokeParticleCount > 3)
         {
-            game->GameParticles.ParticleEffect({
+            game->GameParticles->ParticleEffect({
             ImpactedEntity->GetCenter(),
             200.0f,
             ColorAlpha(GRAY, 0.5f),
@@ -171,10 +173,10 @@ void Swiftness::Update(std::shared_ptr<Entity> ImpactedEntity)
 
     Multiplier = max(Multiplier, 0.5f);
 
-    game->GameCamera.QuickZoom(0.85f, 0.5f);
+    game->GameCamera->QuickZoom(0.85f, 0.5f);
     if (Vector2Distance(ImpactedEntity->GetCenter(), LastPos) > 0 && game->GetGameTime() - LastDidParticle >= 0.1f)
     {
-        game->GameParticles.ParticleEffect({
+        game->GameParticles->ParticleEffect({
             ImpactedEntity->GetCenter(),
             ImpactedEntity->GetSpeed() * 1.5f,
             ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), ColorBrightness(SKYBLUE, 0.5f), 0.5f),

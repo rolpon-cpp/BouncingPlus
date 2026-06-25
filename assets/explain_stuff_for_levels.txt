@@ -31,10 +31,10 @@ for metadata.json:
   },
   "game": { // game properties
     "timer": -1, // does the level have a timer?
-    "win": "kill_all_enemies", // level win condition: kill_all_enemies, complete_10_waves, nothing
+    "win": "kill_all_enemies", // level win condition: kill_all_enemies, complete_10_waves, complete_9999999_waves, nothing
     "time_pass_speed" : 1.0, // controls how time passes in the level, 1.0 is normal speed
     "friendly_fire": false, // controls if enemies can friendly fire
-    "mode": "default", // what gamemode is the level? current modes: default,wave,boss
+    "mode": "default", // what gamemode is the level? current modes: default,wave,boss,
     "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons are spawned enemies from spawners NOT allowed to spawn with?
   },
   "enemy_weapons": { // weapon bindings for basic shotgunners and swordsmen

@@ -1,17 +1,23 @@
 //
-// Created by lalit on 3/14/2026.
+// Created by Rolpon on 3/14/2026.
 //
 
 #include "PlayerLogicProcessor.h"
-
-#include <iostream>
 #include <raymath.h>
 #include <nlohmann/json.hpp>
-
 #include "../../../game/Game.h"
 #include "Player.h"
 #include "../projectile/Bullet.h"
 #include "../stationary/Turret.h"
+
+#include "../../../game/managers/CameraManager.h"
+#include "../../../game/managers/ParticleManager.h"
+#include "../../../game/managers/SoundManager.h"
+#include "../../../game/managers/ResourceManager.h"
+#include "../../../game/managers/EntityManager.h"
+#include "../../../game/managers/GameModeManager.h"
+#include "../../../game/core/Controls.h"
+#include "../../../game/core/SharedManager.h"
 
 PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
 {
@@ -51,13 +57,13 @@ void PlayerLogicProcessor::ProcessStress()
     if (MyPlayer->HealthConcern)
         MyPlayer->FrameStressLevel += 0.5f;
 
-    std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities.Entities[BulletType];
+    std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities->Entities[BulletType];
     for (int i = 0; i < bulletArray.size(); i++)
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete)
             if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 600)
                 MyPlayer->FrameStressLevel += 0.02f;
 
-    std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities.Entities[TurretType];
+    std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities->Entities[TurretType];
     for (int i = 0; i < turretArray.size(); i++)
         if (shared_ptr<Turret> entity = dynamic_pointer_cast<Turret>(turretArray.at(i)); entity != nullptr and !entity->ShouldDelete)
             if (entity->CurrentState != LOOKING)
@@ -65,7 +71,7 @@ void PlayerLogicProcessor::ProcessStress()
 
     MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.1f;
 
-    if (MyPlayer->game->GameMode.InWave)
+    if (MyPlayer->game->GameMode->InWave)
         MyPlayer->FrameStressLevel += 0.15f;
 
     MyPlayer->FrameStressLevel = min(max(MyPlayer->FrameStressLevel, 0.0f), 1.0f);
@@ -85,11 +91,11 @@ void PlayerLogicProcessor::HandleFightMusic()
         return;
     if (MyPlayer->game->isReturning || MyPlayer->game->ShouldReturn)
         return;
-    if (MyPlayer->game->GameMode.GetCurrentLevelName().empty())
+    if (MyPlayer->game->GameMode->GetCurrentLevelName().empty())
         return;
-    if (!MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()].count("music"))
+    if (!MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()].count("music"))
         return;
-    if (MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["music"].empty())
+    if (MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["music"].empty())
         return;
 
     if (LayerSwitchCooldown <= 0)
@@ -119,7 +125,7 @@ void PlayerLogicProcessor::HandleFightMusic()
     FightMusicLayer = Lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
 
     int ChosenLayer = (int)round(FightMusicLayer);
-    std::string FightTrack = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
+    std::string FightTrack = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
     if (ChosenLayer == 4 && MyPlayer->StressLevel >= 0.6f)
     {
         LayerSwitchCooldown += 2.5f * MyPlayer->game->GetGameDeltaTime();
@@ -133,13 +139,13 @@ void PlayerLogicProcessor::HandleFightMusic()
 
     if (PreviousFightTrack != FightTrack)
     {
-        if (!PreviousFightTrack.empty() && MyPlayer->game->GameSounds.IsGameMusicPlaying(PreviousFightTrack))
-            MyPlayer->game->GameSounds.StopGameMusic(PreviousFightTrack, true);
+        if (!PreviousFightTrack.empty() && MyPlayer->game->GameSounds->IsGameMusicPlaying(PreviousFightTrack))
+            MyPlayer->game->GameSounds->StopGameMusic(PreviousFightTrack, true);
         PreviousFightTrack = FightTrack;
     }
 
-    if (!MyPlayer->game->GameSounds.IsGameMusicPlaying(FightTrack))
-        MyPlayer->game->GameSounds.PlayGameMusic(FightTrack, true);
+    if (!MyPlayer->game->GameSounds->IsGameMusicPlaying(FightTrack))
+        MyPlayer->game->GameSounds->PlayGameMusic(FightTrack, true);
 
 }
 
@@ -217,7 +223,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         float EnemyConcentration = 0.8f + (MyPlayer->FrameStressLevel*1.2f);
 
         EnemyConcentration = max(min(EnemyConcentration, 5.0f), 1.0f);
-        EnemyConcentration *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_concentration_boost"].get<float>();
+        EnemyConcentration *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
         Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.1f), 5.5f);
@@ -237,11 +243,11 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
             amount = 2000.0f;
             MyPlayer->Kills+=1;
             this->IncreaseScore("Dash Kill", 45 * ((DashedEnemies.size() + 1.0f) * 1.25f), ColorContrast(GREEN,0.5f));
-            MyPlayer->game->GameSounds.PlayGameSound("dash_hit_kill",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.85f));
+            MyPlayer->game->GameSounds->PlayGameSound("dash_hit_kill",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.85f));
         }
 
         // dashing particle effect
-        MyPlayer->game->GameParticles.ParticleEffect({{
+        MyPlayer->game->GameParticles->ParticleEffect({{
             MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2},
                 1000,
                 PURPLE,
@@ -264,13 +270,13 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
             LastFrozeGame = MyPlayer->game->GetGameTime();
         }
 
-        MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 0.8f);
-        MyPlayer->game->GameCamera.CameraPosition +=
+        MyPlayer->game->GameCamera->ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 0.8f);
+        MyPlayer->game->GameCamera->CameraPosition +=
             Vector2Normalize({(float)GetRandomValue(-35, 35), (float)GetRandomValue(-35, 35)}) * (MyPlayer->VelocityPower / 100);
 
-        MyPlayer->game->GameCamera.QuickZoom(1.25f, 0.01f, true);
+        MyPlayer->game->GameCamera->QuickZoom(1.25f, 0.01f, true);
 
-        MyPlayer->game->GameSounds.PlayGameSound("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.85f));
+        MyPlayer->game->GameSounds->PlayGameSound("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.85f));
 
         // increase score
         this->IncreaseScore("Dash", Damage * 1.5f, GREEN);
@@ -290,7 +296,7 @@ void PlayerLogicProcessor::DashAttacking()
     auto MyPlayer = Owner.lock();
     if (MyPlayer->VelocityPower > 1000 && !MyPlayer->Dodging) {
         // get enemies list
-        std::vector<shared_ptr<Entity>>* array = &MyPlayer->game->GameEntities.Entities[EnemyType];
+        std::vector<shared_ptr<Entity>>* array = &MyPlayer->game->GameEntities->Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
                 // have we already attacked them? if so, ignore this!!!
@@ -331,43 +337,43 @@ void PlayerLogicProcessor::DashLogic()
         MyPlayer->IsPreparingForDash = false;
     }
     if (MyPlayer->game->MainPlayer->IsPreparingForDash || MyPlayer->game->MainPlayer->MainWeaponsSystem.TimeStartedReloading != -1) {
-        MyPlayer->game->GameCamera.QuickZoom(1.25f, 0.1f);
+        MyPlayer->game->GameCamera->QuickZoom(1.25f, 0.1f);
         if (MyPlayer->game->MainPlayer->IsPreparingForDash)
         {
             if (static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart) / 1.1f > 0.8f)
                 PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * MyPlayer->game->GetGameDeltaTime());
             float alpha = static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart) / 1.1f;
-            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera.RaylibCamera);
+            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera->RaylibCamera);
             float cx = MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width / 2;
             float cy = MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height / 2;
             float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
-            Texture2D& anim_tex = MyPlayer->game->GameResources.Textures["arrow"];
+            Texture2D& anim_tex = MyPlayer->game->GameResources->Textures["arrow"];
             float width = anim_tex.width;
             float height = anim_tex.height;
-            BeginShaderMode(MyPlayer->game->GameResources.Shaders["dash_arrow"]);
+            BeginShaderMode(MyPlayer->game->GameResources->Shaders["dash_arrow"]);
             float t = static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart);
 
             if (uTime == -1)
             {
-                uTime = GetShaderLocation(MyPlayer->game->GameResources.Shaders["dash_arrow"], "time");
-                uWidth = GetShaderLocation(MyPlayer->game->GameResources.Shaders["dash_arrow"], "renderWidth");
-                uHeight = GetShaderLocation(MyPlayer->game->GameResources.Shaders["dash_arrow"], "renderHeight");
+                uTime = GetShaderLocation(MyPlayer->game->GameResources->Shaders["dash_arrow"], "time");
+                uWidth = GetShaderLocation(MyPlayer->game->GameResources->Shaders["dash_arrow"], "renderWidth");
+                uHeight = GetShaderLocation(MyPlayer->game->GameResources->Shaders["dash_arrow"], "renderHeight");
             }
 
             int w = GetRenderWidth();
             int h = GetRenderHeight();
 
-            SetShaderValue(MyPlayer->game->GameResources.Shaders["dash_arrow"],
+            SetShaderValue(MyPlayer->game->GameResources->Shaders["dash_arrow"],
                 uTime,
                 &t,
                 SHADER_UNIFORM_FLOAT);
 
-            SetShaderValue(MyPlayer->game->GameResources.Shaders["dash_arrow"],
+            SetShaderValue(MyPlayer->game->GameResources->Shaders["dash_arrow"],
                 uWidth,
                 &w,
                 SHADER_UNIFORM_INT);
 
-            SetShaderValue(MyPlayer->game->GameResources.Shaders["dash_arrow"],
+            SetShaderValue(MyPlayer->game->GameResources->Shaders["dash_arrow"],
                 uHeight,
                 &h,
                 SHADER_UNIFORM_INT);
@@ -382,26 +388,26 @@ void PlayerLogicProcessor::DashLogic()
         }
     }
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && MyPlayer->IsPreparingForDash && MyPlayer->Health > 0 && MyPlayer->game->GetGameTime() - DashTimeStart >= 0.35f) {
-        DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
+        DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
-        MyPlayer->VelocityMovement = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera.RaylibCamera), {MyPlayer->BoundingBox.x+MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y+MyPlayer->BoundingBox.height/2});
-        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_base_power"].get<float>()
+        MyPlayer->VelocityMovement = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), MyPlayer->game->GameCamera->RaylibCamera), {MyPlayer->BoundingBox.x+MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y+MyPlayer->BoundingBox.height/2});
+        MyPlayer->VelocityPower = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_base_power"].get<float>()
         * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         MyPlayer->VelocityPower /= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 1.1f);
-        MyPlayer->VelocityPower *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_power_multiplier"].get<float>();
-        MyPlayer->game->GameSounds.PlayGameSound("dash");
-        MyPlayer->PlayerFrozenTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_frozen_multiplier"].get<float>() *
-            min(max((MyPlayer->VelocityPower / MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
+        MyPlayer->VelocityPower *= MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_power_multiplier"].get<float>();
+        MyPlayer->game->GameSounds->PlayGameSound("dash");
+        MyPlayer->PlayerFrozenTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_frozen_multiplier"].get<float>() *
+            min(max((MyPlayer->VelocityPower / MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
         if (!MyPlayer->isInvincible)
         {
             MyPlayer->ToggleInvincibility();
-            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dash_iframe_time"].get<float>();
+            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dash_iframe_time"].get<float>();
         }
         if (IsMouseButtonDown(1)) {
             MyPlayer->VelocityPower *= 1.5f;
             MyPlayer->Dodging = true;
-            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dodge_iframe_time"].get<float>() * 3.0f;
-            DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode.GetCurrentLevelName()]["player"]["dodge_cooldown"].get<float>();
+            MyPlayer->InvincibilityResetTimer = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dodge_iframe_time"].get<float>() * 3.0f;
+            DashCooldown = MyPlayer->game->GameShared->LevelData[MyPlayer->game->GameMode->GetCurrentLevelName()]["player"]["dodge_cooldown"].get<float>();
         }
         MyPlayer->IsPreparingForDash = false;
 

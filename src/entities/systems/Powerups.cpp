@@ -1,15 +1,15 @@
 //
-// Created by lalit on 1/23/2026.
+// Created by Rolpon on 1/23/2026.
 //
 
 #include "Powerups.h"
-
 #include <iostream>
-
 #include "../../game/Game.h"
 #include "../subentities/projectile/Bullet.h"
 #include "../subentities/player/Player.h"
-
+#include "../../game/managers/EntityManager.h"
+#include "../../game/managers/CameraManager.h"
+#include "../../game/core/GameMisc.h"
 #include <raylib.h>
 #include <raymath.h>
 
@@ -61,7 +61,7 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
     else
         circle_transparency += TransBuff;
 
-    std::vector<shared_ptr<Entity>>* array = &Owner->game->GameEntities.Entities[BulletType];
+    std::vector<shared_ptr<Entity>>* array = &Owner->game->GameEntities->Entities[BulletType];
     for (int i = 0; i < array->size(); i++) {
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(array->at(i)); entity != nullptr && !entity->ShouldDelete) {
             float dist = Vector2Distance({Owner->BoundingBox.x + Owner->BoundingBox.width / 2, Owner->BoundingBox.y + Owner->BoundingBox.height / 2},
@@ -105,14 +105,14 @@ FreezePowerup::FreezePowerup()
 
 void FreezePowerup::Complete(std::shared_ptr<Player> Owner)
 {
-    auto r = Owner->game->GameMiscTools.RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera.RaylibCamera));
+    auto r = Owner->game->GameMiscTools->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera->RaylibCamera));
     float w = GetRandomValue(400, 600);
     float h = GetRandomValue(400, 600);
 
     w *= 1.0f + (Owner->StressLevel / 2.0f);
 
     Rectangle rec = {r.HitPosition.x - w/2, r.HitPosition.y - h/2, w, h};
-    Owner->game->GameMiscTools.FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
+    Owner->game->GameMiscTools->FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
 
     Powerup::Complete(Owner);
 }
@@ -132,7 +132,7 @@ TankyPowerup::TankyPowerup()
 void TankyPowerup::Complete(std::shared_ptr<Player> Owner)
 {
     Owner->ExtraSpeed = -Owner->Speed * 0.75f;
-    Owner->game->GameCamera.QuickZoom(1.5f, 0.1f);
+    Owner->game->GameCamera->QuickZoom(1.5f, 0.1f);
     if (Owner->MainWeaponsSystem.CurrentWeaponIndex != -1)
         Owner->MainWeaponsSystem.AttackCooldowns[Owner->MainWeaponsSystem.CurrentWeaponIndex] -= 0.5f * Owner->game->GetGameDeltaTime();
     if (!Owner->isInvincible)

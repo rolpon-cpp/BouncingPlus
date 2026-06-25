@@ -1,16 +1,20 @@
 //
-// Created by lalit on 3/19/2026.
+// Created by Rolpon on 3/19/2026.
 //
 
 #include "Turret.h"
-
-#include <iostream>
 #include <raymath.h>
-
 #include "../../systems/Weapons.h"
 #include "../../../game/Game.h"
+#include "../../../game/managers/CameraManager.h"
+#include "../../../game/managers/SoundManager.h"
+#include "../../../game/managers/ResourceManager.h"
+#include "../../../game/core/GameMisc.h"
+#include "../../../game/managers/EntityManager.h"
+#include "../player/Player.h"
+#include <nlohmann/json.hpp>
 
-Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.GameResources.Textures["turret"],
+Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.GameResources->Textures["turret"],
                                                                           Rectangle{X - 24, Y - 24, 48, 48}, 0, game)
 {
     this->Weapon = Weapon;
@@ -63,7 +67,7 @@ bool Turret::PlayerIsVisible()
 {
     float plrAngle = Vector2LineAngle(GetCenter(), game->MainPlayer->GetCenter()) * RAD2DEG;
     float targAngle = Vector2LineAngle(GetCenter(), Target) * RAD2DEG;
-    return plrAngle >= targAngle - AngleRange/2 && plrAngle <= targAngle + AngleRange/2 && game->GameMiscTools.RayCast(GetCenter(), game->MainPlayer->GetCenter()) && Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) <= Range;
+    return plrAngle >= targAngle - AngleRange/2 && plrAngle <= targAngle + AngleRange/2 && game->GameMiscTools->RayCast(GetCenter(), game->MainPlayer->GetCenter()) && Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) <= Range;
 }
 
 void Turret::Update()
@@ -82,7 +86,7 @@ void Turret::Update()
         float Angle = TurretRotation - AngleRange/2 + (i * skip);
         float X = cos(Angle * (2 * PI / 360))*Range;
         float Y = sin(Angle * (2 * PI / 360))*Range;
-        auto p = game->GameMiscTools.RayCastPoint(GetCenter(),Vector2Add(GetCenter(), Vector2{X,Y}));
+        auto p = game->GameMiscTools->RayCastPoint(GetCenter(),Vector2Add(GetCenter(), Vector2{X,Y}));
         if (Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) < Range+GetRenderWidth()/2)
             DrawCircleSector(GetCenter(), Vector2Distance(GetCenter(),p.HitPosition), Angle - skip/2, Angle + skip/2, skip, ColorAlpha(RED,0.35f));
         if (Vector2Distance(GetCenter(), p.HitPosition) <= 200 && GoalSwitchCooldown <= 0)

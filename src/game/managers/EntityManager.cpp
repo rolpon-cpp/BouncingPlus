@@ -1,13 +1,16 @@
 //
-// Created by Lalit on 10/24/2025.
+// Created by Rolpon on 10/24/2025.
 //
 
 #include "EntityManager.h"
 #include <memory>
 #include <unordered_map>
 #include <vector>
+
+#include "CameraManager.h"
 #include "../Game.h"
 #include "../../entities/Entity.h"
+#include "../../entities/subentities/player/Player.h"
 
 EntityManager::EntityManager()
 {
@@ -22,9 +25,9 @@ EntityManager::EntityManager(Game* game)
         PhysicsFPS = 120.0f;
     #endif
     PhysicsAccumulator = 0;
-    Entities = std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>>();
+    Entities = std::unordered_map<EntityType, std::vector<std::shared_ptr<Entity>>>();
     for (int i = 0; i < End; ++i) {
-        Entities.insert({(EntityType) i, std::vector<shared_ptr<Entity>>()});
+        Entities.insert({(EntityType) i, std::vector<std::shared_ptr<Entity>>()});
     }
 }
 
@@ -98,7 +101,7 @@ void EntityManager::EntityClear()
         });
         if (game->DebugDraw) {
             std::string f = "ENTITY CATEGORY: " + to_string(e) + ", OLD SIZE: " + to_string(old_size) + ", NEW SIZE: " + to_string(array->size());
-            DrawText(f.c_str(), 800+game->GameCamera.RaylibCamera.target.x, 50 + 10*e +game->GameCamera.RaylibCamera.target.y, 10, WHITE);
+            DrawText(f.c_str(), 800+game->GameCamera->RaylibCamera.target.x, 50 + 10*e +game->GameCamera->RaylibCamera.target.y, 10, WHITE);
         }
     }
 }

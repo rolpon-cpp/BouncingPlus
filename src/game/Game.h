@@ -1,32 +1,32 @@
-//
-// Created by lalit on 8/26/2025.
-//
-
 #ifndef BOUNCINGPLUS_GAME_H
 #define BOUNCINGPLUS_GAME_H
 
-#include <raylib.h>
-#include "core/BaseProfiler.h"
-#include "managers/GameModeManager.h"
-#include "managers/CameraManager.h"
-#include "../entities/Entity.h"
-#include "managers/EntityManager.h"
-#include "managers/ParticleManager.h"
-#include "../entities/subentities/player/Player.h"
-#include "managers/SoundManager.h"
-#include "../level/tiles/TileManager.h"
-#include "ui/gameplay_ui/GameplayUI.h"
-#include "../entities/systems/Weapons.h"
-#include "managers/ResourceManager.h"
-#include "core/SharedManager.h"
-#include "core/GameMisc.h"
+class Player;
+class GameplayUI;
+class SharedManager;
+class Controls;
+class TileManager;
+class EntityManager;
+class CameraManager;
+class ParticleManager;
+class SoundManager;
+class GameModeManager;
+class ResourceManager;
+class GameMisc;
+
+#include "raylib.h"
+#include "raymath.h"
+#include <memory>
+#include <unordered_map>
+#include <string>
+#include <vector>
 
 class Game {
 
     float FreezeTime;
     float MaxFreezeTime;
 
-    GameplayUI GameUI;
+    std::unique_ptr<GameplayUI> GameUI;
     void SetGameData();
     void ProcessSlowdownAnimation();
 
@@ -45,22 +45,23 @@ class Game {
         float FinalLevelCompletionScore;
 
         // Managers
-        TileManager GameTiles;
-        EntityManager GameEntities;
-        CameraManager GameCamera;
-        ParticleManager GameParticles;
-        SoundManager GameSounds;
-        GameModeManager GameMode;
-        ResourceManager GameResources;
-        GameMisc GameMiscTools;
+        std::unique_ptr<TileManager> GameTiles;
+        std::unique_ptr<EntityManager> GameEntities;
+        std::unique_ptr<CameraManager> GameCamera;
+        std::unique_ptr<ParticleManager> GameParticles;
+        std::unique_ptr<SoundManager> GameSounds;
+        std::unique_ptr<GameModeManager> GameMode;
+        std::unique_ptr<ResourceManager> GameResources;
+        std::unique_ptr<GameMisc> GameMiscTools;
 
-        shared_ptr<Player> MainPlayer;
+        std::shared_ptr<Player> MainPlayer;
 
         // Extra Assets
         std::unordered_map<std::string, std::string> EnemyRoleWeapons;
         std::vector<std::string> BannedWeaponDrops;
 
         Game(SharedManager& Shared);
+        ~Game();
 
         // Base game functions
         void Freeze(float Time);

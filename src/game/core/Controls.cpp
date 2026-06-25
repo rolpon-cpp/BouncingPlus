@@ -1,6 +1,4 @@
-//
-// Created by lalit on 3/29/2026.
-//
+
 
 #include "Controls.h"
 #include <raylib.h>

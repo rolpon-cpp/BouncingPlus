@@ -1,11 +1,12 @@
 //
-// Created by lalit on 8/27/2025.
+// Created by Rolpon on 8/27/2025.
 //
 
 #include "TileManager.h"
 #include <string>
 #include <nlohmann/json.hpp>
 #include "../../game/Game.h"
+#include "../../game/managers/CameraManager.h"
 
 TileManager::TileManager() {
 
@@ -17,7 +18,6 @@ TileManager::TileManager(Game *game) {
     Lines = std::vector<std::string>();
     Distortions = std::vector<Distortion>();
     TileMapTex = LoadRenderTexture(1,1);
-    ForceFieldTex = LoadRenderTexture(1,1);
     TileTypes[0] = NothingTileType; // air
     TileTypes[-1] = NothingTileType; // air
     TileTypes[1] = WallTileType; // bouncy wall
@@ -85,19 +85,13 @@ void TileManager::Clear()
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2{round(game->GameCamera.IntendedScreenWidth / TileSize) + 1, round(game->GameCamera.IntendedScreenHeight / TileSize) + 1};
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
-    if (IsRenderTextureValid(ForceFieldTex))
-        UnloadRenderTexture(ForceFieldTex);
-    ForceFieldTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
 }
 
 void TileManager::Quit() {
     Clear();
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
-    if (IsRenderTextureValid(ForceFieldTex))
-        UnloadRenderTexture(ForceFieldTex);
 }

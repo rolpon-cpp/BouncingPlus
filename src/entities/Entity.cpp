@@ -1,19 +1,19 @@
 //
-// Created by lalit on 8/26/2025.
+// Created by Rolpon on 8/26/2025.
 //
 
 #include "Entity.h"
-
-#include <iostream>
-
-#include "systems/Weapons.h"
-#include <ostream>
 #include <raylib.h>
 #include <raymath.h>
 #include <nlohmann/json.hpp>
-
-#include "subentities/projectile/Bullet.h"
 #include "../game/Game.h"
+#include "subentities/enemy/Enemy.h"
+#include "subentities/player/Player.h"
+#include "../game/managers/CameraManager.h"
+#include "../game/managers/ParticleManager.h"
+#include "../level/tiles/TileManager.h"
+#include "../game/managers/GameModeManager.h"
+#include "../game/core/SharedManager.h"
 
 void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) {
     this->Texture = &Texture;
@@ -83,7 +83,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     int ParticleAmount =GetRandomValue(9, 15) * (Damage / 100.0f);
     if (ParticleAmount > 30)
         ParticleAmount = 30;
-    game->GameParticles.ParticleEffect({
+    game->GameParticles->ParticleEffect({
         entity->GetCenter(),
         GetRandomValue(2500,3000) / 7.5f,
         RED,
@@ -114,7 +114,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
             if (owner->Type != PlayerType)
                 owner->Health += HealthGain;
             else if (!game->MainPlayer->isInvincible)
-                owner->Health += HealthGain * game->GameShared->LevelData[game->GameMode.GetCurrentLevelName()]["player"]["weapon_health_gain_buff"].get<float>();
+                owner->Health += HealthGain * game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["weapon_health_gain_buff"].get<float>();
         }
         if (owner->Type == PlayerType)
             game->MainPlayer->Kills += 1;
@@ -134,8 +134,8 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
         BoundingBox.x += FinalMovement.x * DeltaTime;
         BoundingBox.y += FinalMovement.y * DeltaTime;
         bool f = false;
-        int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
-        int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
+        int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles->TileSize);
+        int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles->TileSize);
         for (int y = 0; y < 3; y++) {
             if (f)
                 break;
@@ -143,12 +143,12 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                 int curr_tile_x = tile_x + x - 1;
                 int curr_tile_y = tile_y + y - 1;
                 Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
-                int tile_id = game->GameTiles.GetTileAt(coord);
-                float bbox_x = curr_tile_x * game->GameTiles.TileSize;
-                float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                int tile_id = game->GameTiles->GetTileAt(coord);
+                float bbox_x = curr_tile_x * game->GameTiles->TileSize;
+                float bbox_y = curr_tile_y * game->GameTiles->TileSize;
+                Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles->TileSize, game->GameTiles->TileSize};
                 if (
-                    (game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))
+                    (game->GameTiles->TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles->TileTypes[tile_id] == EnemyWallTileType : false))
                     && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
 
                     int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
@@ -229,27 +229,27 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 
             BoundingBox.x += FinalMovement.x * DeltaTime;
             bool can_move_x = true;
-            int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
-            int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
+            int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles->TileSize);
+            int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles->TileSize);
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     int curr_tile_x = tile_x + x - 1;
                     int curr_tile_y = tile_y + y - 1;
                     Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
-                    int tile_id = game->GameTiles.GetTileAt(coord);
-                    float bbox_x = curr_tile_x * game->GameTiles.TileSize;
-                    float bbox_y = curr_tile_y * game->GameTiles.TileSize;
+                    int tile_id = game->GameTiles->GetTileAt(coord);
+                    float bbox_x = curr_tile_x * game->GameTiles->TileSize;
+                    float bbox_y = curr_tile_y * game->GameTiles->TileSize;
                     if (game->DebugDraw) {
                         DrawRectangleRec(
                             {
                                 bbox_x,
                                 bbox_y,
-                                game->GameTiles.TileSize,
-                                game->GameTiles.TileSize,
+                                game->GameTiles->TileSize,
+                                game->GameTiles->TileSize,
                             }, ColorAlpha(GREEN, 0.15f));
                     }
-                    if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
-                        Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                    if ((game->GameTiles->TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles->TileTypes[tile_id] == EnemyWallTileType : false))) {
+                        Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles->TileSize, game->GameTiles->TileSize};
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cx = BoundingBox.x + (BoundingBox.width / 2.0f);
                             //float t_cx = bbox_x + (game->MainTileManager.TileSize / 2.0f);
@@ -270,18 +270,18 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 
             BoundingBox.y += FinalMovement.y * DeltaTime;
             can_move_x = true;
-            tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
-            tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
+            tile_x = static_cast<int> (BoundingBox.x / game->GameTiles->TileSize);
+            tile_y = static_cast<int> (BoundingBox.y / game->GameTiles->TileSize);
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     int curr_tile_x = tile_x + x - 1;
                     int curr_tile_y = tile_y + y - 1;
                     Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
-                    int tile_id = game->GameTiles.GetTileAt(coord);
-                    if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
-                        float bbox_x = curr_tile_x * game->GameTiles.TileSize;
-                        float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                        Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                    int tile_id = game->GameTiles->GetTileAt(coord);
+                    if ((game->GameTiles->TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles->TileTypes[tile_id] == EnemyWallTileType : false))) {
+                        float bbox_x = curr_tile_x * game->GameTiles->TileSize;
+                        float bbox_y = curr_tile_y * game->GameTiles->TileSize;
+                        Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles->TileSize, game->GameTiles->TileSize};
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cy = BoundingBox.y + (BoundingBox.height / 2.0f);
                             //float t_cy = bbox_y + (game->MainTileManager.TileSize / 2.0f);
@@ -315,7 +315,7 @@ bool Entity::IsVisible()
 }
 
 bool Entity::IsVisible(Rectangle bbox) {
-    Vector2 MyPosOnScreen = GetWorldToScreen2D(Vector2{bbox.x + bbox.width/2, bbox.y + bbox.height/2}, game->GameCamera.RaylibCamera);
+    Vector2 MyPosOnScreen = GetWorldToScreen2D(Vector2{bbox.x + bbox.width/2, bbox.y + bbox.height/2}, game->GameCamera->RaylibCamera);
     return MyPosOnScreen.x > -BoundingBox.width &&
         MyPosOnScreen.x < GetRenderWidth() &&
         MyPosOnScreen.y > -BoundingBox.height &&

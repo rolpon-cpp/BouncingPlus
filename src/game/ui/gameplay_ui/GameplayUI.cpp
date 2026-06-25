@@ -1,9 +1,13 @@
 //
-// Created by lalit on 9/28/2025.
+// Created by Rolpon on 9/28/2025.
 //
 
 #include "GameplayUI.h"
 #include "../../Game.h"
+#include "../../../entities/subentities/player/Player.h"
+#include "../../core/Controls.h"
+#include "../../managers/ResourceManager.h"
+#include "../../managers/GameModeManager.h"
 
 GameplayUI::GameplayUI(Game *game) {
     this->game = game;
@@ -126,18 +130,18 @@ void GameplayUI::GameUI()
     if (game->DebugDraw)
         DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
 
-    if (game->GameMode.WonLevel)
+    if (game->GameMode->WonLevel)
         GameWin();
     else
         DrawTextureRec(DeathScreen.texture, Rectangle{0, 0, (float)DeathScreen.texture.width, -(float)DeathScreen.texture.height}, Vector2{0, (float)GetRenderHeight() - DeathScreen.texture.height}, ColorAlpha(WHITE, 1.0f - UITransparency));
 
     DrawTextureRec(WeaponUITexture.texture, Rectangle{0, 0, (float)WeaponUITexture.texture.width, -(float)WeaponUITexture.texture.height}, Vector2{0.0f, (float)GetRenderHeight() - WeaponUITexture.texture.height}, ColorAlpha(WHITE, UITransparency));
 
-    if (game->MainPlayer->Health > 0 && !game->GameMode.WonLevel && UITransparency < 1.0f) {
+    if (game->MainPlayer->Health > 0 && !game->GameMode->WonLevel && UITransparency < 1.0f) {
         UITransparency += 1.9f * GetFrameTime();
         if (UITransparency > 1.0f)
             UITransparency = 1.0f;
-    } else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->GameMode.WonLevel)) {
+    } else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->GameMode->WonLevel)) {
         UITransparency -= 2.2f * GetFrameTime();
         if (UITransparency < 0.0f)
             UITransparency = 0.0f;

@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
 
     SetExitKey(KEY_NULL);
 
-    if (argc == 2 && string(argv[1]) == "test")
+    if (argc == 2 && std::string(argv[1]) == "test")
     {
         MainMenu.Reset();
         MainGame.Reload("debug");

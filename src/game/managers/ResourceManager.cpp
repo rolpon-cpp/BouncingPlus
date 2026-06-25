@@ -1,5 +1,5 @@
 //
-// Created by lalit on 3/8/2026.
+// Created by Rolpon on 3/8/2026.
 //
 
 #include "ResourceManager.h"
@@ -81,7 +81,7 @@ void ResourceManager::LoadWeaponData()
                 continue;
             }
 
-            json data = json::parse(g);
+            nlohmann::json data = nlohmann::json::parse(g);
 
             Weapon wep = {};
             if (data.count("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
