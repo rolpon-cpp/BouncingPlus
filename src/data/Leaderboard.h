@@ -14,8 +14,8 @@
 class Leaderboard
 {
     void ExtractLeaderboardData();
-    public:
 
+public:
     std::vector<std::pair<std::string, int>> LeaderboardScores;
 
     bool AwaitingResponse;

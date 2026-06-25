@@ -36,7 +36,8 @@ struct FileEntity
     std::string Weapon;
 };
 
-class TileManager {
+class TileManager
+{
     Game* game;
     Vector2 UpdateDistance;
 
@@ -52,35 +53,35 @@ class TileManager {
     void ProcessDistortions();
     void DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_tex);
     void AddEnemy(float bbox_x, float bbox_y, int tile_id);
-    void CreateFileEntity(FileEntity &NewFileEntity);
-    void SetPropertiesOfFileEntity(FileEntity &ThisFileEntity, int i, std::string cell);
+    void CreateFileEntity(FileEntity& NewFileEntity);
+    void SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, std::string cell);
     void ProcessUniformLocations();
 
-    public:
+public:
     std::vector<std::string> Lines;
     std::string PrevFileName;
 
-        float TileSize;
-        int MapWidth, MapHeight;
-        Vector2 PlayerSpawnPosition;
-        Vector2 BossSpawnPosition;
-        std::unordered_map<int, TileType> TileTypes;
-        std::vector<Vector2> EnemySpawnLocations;
-        std::vector<int> Map;
-        RenderTexture TileMapTex;
-        TileManager();
-        TileManager(Game *game);
-        int GetTileAt(int x, int y);
-        int GetTileAt(Vector2 coord);
-        int GetTileAtWorldCoords(Vector2 coord);
-        void SetTileAt(int x, int y, int id);
-        void SetTileAt(Vector2 coord, int id);
-        void Update();
-        void DistortArea(Distortion DistortionForArea);
-        void ReadMapDataFile(std::string FileName);
-        void ReadEntitiesFile(std::string FileName);
-        void Clear();
-        void Quit();
+    float TileSize;
+    int MapWidth, MapHeight;
+    Vector2 PlayerSpawnPosition;
+    Vector2 BossSpawnPosition;
+    std::unordered_map<int, TileType> TileTypes;
+    std::vector<Vector2> EnemySpawnLocations;
+    std::vector<int> Map;
+    RenderTexture TileMapTex;
+    TileManager();
+    TileManager(Game* game);
+    int GetTileAt(int x, int y);
+    int GetTileAt(Vector2 coord);
+    int GetTileAtWorldCoords(Vector2 coord);
+    void SetTileAt(int x, int y, int id);
+    void SetTileAt(Vector2 coord, int id);
+    void Update();
+    void DistortArea(Distortion DistortionForArea);
+    void ReadMapDataFile(std::string FileName);
+    void ReadEntitiesFile(std::string FileName);
+    void Clear();
+    void Quit();
 };
 
 

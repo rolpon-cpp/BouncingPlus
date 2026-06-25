@@ -9,13 +9,14 @@
 
 class Game;
 
-class UpgradeStation : public Entity{
+class UpgradeStation : public Entity
+{
 public:
-    UpgradeStation(Game &game, float bbox_x, float bbox_y);
+    UpgradeStation(Game& game, float bbox_x, float bbox_y);
     UpgradeStation();
     virtual ~UpgradeStation();
-    void Update()override;
-    void PhysicsUpdate(float dt, double time)override;
+    void Update() override;
+    void PhysicsUpdate(float dt, double time) override;
     void Render();
 };
 

@@ -10,13 +10,13 @@
 #include "behaviors/EnemyBehavior.h"
 
 
-
-class Enemy : public Entity {
+class Enemy : public Entity
+{
     float AnimatedHealth;
 
     Vector2 WanderPos;
     float TotalHealth = -1;
-double LastSetWanderPos = 0;
+    double LastSetWanderPos = 0;
     double WanderingCooldown;
     bool weaponsSystemInit = false;
 
@@ -25,7 +25,9 @@ double LastSetWanderPos = 0;
     double ActivationTimer;
     Vector2 WallMovement;
     float Alpha = 0;
-    void Init(float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Game &game);
+    void Init(float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior,
+              Game& game);
+
 public:
     bool RenderHealthBar = true;
     std::string MyWeapon;
@@ -40,15 +42,17 @@ public:
     float Armor;
     float HealthRegenRate;
     bool WanderingEnabled;
-    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
-    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game &game);
+    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture,
+          Game& game);
+    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon,
+          std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game);
     Enemy();
-    ~Enemy()override;
+    ~Enemy() override;
     void Update() override;
     void MoveAwayFromWalls();
     void Wander();
     void OnDelete() override;
-    void OnDeath()override;
+    void OnDeath() override;
 };
 
 

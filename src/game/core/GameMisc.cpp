@@ -38,7 +38,6 @@ GameMisc::~GameMisc()
 
 void GameMisc::SetGameData()
 {
-
 }
 
 void GameMisc::Update()
@@ -76,13 +75,13 @@ void GameMisc::DisplayProfilerInfo()
         }
         if (AverageDeltaTime > LastAverageDeltaTime && AverageDeltaTime >= LastAverageDeltaTime * 1.25f)
             DrawText("lag detected", 600, 600, 50, RED);
-
     }
 
     if (GetTime() - LastStartedRecordingDelta < 1.0f)
     {
         RecordedDeltaTimes.push_back(GetFrameTime());
-    } else
+    }
+    else
     {
         LastAverageDeltaTime = AverageDeltaTime;
 
@@ -91,7 +90,7 @@ void GameMisc::DisplayProfilerInfo()
             AverageDeltaTime = 0.0f;
             for (float d : RecordedDeltaTimes)
                 AverageDeltaTime += d;
-            AverageDeltaTime /= (float) RecordedDeltaTimes.size();
+            AverageDeltaTime /= (float)RecordedDeltaTimes.size();
         }
 
         RecordedDeltaTimes.clear();
@@ -109,7 +108,8 @@ void GameMisc::DisplayProfilerInfo()
         if (DisplayProfiler)
             DrawText(("stutter detected " + std::to_string(Stutters)).c_str(), 700, 700, 50, RED);
         StutterCooldown -= GetFrameTime();
-    } else
+    }
+    else
     {
         Stutters = 0;
     }
@@ -128,7 +128,10 @@ RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
     Vector2 vRayTarget = Vector2{Target.x / game->GameTiles->TileSize, Target.y / game->GameTiles->TileSize};
     Vector2 vRayDir = Vector2Normalize(vRayTarget - vRayStart);
 
-    Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
+    Vector2 vRayUnitStepSize = {
+        sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)),
+        sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y))
+    };
     Vector2i vMapCheck = {(int)vRayStart.x, (int)vRayStart.y};
     Vector2 vRayLength1D = {0, 0};
     Vector2i vStep = {0, 0};
@@ -164,7 +167,6 @@ RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
 
     while (!bTileFound && fDistance < fMaxDistance)
     {
-
         // Walk along shortest path
         if (vRayLength1D.x < vRayLength1D.y)
         {
@@ -186,9 +188,10 @@ RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
         }
 
         // Test tile at new test point
-        if (vMapCheck.x >= 0 && vMapCheck.x < game->GameTiles->MapWidth && vMapCheck.y >= 0 && vMapCheck.y < game->GameTiles->MapHeight)
+        if (vMapCheck.x >= 0 && vMapCheck.x < game->GameTiles->MapWidth && vMapCheck.y >= 0 && vMapCheck.y < game->
+            GameTiles->MapHeight)
         {
-            id = game->GameTiles->GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y});
+            id = game->GameTiles->GetTileAt({(float)vMapCheck.x, (float)vMapCheck.y});
             int t_id = game->GameTiles->TileTypes[id];
             if (t_id == WallTileType || t_id == EnemyWallTileType)
             {
@@ -202,16 +205,19 @@ RayCastData GameMisc::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
     Vector2 vIntersection = Origin - Vector2Normalize(Origin - Target) * fDistance * game->GameTiles->TileSize;
 
     if (game->DebugDraw)
-        DrawLine(vIntersection.x, vIntersection.y,vRayStart.x*game->GameTiles->TileSize,vRayStart.y*game->GameTiles->TileSize,RED);
+        DrawLine(vIntersection.x, vIntersection.y, vRayStart.x * game->GameTiles->TileSize,
+                 vRayStart.y * game->GameTiles->TileSize, RED);
 
     return RayCastData{!bTileFound, vIntersection, id};
 }
 
-bool GameMisc::RayCast(Vector2 Origin, Vector2 Target, bool Debug) {
-    return RayCastPoint(Origin,Target,Debug).HitAir;
+bool GameMisc::RayCast(Vector2 Origin, Vector2 Target, bool Debug)
+{
+    return RayCastPoint(Origin, Target, Debug).HitAir;
 }
 
-void GameMisc::PlaceWeaponPickup(WeaponPickup Pickup) {
+void GameMisc::PlaceWeaponPickup(WeaponPickup Pickup)
+{
     //game->
     Pickup.CreationTime = game->GetGameTime();
     WeaponPickups.push_back(Pickup);
@@ -219,19 +225,22 @@ void GameMisc::PlaceWeaponPickup(WeaponPickup Pickup) {
 
 void GameMisc::DisplayPickups()
 {
-    std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || game->GetGameTime() - pickup.CreationTime >= 45 || !game->GameResources->Weapons.count(pickup.Weapon);
+    std::erase_if(WeaponPickups, [&](WeaponPickup& pickup)
+    {
+        return pickup.PickedUp || game->GetGameTime() - pickup.CreationTime >= 45 || !game->GameResources->Weapons.
+            count(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
         if (Vector2Distance(pickup.Position, game->MainPlayer->GetCenter()) >= GetRenderWidth())
             continue;
         // get floating offset
-        float AnimationOffset = sin((game->GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
+        float AnimationOffset = sin((game->GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.
+            AnimationPower;
         Weapon& PickupWeapon = game->GameResources->Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
         if (game->GameResources->Textures.count(PickupWeapon.texture))
-            TexString=PickupWeapon.texture;
+            TexString = PickupWeapon.texture;
 
         DrawCircle(pickup.Position.x, pickup.Position.y, pickup.Radius / 1.125f, ColorAlpha(BLACK, 0.2f));
 
@@ -240,38 +249,43 @@ void GameMisc::DisplayPickups()
         sizeWOutline *= 1.1f;
         sizeHOutline *= 1.1f;
         DrawTextureEx(game->GameResources->Textures[TexString], pickup.Position -
-            Vector2{sizeWOutline / 2.0f, sizeHOutline / 2.0f}, 0.0f, pickup.Radius / max(sizeWOutline,sizeHOutline), {255, 0, 0, 255});
+                      Vector2{sizeWOutline / 2.0f, sizeHOutline / 2.0f}, 0.0f,
+                      pickup.Radius / max(sizeWOutline, sizeHOutline), {255, 0, 0, 255});
 
         float sizeW = game->GameResources->Textures[TexString].width * pickup.Radius * 2.5f;
         float sizeH = game->GameResources->Textures[TexString].height * pickup.Radius * 2.5f;
         DrawTextureEx(game->GameResources->Textures[TexString], pickup.Position -
-            Vector2{sizeW / 2.0f, sizeH / 2.0f}, 0.0f, pickup.Radius / max(sizeW,sizeH), WHITE);
+                      Vector2{sizeW / 2.0f, sizeH / 2.0f}, 0.0f, pickup.Radius / max(sizeW, sizeH), WHITE);
 
         if (game->DebugDraw)
-            DrawCircleV({pickup.Position.x,
-            pickup.Position.y - AnimationOffset}, pickup.Radius, ColorAlpha(RED, 0.5f));
+            DrawCircleV({
+                            pickup.Position.x,
+                            pickup.Position.y - AnimationOffset
+                        }, pickup.Radius, ColorAlpha(RED, 0.5f));
 
         // get distance
         float DistanceToPickup = Vector2Distance(pickup.Position, {
-            game->MainPlayer->BoundingBox.x,
-            game->MainPlayer->BoundingBox.y
-        });
+                                                     game->MainPlayer->BoundingBox.x,
+                                                     game->MainPlayer->BoundingBox.y
+                                                 });
 
         // in range?
         if (DistanceToPickup <= pickup.Radius && pickup.LeftOwner)
         {
             pickup.PickedUp = game->MainPlayer->MainWeaponsSystem.GiveWeapon(pickup.Weapon, pickup.Ammo);
-        } else if (DistanceToPickup > pickup.Radius && !pickup.LeftOwner)
+        }
+        else if (DistanceToPickup > pickup.Radius && !pickup.LeftOwner)
             pickup.LeftOwner = true;
     }
 }
 
 void GameMisc::ProcessFreezeZones()
 {
-    std::erase_if(FreezeZones, [this](std::pair<Rectangle, double> rec) {
+    std::erase_if(FreezeZones, [this](std::pair<Rectangle, double> rec)
+    {
         return game->GetGameTime() - rec.second >= 45;
-        });
-    for (std::pair<Rectangle, double> &rec : FreezeZones)
+    });
+    for (std::pair<Rectangle, double>& rec : FreezeZones)
     {
         float Alpha = 1.0f;
         if (game->GetGameTime() - rec.second <= 1.0f)
@@ -279,6 +293,7 @@ void GameMisc::ProcessFreezeZones()
         if (game->GetGameTime() - rec.second >= 44.0f)
             Alpha = 45.0f - (game->GetGameTime() - rec.second);
         DrawRectangleRec(rec.first, ColorAlpha(BLUE, Alpha));
-        DrawRectangleRec({rec.first.x + 4, rec.first.y + 4, rec.first.width - 8, rec.first.height - 8}, ColorAlpha(SKYBLUE, Alpha));
+        DrawRectangleRec({rec.first.x + 4, rec.first.y + 4, rec.first.width - 8, rec.first.height - 8},
+                         ColorAlpha(SKYBLUE, Alpha));
     }
 }

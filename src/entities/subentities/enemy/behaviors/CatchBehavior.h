@@ -12,6 +12,7 @@
 class CatchBehavior : public EnemyBehavior
 {
     void ResetDirection();
+
 public:
     double LastChangedDirCooldown = 0;
     Vector2 CurrentDir = {0, 0}; // current enemy movement direction

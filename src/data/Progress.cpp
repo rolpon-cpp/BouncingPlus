@@ -31,7 +31,8 @@ void Progress::SaveProgress()
             outFile.write(data, sizeof(SaveData));
             outFile.close();
             return;
-        } catch (std::exception& e)
+        }
+        catch (std::exception& e)
         {
             std::cout << "Failed to save file! (" << e.what() << ")\n";
         }
@@ -47,7 +48,8 @@ void Progress::LoadProgress()
 
         if (buffer.size() < sizeof(SaveDataV3))
         {
-            std::cout << "Failed to load save file! (wrong data size, minimum size: " << sizeof(SaveDataV3) << ", real size: " << buffer.size() << ")\n";
+            std::cout << "Failed to load save file! (wrong data size, minimum size: " << sizeof(SaveDataV3) <<
+                ", real size: " << buffer.size() << ")\n";
             return;
         }
 
@@ -55,7 +57,8 @@ void Progress::LoadProgress()
         memcpy(&version, buffer.data(), sizeof(uint32_t));
         if (version != SAVE_DATA_VERSION)
         {
-            std::cout << "File is in the wrong version! (expected version: " << SAVE_DATA_VERSION << ", real version: " << version << ")\n";
+            std::cout << "File is in the wrong version! (expected version: " << SAVE_DATA_VERSION << ", real version: "
+                << version << ")\n";
             std::cout << "Attempting to convert...\n";
 
             SaveData test = ConvertSave(buffer);
@@ -65,13 +68,15 @@ void Progress::LoadProgress()
                 return;
             }
             Data = test;
-        } else
+        }
+        else
         {
             memcpy(&Data, buffer.data(), sizeof(SaveData));
         }
 
         input.close();
-    } catch (std::exception& e)
+    }
+    catch (std::exception& e)
     {
         std::cout << "Failed to load save file! (unknown issue, review exception: " << e.what() << ")\n";
     }

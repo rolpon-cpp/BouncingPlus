@@ -14,7 +14,8 @@ class Entity;
 class Turret;
 using namespace std;
 
-struct Weapon {
+struct Weapon
+{
     bool isMelee = false;
     bool Throwable = false;
     bool ShakeScreen = false;
@@ -28,7 +29,7 @@ struct Weapon {
     double ReloadTime = 0;
     float Speed = 0;
     float WeaponWeightSpeedMultiplier = 1;
-    Vector2 Size = {1,1};
+    Vector2 Size = {1, 1};
     float Damage = 0;
     float HealthGain = -1;
     float BulletLifetime = -1;
@@ -57,7 +58,8 @@ struct WeaponPickup
     double CreationTime = 0;
 };
 
-class WeaponsSystem {
+class WeaponsSystem
+{
     void DisplayWeaponTexture();
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
     void ResetMeleeAnim();
@@ -76,30 +78,30 @@ class WeaponsSystem {
     float MeleeAnimAlpha;
     Vector2 MeleeDisplayRenderTarget;
 
-    public:
-        std::string Weapons[3];
-        Weapon* CurrentWeapon = nullptr;
-        double TimeStartedReloading;
-        int CurrentWeaponIndex = 0;
-        float AttackCooldowns[3];
-        int WeaponAmmo[3];
-        float ChargingProgress = 0.0f;
-        bool TriedChargingThisFrame = false;
-        Vector2 ChargeTarget = {0,0};
-        bool CanDisplayWeaponTex = true;
+public:
+    std::string Weapons[3];
+    Weapon* CurrentWeapon = nullptr;
+    double TimeStartedReloading;
+    int CurrentWeaponIndex = 0;
+    float AttackCooldowns[3];
+    int WeaponAmmo[3];
+    float ChargingProgress = 0.0f;
+    bool TriedChargingThisFrame = false;
+    Vector2 ChargeTarget = {0, 0};
+    bool CanDisplayWeaponTex = true;
 
-        WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
-        WeaponsSystem();
-        virtual ~WeaponsSystem();
-        virtual void Equip(int Index);
-        virtual void Reload();
-        virtual bool GiveWeapon(std::string WeaponName, int Ammo = -1);
-        virtual bool DropWeapon(std::string WeaponName);
-        virtual void Unequip();
-        virtual void Update();
-        virtual void Attack(Vector2 Target);
-        virtual void Charge(Vector2 Target);
-        void ShootWeaponOut();
+    WeaponsSystem(shared_ptr<Entity> Owner, Game& game);
+    WeaponsSystem();
+    virtual ~WeaponsSystem();
+    virtual void Equip(int Index);
+    virtual void Reload();
+    virtual bool GiveWeapon(std::string WeaponName, int Ammo = -1);
+    virtual bool DropWeapon(std::string WeaponName);
+    virtual void Unequip();
+    virtual void Update();
+    virtual void Attack(Vector2 Target);
+    virtual void Charge(Vector2 Target);
+    void ShootWeaponOut();
 };
 
 #endif //BOUNCINGPLUS_WEAPON_H

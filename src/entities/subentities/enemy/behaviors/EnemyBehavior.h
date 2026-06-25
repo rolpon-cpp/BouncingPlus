@@ -12,7 +12,7 @@ class Game;
 // default enemy behavior class
 class EnemyBehavior
 {
-    public:
+public:
     Enemy* Owner;
     Game* game;
     BehaviorType BehaviorType;

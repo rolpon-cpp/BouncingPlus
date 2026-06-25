@@ -6,7 +6,9 @@
 #define BOUNCINGPLUS_SPAWNER_H
 #include "../../Entity.h"
 #include <raylib.h>
-class Spawner : public Entity {
+
+class Spawner : public Entity
+{
 public:
     Vector2 StartPos;
     Vector2 RandPoint;
@@ -23,10 +25,10 @@ public:
     double Timer;
     float DistF;
     float RandomNumbers[8];
-    Spawner(Game &game, float MyX, float MyY);
+    Spawner(Game& game, float MyX, float MyY);
     Spawner();
-    ~Spawner()override;
-    void Update()override;
+    ~Spawner() override;
+    void Update() override;
     void Render();
 };
 

@@ -1,5 +1,3 @@
-
-
 #include "BaseProfiler.h"
 #include "raylib.h"
 #include "../Game.h"
@@ -36,7 +34,7 @@ std::map<std::string, double> BaseProfiler::Finish()
     StopLog();
     if (GetTime() - LastCleared >= 1)
     {
-        for (auto &[name, val] : AvgTimes)
+        for (auto& [name, val] : AvgTimes)
         {
             double f = 0;
             for (double g : val)

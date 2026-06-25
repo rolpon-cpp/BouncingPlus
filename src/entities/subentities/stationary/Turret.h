@@ -38,16 +38,15 @@ class Turret : public Entity
     void SetTarget();
     bool PlayerIsVisible();
 
-    public:
+public:
     TurretState CurrentState;
     Vector2 Target;
     WeaponsSystem MyWeaponsSystem;
     std::string Weapon;
-    Turret(Game &game, std::string Weapon, float X, float Y);
+    Turret(Game& game, std::string Weapon, float X, float Y);
     Turret();
-    ~Turret()override;
-    void Update()override;
-
+    ~Turret() override;
+    void Update() override;
 };
 
 

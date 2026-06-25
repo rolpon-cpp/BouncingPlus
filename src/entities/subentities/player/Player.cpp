@@ -20,8 +20,9 @@ using namespace std;
 
 // the player's name is Jones
 // little bouncing ballz boy!
-Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game) : Entity(PlayerTexture,
-                                                                   Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
+Player::Player(float X, float Y, float Speed, Texture2D& PlayerTexture, Game& game) : Entity(PlayerTexture,
+    Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
+{
     this->Type = PlayerType;
     this->Kills = 0;
     this->isInvincible = false;
@@ -43,35 +44,46 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->FrameStressLevel = 0;
     this->EnemiesDetected = 0;
 
-    this->EntityColor = Color{game.GameShared->Progress.Data.PlayerColor[0], game.GameShared->Progress.Data.PlayerColor[1], game.GameShared->Progress.Data.PlayerColor[2],
-    game.GameShared->Progress.Data.PlayerColor[3]};
+    this->EntityColor = Color{
+        game.GameShared->Progress.Data.PlayerColor[0], game.GameShared->Progress.Data.PlayerColor[1],
+        game.GameShared->Progress.Data.PlayerColor[2],
+        game.GameShared->Progress.Data.PlayerColor[3]
+    };
 }
 
-Player::Player() {
+Player::Player()
+{
 }
 
-Player::~Player() {
-
+Player::~Player()
+{
 }
 
-void Player::ToggleInvincibility() {
+void Player::ToggleInvincibility()
+{
     this->isInvincible = !this->isInvincible;
 }
 
-void Player::PhysicsUpdate(float DeltaTime, double Time) {
+void Player::PhysicsUpdate(float DeltaTime, double Time)
+{
     float MovementX = 0;
     float MovementY = 0;
-    if (PlayerFrozenTimer <= 0) {
-        if (game->GameControls->IsControlDown("up")) {
+    if (PlayerFrozenTimer <= 0)
+    {
+        if (game->GameControls->IsControlDown("up"))
+        {
             MovementY -= 1;
         }
-        if (game->GameControls->IsControlDown("down")) {
+        if (game->GameControls->IsControlDown("down"))
+        {
             MovementY += 1;
         }
-        if (game->GameControls->IsControlDown("left")) {
+        if (game->GameControls->IsControlDown("left"))
+        {
             MovementX -= 1;
         }
-        if (game->GameControls->IsControlDown("right")) {
+        if (game->GameControls->IsControlDown("right"))
+        {
             MovementX += 1;
         }
     }
@@ -85,11 +97,12 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
         VelocityPower = 0;
     }
     Movement = Vector2Normalize(Vector2{MovementX, MovementY});
-    if (Vector2Distance(LastPos, {BoundingBox.x,BoundingBox.y}) > 0 && Vector2Distance({0,0}, Movement) > 0) {
+    if (Vector2Distance(LastPos, {BoundingBox.x, BoundingBox.y}) > 0 && Vector2Distance({0, 0}, Movement) > 0)
+    {
         LastMovedTime = Time;
         ExtraSpeed += 10 * DeltaTime;
     }
-    LastPos = {BoundingBox.x,BoundingBox.y};
+    LastPos = {BoundingBox.x, BoundingBox.y};
     if (Time - LastMovedTime > 1)
         ExtraSpeed = 0;
     if (ReduceSpeedBuff)
@@ -103,8 +116,8 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
     }
     ExtraSpeed = min(ExtraSpeed, 400.0f);
     Speed = (OrigSpeed + ExtraSpeed + SpeedBuff);
-    if ((Health/MaxHealth) > 2.0f)
-        Speed *= (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
+    if ((Health / MaxHealth) > 2.0f)
+        Speed *= (1.0f - min(((Health / MaxHealth) - 3.0f) / 2.0f, 0.5f));
     LogicProcessor.PhysicsUpdate();
     Entity::PhysicsUpdate(DeltaTime, Time);
 }
@@ -118,17 +131,18 @@ void Player::OnWallVelocityBump(float Power)
         VelocityPower *= 0.45f;
         Entity::OnWallVelocityBump(Power);
         int ParticleAmount = round(Power / 600.0f);
-        bool PURPLE_OR_BLUE = GetRandomValue(1,2)==1;
+        bool PURPLE_OR_BLUE = GetRandomValue(1, 2) == 1;
         if (ParticleAmount > 0)
             game->GameParticles->ParticleEffect({
-                GetCenter(),
-                Power / 1.5f,
-                PURPLE_OR_BLUE ? PURPLE : BLUE,
-                100,
-                Power / 400.0f,
-                1.0f,
-                PURPLE_OR_BLUE ? BLUE : PURPLE
-            }, (180 - Vector2LineAngle(VelocityMovement, {0,0})*RAD2DEG), 15, ParticleAmount);
+                                                    GetCenter(),
+                                                    Power / 1.5f,
+                                                    PURPLE_OR_BLUE ? PURPLE : BLUE,
+                                                    100,
+                                                    Power / 400.0f,
+                                                    1.0f,
+                                                    PURPLE_OR_BLUE ? BLUE : PURPLE
+                                                }, (180 - Vector2LineAngle(VelocityMovement, {0, 0}) * RAD2DEG), 15,
+                                                ParticleAmount);
         if (Dodging)
             VelocityPower *= 0.5f;
         if (!isInvincible)
@@ -145,7 +159,8 @@ void Player::OnWallVelocityBump(float Power)
 
 void Player::PlayerControls()
 {
-    if (PlayerFrozenTimer <= 0) {
+    if (PlayerFrozenTimer <= 0)
+    {
         // powerup logic
         if (game->GameControls->IsControlDown("powerup"))
         {
@@ -154,8 +169,10 @@ void Player::PlayerControls()
 
         // firing logic
         if (IsMouseButtonDown(0) && MainWeaponsSystem.CurrentWeapon != nullptr &&
-            MainWeaponsSystem.CurrentWeapon->Ammo > 0 && MainWeaponsSystem.WeaponAmmo[MainWeaponsSystem.CurrentWeaponIndex] <=0 &&
-            MainWeaponsSystem.AttackCooldowns[MainWeaponsSystem.CurrentWeaponIndex] >= MainWeaponsSystem.CurrentWeapon->Cooldown)
+            MainWeaponsSystem.CurrentWeapon->Ammo > 0 && MainWeaponsSystem.WeaponAmmo[MainWeaponsSystem.
+                CurrentWeaponIndex] <= 0 &&
+            MainWeaponsSystem.AttackCooldowns[MainWeaponsSystem.CurrentWeaponIndex] >= MainWeaponsSystem.CurrentWeapon->
+            Cooldown)
         {
             MainWeaponsSystem.Reload();
         }
@@ -186,7 +203,8 @@ void Player::PlayerControls()
                     MainWeaponsSystem.Equip(2);
                 if (ScrollWheel > 0)
                     MainWeaponsSystem.Equip(0);
-            } else
+            }
+            else
             {
                 int Idx = -1;
                 if (ScrollWheel < 0)
@@ -208,31 +226,45 @@ void Player::PlayerControls()
         }
 
         // inventory input logic
-        if (game->GameControls->IsControlPressed("item1")) {
-            if (MainWeaponsSystem.CurrentWeaponIndex != 0) {
+        if (game->GameControls->IsControlPressed("item1"))
+        {
+            if (MainWeaponsSystem.CurrentWeaponIndex != 0)
+            {
                 MainWeaponsSystem.Equip(0);
-            } else if (MainWeaponsSystem.CurrentWeaponIndex == 0) {
+            }
+            else if (MainWeaponsSystem.CurrentWeaponIndex == 0)
+            {
                 MainWeaponsSystem.Unequip();
             }
         }
-        if (game->GameControls->IsControlPressed("item2")) {
-            if (MainWeaponsSystem.CurrentWeaponIndex != 1) {
+        if (game->GameControls->IsControlPressed("item2"))
+        {
+            if (MainWeaponsSystem.CurrentWeaponIndex != 1)
+            {
                 MainWeaponsSystem.Equip(1);
-            } else if (MainWeaponsSystem.CurrentWeaponIndex == 1) {
+            }
+            else if (MainWeaponsSystem.CurrentWeaponIndex == 1)
+            {
                 MainWeaponsSystem.Unequip();
             }
         }
-        if (game->GameControls->IsControlPressed("item3")) {
-            if (MainWeaponsSystem.CurrentWeaponIndex != 2) {
+        if (game->GameControls->IsControlPressed("item3"))
+        {
+            if (MainWeaponsSystem.CurrentWeaponIndex != 2)
+            {
                 MainWeaponsSystem.Equip(2);
-            } else if (MainWeaponsSystem.CurrentWeaponIndex == 2) {
+            }
+            else if (MainWeaponsSystem.CurrentWeaponIndex == 2)
+            {
                 MainWeaponsSystem.Unequip();
             }
         }
 
         if (MainWeaponsSystem.CurrentWeaponIndex != LastWeaponIdx)
             LastSwappedItem = game->GetGameTime();
-    } else {
+    }
+    else
+    {
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
 }
@@ -240,20 +272,25 @@ void Player::PlayerControls()
 void Player::SystemsInitCheck()
 {
     // is the weapon system not initialized?? init it now!!!
-    if (!this->SystemsInitialized) {
-        this->LogicProcessor = PlayerLogicProcessor(dynamic_pointer_cast<Player>(shared_from_this()));
+    if (!this->SystemsInitialized)
+    {
+        this->LogicProcessor = PlayerLogicProcessor(dynamic_pointer_cast < Player > (shared_from_this()));
         this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->MainEffectsSystem = Effects(shared_from_this(), *game);
-        this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
+        this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast < Player > (shared_from_this()), *game);
 
         auto f = game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["inventory"];
-        for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
+        for (int i = 0; i < (int)min((float)f.size(), 3.0f); i++)
+        {
             this->MainWeaponsSystem.Weapons[i] = f[i];
             this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources->Weapons[f[i]].Ammo;
         }
-        if (game->GameResources->Powerups.count(game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["powerup"]))
+        if (game->GameResources->Powerups.count(
+            game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["powerup"]))
         {
-            MainPowerupSystem.SetPowerup(game->GameResources->Powerups[game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["player"]["powerup"]]);
+            MainPowerupSystem.SetPowerup(
+                game->GameResources->Powerups[game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()][
+                    "player"]["powerup"]]);
         }
         this->MainWeaponsSystem.Equip(0);
         this->SystemsInitialized = true;
@@ -271,19 +308,19 @@ void Player::Update()
 
     // player transparency processing
     EntityColor = ColorAlpha({
-        game->GameShared->Progress.Data.PlayerColor[0],
-        game->GameShared->Progress.Data.PlayerColor[1],
-        game->GameShared->Progress.Data.PlayerColor[2],
-        game->GameShared->Progress.Data.PlayerColor[3]
-    }, Alpha);
-    Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
+                                 game->GameShared->Progress.Data.PlayerColor[0],
+                                 game->GameShared->Progress.Data.PlayerColor[1],
+                                 game->GameShared->Progress.Data.PlayerColor[2],
+                                 game->GameShared->Progress.Data.PlayerColor[3]
+                             }, Alpha);
+    Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f * game->GetGameDeltaTime());
 
     if (InvincibilityResetTimer > 0)
         InvincibilityResetTimer -= game->GetGameDeltaTime();
     if (InvincibilityResetTimer <= 0)
     {
         isInvincible = false;
-        Dodging=false;
+        Dodging = false;
     }
 
     PlayerControls();
@@ -318,14 +355,17 @@ void Player::ProcessWarningSign()
         LastWarningSign = game->GetGameTime();
     }
     if (Health > 0 && HealthConcern && WarningSign)
-        DrawTexturePro(game->GameResources->Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
+        DrawTexturePro(game->GameResources->Textures["warning"], {0, 0, 33, 34}, {
+                           BoundingBox.x + BoundingBox.width / 2 + 12, BoundingBox.y - 24 - 10, 24, 24
+                       }, {0, 0}, 0, WHITE);
 }
 
 void Player::ProcessKills()
 {
     ComboTime = min(max(3.0f - 2.0f * (static_cast<float>(EnemiesDetected) / 10.0f), 1.15f), 3.0f);
     // did we get a kill?
-    if (Kills != LastKills) {
+    if (Kills != LastKills)
+    {
         game->GameShared->Progress.Data.Money += 15.0f;
         game->GameSounds->PlayGameSound("death");
         ExtraSpeed += 14;
@@ -341,9 +381,11 @@ void Player::ProcessKills()
         if (game->GetGameTime() - LastKilledAnEnemy <= ComboTime)
         {
             EnemyCombo++;
-            KillPoints *= 1.0f + (1.0f - static_cast<float>(game->GetGameTime() - LastKilledAnEnemy) / ComboTime) / 2.0f;
-            KillName += ", Combo x"+to_string(EnemyCombo);
-        } else
+            KillPoints *= 1.0f + (1.0f - static_cast<float>(game->GetGameTime() - LastKilledAnEnemy) / ComboTime) /
+                2.0f;
+            KillName += ", Combo x" + to_string(EnemyCombo);
+        }
+        else
             EnemyCombo = 0;
 
         StressLevel += 0.1f;
@@ -362,11 +404,13 @@ void Player::ProcessKills()
 
 void Player::OnDeath()
 {
-    if (!game->GameMode->GetCurrentLevelName().empty() && !game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["music"].get<string>().empty())
+    if (!game->GameMode->GetCurrentLevelName().empty() && !game->GameShared->LevelData[game->GameMode->
+        GetCurrentLevelName()]["music"].get<string>().empty())
     {
         for (int i = 1; i < 5; i++)
         {
-            std::string FightTrack = game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["music"].get<string>()+"_layer"+to_string(i);
+            std::string FightTrack = game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["music"].get<
+                string>() + "_layer" + to_string(i);
             game->GameSounds->StopGameMusic(FightTrack, true);
         }
     }

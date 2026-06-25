@@ -77,7 +77,7 @@ public:
     std::weak_ptr<Entity> Owner;
     std::vector<Effect*> CurrentEffects;
     Game* game;
-    Effects(std::shared_ptr<Entity> Owner, Game &game);
+    Effects(std::shared_ptr<Entity> Owner, Game& game);
     Effects();
     virtual ~Effects() = default;
     bool HasEffect(EffectType Type);

@@ -10,7 +10,7 @@
 
 class Controls
 {
-    public:
+public:
     std::map<std::string, int> Bindings;
     void SetDefaultBindings();
     Controls();

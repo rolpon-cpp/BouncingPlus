@@ -9,16 +9,18 @@
 #include "../../game/managers/CameraManager.h"
 #include <raymath.h>
 
-SoundManager::SoundManager(Game *game) {
+SoundManager::SoundManager(Game* game)
+{
     this->game = game;
 
     MaxSoundPoolSize = 10;
-    #ifdef PLATFORM_WEB
-        MaxSoundPoolSize = 1;
-    #endif
+#ifdef PLATFORM_WEB
+    MaxSoundPoolSize = 1;
+#endif
 
     std::string path = "assets/sounds";
-    for (const auto & entry : std::filesystem::directory_iterator(path)) {
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
         std::string p = entry.path().filename().string();
         p.erase(p.end() - 4, p.end());
         if (!p.ends_with("music"))
@@ -27,16 +29,17 @@ SoundManager::SoundManager(Game *game) {
             Sounds.insert({p, sound});
             std::vector<Sound> s = std::vector<Sound>();
             CachedAliases[p] = s;
-        } else
+        }
+        else
         {
             Music m = LoadMusicStream(entry.path().string().c_str());
             Musics.insert({p, m});
         }
     }
     path = "assets/chasethemes";
-    for (const auto & entry : std::filesystem::directory_iterator(path))
+    for (const auto& entry : std::filesystem::directory_iterator(path))
     {
-        for (const auto & chase_theme_layer : std::filesystem::directory_iterator(entry))
+        for (const auto& chase_theme_layer : std::filesystem::directory_iterator(entry))
         {
             std::string p = chase_theme_layer.path().filename().string();
             p = entry.path().filename().string() + "_" + p;
@@ -47,33 +50,41 @@ SoundManager::SoundManager(Game *game) {
     }
 }
 
-SoundManager::SoundManager() {
+SoundManager::SoundManager()
+{
 }
 
-SoundManager::~SoundManager() {
+SoundManager::~SoundManager()
+{
 }
 
-void SoundManager::Clear() {
-    for (auto& [name,value] : CachedAliases) {
-        for (Sound& sound : value) {
+void SoundManager::Clear()
+{
+    for (auto& [name,value] : CachedAliases)
+    {
+        for (Sound& sound : value)
+        {
             StopSound(sound);
         }
     }
-    for (auto& [name,value] : Sounds) {
+    for (auto& [name,value] : Sounds)
+    {
         StopSound(value);
     }
-    for (auto& [name,value] : Musics) {
+    for (auto& [name,value] : Musics)
+    {
         StopMusicStream(value);
     }
     MusicTransitions.clear();
 }
 
-void SoundManager::Update() {
-
-    std::erase_if(MusicTransitions, [&](std::tuple<std::string, float, float>& value) {
-        std::string& s = std::get<0>(value);
-        float& f1 = std::get<1>(value);
-        float& f2 = std::get<2>(value);
+void SoundManager::Update()
+{
+    std::erase_if(MusicTransitions, [&](std::tuple<std::string, float, float>& value)
+    {
+        std::string& s = std::get < 0 > (value);
+        float& f1 = std::get < 1 > (value);
+        float& f2 = std::get < 2 > (value);
         if (!Musics.count(s))
             return true;
         if (abs(f1 - f2) <= 0.05f)
@@ -84,21 +95,21 @@ void SoundManager::Update() {
             return true;
         }
         return false;
-        });
+    });
 
     for (std::tuple<std::string, float, float>& value : MusicTransitions)
     {
-        std::string& s = std::get<0>(value);
-        float& f1 = std::get<1>(value);
-        float& f2 = std::get<2>(value);
+        std::string& s = std::get < 0 > (value);
+        float& f1 = std::get < 1 > (value);
+        float& f2 = std::get < 2 > (value);
 
         f2 = Lerp(f2, f1, 6.5f * GetFrameTime());
-        SetMusicVolume(Musics[s],f2);
+        SetMusicVolume(Musics[s], f2);
     }
 
     if (game->GameSpeed != 0)
     {
-        for (auto& [name,val]: Musics)
+        for (auto& [name,val] : Musics)
         {
             if (IsMusicStreamPlaying(val))
                 UpdateMusicStream(val);
@@ -106,16 +117,20 @@ void SoundManager::Update() {
     }
 
     int i = 0;
-    for (auto& [name,value] : CachedAliases) {
-        std::erase_if(value, [&](Sound& sound) {
+    for (auto& [name,value] : CachedAliases)
+    {
+        std::erase_if(value, [&](Sound& sound)
+        {
             bool SoundCondition = false;
-            #ifndef PLATFORM_WEB
-                SoundCondition = ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound));
-            #else
-                SoundCondition = (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound)));
-            #endif
+#ifndef PLATFORM_WEB
+            SoundCondition = ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound));
+#else
+            SoundCondition = (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !
+                IsSoundValid(sound)));
+#endif
 
-            if (SoundCondition) {
+            if (SoundCondition)
+            {
                 if (IsSoundValid(sound))
                     UnloadSoundAlias(sound);
             }
@@ -124,15 +139,15 @@ void SoundManager::Update() {
         std::string dbg_txt = "audio: " + name + ", amount: " + std::to_string(value.size());
         if (game->DebugDraw && value.size() > 0)
         {
-            DrawText(dbg_txt.c_str(), GetRenderWidth()/2 + game->GameCamera->RaylibCamera.target.x,
-                GetRenderHeight()/2 + game->GameCamera->RaylibCamera.target.y + (25*i), 25, GREEN);
+            DrawText(dbg_txt.c_str(), GetRenderWidth() / 2 + game->GameCamera->RaylibCamera.target.x,
+                     GetRenderHeight() / 2 + game->GameCamera->RaylibCamera.target.y + (25 * i), 25, GREEN);
             i++;
         }
     }
 
     if (game->GameSpeed == 0.0f)
     {
-        for (auto &[name, val] : CachedAliases)
+        for (auto& [name, val] : CachedAliases)
         {
             for (Sound& CachedSound : val)
             {
@@ -142,9 +157,10 @@ void SoundManager::Update() {
                 }
             }
         }
-    } else
+    }
+    else
     {
-        for (auto &[name, val] : CachedAliases)
+        for (auto& [name, val] : CachedAliases)
         {
             for (Sound& CachedSound : val)
             {
@@ -206,12 +222,16 @@ void SoundManager::StopGameMusic(std::string MusicName, bool Transition)
     }
 }
 
-void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float SoundPitch) {
+void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float SoundPitch)
+{
     if (GetMasterVolume() <= 0.0f)
         return;
-    if (Sounds.count(SoundName) && IsSoundValid(Sounds[SoundName])) {
-        for (Sound& CachedSound : CachedAliases[SoundName]) {
-            if (IsSoundValid(CachedSound) && !IsSoundPlaying(CachedSound)) {
+    if (Sounds.count(SoundName) && IsSoundValid(Sounds[SoundName]))
+    {
+        for (Sound& CachedSound : CachedAliases[SoundName])
+        {
+            if (IsSoundValid(CachedSound) && !IsSoundPlaying(CachedSound))
+            {
                 SetSoundVolume(CachedSound, SoundVolume);
                 SetSoundPitch(CachedSound, SoundPitch);
                 PlaySound(CachedSound);
@@ -219,7 +239,7 @@ void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float
             }
         }
 
-        #ifdef PLATFORM_WEB
+#ifdef PLATFORM_WEB
         if (CachedAliases[SoundName].size() >= MaxSoundPoolSize)
         {
             Sound& CachedSound = CachedAliases[SoundName][0];
@@ -229,7 +249,7 @@ void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float
             PlaySound(CachedSound);
             return;
         }
-        #endif
+#endif
 
         Sound CachedSound = LoadSoundAlias(Sounds[SoundName]);
         SetSoundVolume(CachedSound, SoundVolume);
@@ -239,20 +259,26 @@ void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float
     }
 }
 
-void SoundManager::Quit() {
-    for (auto& [name,value] : CachedAliases) {
-        for (Sound& sound : value) {
-            if (IsSoundValid(sound)) {
+void SoundManager::Quit()
+{
+    for (auto& [name,value] : CachedAliases)
+    {
+        for (Sound& sound : value)
+        {
+            if (IsSoundValid(sound))
+            {
                 UnloadSoundAlias(sound);
             }
         }
         value.clear();
     }
-    for (auto& [name,value] : Sounds) {
+    for (auto& [name,value] : Sounds)
+    {
         if (IsSoundValid(value))
             UnloadSound(value);
     }
-    for (auto& [name,value] : Musics) {
+    for (auto& [name,value] : Musics)
+    {
         if (IsMusicValid(value))
             UnloadMusicStream(value);
     }

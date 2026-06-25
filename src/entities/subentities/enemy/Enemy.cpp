@@ -17,24 +17,29 @@
 #include "../../../level/tiles/TileType.h"
 #include "../../../game/Game.h"
 
-Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
-    Init(Health,Speed,Armor,Weapon,make_unique<WeaponBehavior>(*this, game),game);
-}
-
-Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture,
+             Game& game) : Entity(EnemyTexture, Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
 {
-    Init(Health,Speed,Armor,Weapon,std::move(EnemyBehavior),game);
+    Init(Health, Speed, Armor, Weapon, make_unique<WeaponBehavior>(*this, game), game);
 }
 
-Enemy::Enemy() {
-
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon,
+             std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game) : Entity(
+    EnemyTexture, Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
+{
+    Init(Health, Speed, Armor, Weapon, std::move(EnemyBehavior), game);
 }
 
-Enemy::~Enemy() {
+Enemy::Enemy()
+{
+}
+
+Enemy::~Enemy()
+{
 }
 
 void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
-    std::unique_ptr<EnemyBehavior> behavior, Game& game)
+                 std::unique_ptr<EnemyBehavior> behavior, Game& game)
 {
     this->MaxHealth = Health;
     this->Health = Health;
@@ -50,7 +55,7 @@ void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = true;
     this->Alpha = 0;
-    this->WanderingCooldown = GetRandomValue(1,4);
+    this->WanderingCooldown = GetRandomValue(1, 4);
     this->LastSetWanderPos = WanderingCooldown;
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
@@ -60,8 +65,10 @@ void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
     this->Behavior->game = &game;
 }
 
-void Enemy::Wander() {
-    if (game->GetGameTime() - LastSetWanderPos >= WanderingCooldown) {
+void Enemy::Wander()
+{
+    if (game->GetGameTime() - LastSetWanderPos >= WanderingCooldown)
+    {
         float center_x = BoundingBox.x + (BoundingBox.width / 2);
         float center_y = BoundingBox.y + (BoundingBox.height / 2);
 
@@ -73,15 +80,15 @@ void Enemy::Wander() {
         {
             float Angle = i * 36.0f;
             Angle += GetRandomValue(-30, 30);
-            float X = cos(Angle * (2 * PI / 360))*900;
-            float Y = sin(Angle * (2 * PI / 360))*900;
-            RayCastData d = game->GameMiscTools->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            float X = cos(Angle * (2 * PI / 360)) * 900;
+            float Y = sin(Angle * (2 * PI / 360)) * 900;
+            RayCastData d = game->GameMiscTools->RayCastPoint({center_x, center_y}, {center_x + X, center_y + Y});
             if (!S)
             {
                 BestPos = d.HitPosition;
                 S = true;
             }
-            if (Vector2Distance(d.HitPosition, {center_x,center_y}) >= Vector2Distance(BestPos, {center_x,center_y}))
+            if (Vector2Distance(d.HitPosition, {center_x, center_y}) >= Vector2Distance(BestPos, {center_x, center_y}))
             {
                 BestPos = d.HitPosition;
                 FoundBest = true;
@@ -91,16 +98,20 @@ void Enemy::Wander() {
         {
             WanderPos = BestPos;
             LastSetWanderPos = game->GetGameTime();
-        } else
+        }
+        else
         {
             WanderPos = {BoundingBox.x + GetRandomValue(-1000, 1000), BoundingBox.y + GetRandomValue(-1000, 1000)};
         }
-    } else if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) >= 36) {
+    }
+    else if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) >= 36)
+    {
         Movement = Vector2Subtract(WanderPos, {BoundingBox.x, BoundingBox.y});
     }
 }
 
-void Enemy::OnDelete() {
+void Enemy::OnDelete()
+{
     if (this->Behavior != nullptr)
         this->Behavior.reset();
     MainEffectsSystem.Cleanup();
@@ -110,29 +121,34 @@ void Enemy::OnDelete() {
 void Enemy::OnDeath()
 {
     game->GameParticles->ParticleEffect({
-                {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2},
-                300,
-                ColorLerp(WHITE, RED, 0.6f),
-                700,
-                6,
-                1.75f,
-                {255, 0, 0, 255}
-            }, Rotation - 180, 360, 15);
-    if (GetRandomValue(1, 100) <= 25 && MainWeaponsSystem.CurrentWeaponIndex >= 0 && MainWeaponsSystem.CurrentWeaponIndex <= 2 && !MyWeapon.empty())
+                                            {
+                                                BoundingBox.x + BoundingBox.width / 2,
+                                                BoundingBox.y + BoundingBox.height / 2
+                                            },
+                                            300,
+                                            ColorLerp(WHITE, RED, 0.6f),
+                                            700,
+                                            6,
+                                            1.75f,
+                                            {255, 0, 0, 255}
+                                        }, Rotation - 180, 360, 15);
+    if (GetRandomValue(1, 100) <= 25 && MainWeaponsSystem.CurrentWeaponIndex >= 0 && MainWeaponsSystem.
+        CurrentWeaponIndex <= 2 && !MyWeapon.empty())
     {
         game->GameMiscTools->PlaceWeaponPickup({
-            {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
+            {BoundingBox.x - BoundingBox.width / 2, BoundingBox.y - BoundingBox.height / 2},
             RED,
             40,
             -1,
             MainWeaponsSystem.Weapons[MainWeaponsSystem.CurrentWeaponIndex],
             4,
             15
-            });
+        });
     }
 }
 
-void Enemy::Update() {
+void Enemy::Update()
+{
     if (TotalHealth == -1)
         TotalHealth = Health + Armor;
     RemainingHealthOfOriginalHealth = 0;
@@ -146,18 +162,21 @@ void Enemy::Update() {
     {
         Alpha = Lerp(Alpha, 1.0f, 2 * game->GetGameDeltaTime());
         EntityColor = ColorAlpha(WHITE, Alpha);
-    } else
+    }
+    else
     {
         Alpha = 1.0f;
     }
     if (ActivationTimer != -1)
         ActivationTimer += game->GetGameDeltaTime();
-    if (ActivationTimer > 1) {
+    if (ActivationTimer > 1)
+    {
         isActive = true;
         ActivationTimer = -1;
     }
 
-    if (!this->weaponsSystemInit) {
+    if (!this->weaponsSystemInit)
+    {
         this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->MainEffectsSystem = Effects(shared_from_this(), *game);
         if (!MyWeapon.empty())
@@ -170,7 +189,10 @@ void Enemy::Update() {
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
 
-    if (isActive && Behavior != nullptr)
+    if (isActive&& Behavior 
+    !=
+    nullptr
+    )
     {
         bool IsTouchingFreezeZone = false;
 
@@ -190,7 +212,8 @@ void Enemy::Update() {
         if (!IsTouchingFreezeZone)
         {
             Behavior->Update();
-        } else
+        }
+        else
         {
             Movement = {0, 0};
         }
@@ -218,7 +241,8 @@ void Enemy::Update() {
             t = "35";
         else if (t == "131") // idk what this is...
             t = "132";
-        else if (t == "420")// i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
+        else if (t == "420")
+            // i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
             t = "419";
         else if (t == "666") // gotta make sure this number doesnt come touchin my game
             t = "665";
@@ -241,20 +265,22 @@ void Enemy::Update() {
     this->MainEffectsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->GameResources->Textures["armor_overlay"], {0, 0, 36.0f, 36.0f}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
+        DrawTexturePro(game->GameResources->Textures["armor_overlay"], {0, 0, 36.0f, 36.0f}, {
+                           BoundingBox.x + BoundingBox.width / 2, BoundingBox.y + BoundingBox.height / 2,
+                           BoundingBox.width, BoundingBox.height
+                       }, Vector2{BoundingBox.width / 2, BoundingBox.height / 2}, Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()
 {
-
     bool nothing_found = true;
 
     std::vector<Vector2> vectors;
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
-    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles->TileSize);
-    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles->TileSize);
+    int tile_x = static_cast<int>(BoundingBox.x / game->GameTiles->TileSize);
+    int tile_y = static_cast<int>(BoundingBox.y / game->GameTiles->TileSize);
     for (int y = 0; y < 3; y++)
     {
         for (int x = 0; x < 3; x++)
@@ -274,7 +300,7 @@ void Enemy::MoveAwayFromWalls()
             if (game->GameTiles->TileTypes[tile_id] == WallTileType)
             {
                 nothing_found = false;
-                Vector2 d={0,0};
+                Vector2 d = {0, 0};
                 d.x = -(plr_center_x - center_x) / distance * Speed;
                 d.y = -(plr_center_y - center_y) / distance * Speed;
                 vectors.push_back(d);

@@ -11,7 +11,7 @@
 
 class WeaponBehavior : public EnemyBehavior
 {
-    public:
+public:
     double CoverRefreshTimer;
     Vector2 CoverPosition;
     Vector2 Target;

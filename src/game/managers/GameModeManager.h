@@ -22,8 +22,9 @@ default
 class GameModeManager
 {
     void TriggerGameWin();
-    public:
-    Game *game;
+
+public:
+    Game* game;
     Entity* CurrentBoss;
     std::string CurrentLevelName;
     std::string CurrentBossName;
@@ -36,7 +37,7 @@ class GameModeManager
     bool WonLevel;
     ~GameModeManager();
     GameModeManager();
-    GameModeManager(Game *game);
+    GameModeManager(Game* game);
     std::string GetCurrentLevelName();
     void PrepareGameMode(nlohmann::json Data, std::string LevelName);
     void Update();

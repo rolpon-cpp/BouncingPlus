@@ -11,7 +11,7 @@ Color GetHealthColor(float Percent, float Armor = 0.0f);
 
 class UIAssets
 {
-    public:
+public:
     Texture2D TitleImg;
     Texture2D MenuImg;
     Texture2D ButtonImg;
@@ -41,7 +41,7 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
                  float* LastPlayedProgress, bool* PrevState, float Min, float Max);
 bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, Sound& ButtonClick, std::string Text);
 void Checkmark(Vector2 Position, Vector2 MousePos, Sound& CheckmarkClick,
-                 Texture2D& ButtonSmallImg, Texture2D& ButtonSmallImgRed, std::string Text, bool* Value);
+               Texture2D& ButtonSmallImg, Texture2D& ButtonSmallImgRed, std::string Text, bool* Value);
 Rectangle Panel(Rectangle rectangle, std::string text, float Offset1);
 
 #endif //BOUNCINGPLUS_UIUTILS_H

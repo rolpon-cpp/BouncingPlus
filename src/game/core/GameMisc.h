@@ -28,8 +28,7 @@ struct RayCastData
 
 class GameMisc
 {
-    public:
-
+public:
     // Profiler
     BaseProfiler GameProfiler;
     std::vector<float> RecordedDeltaTimes;

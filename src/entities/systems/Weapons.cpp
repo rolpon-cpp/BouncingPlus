@@ -26,8 +26,8 @@
 using namespace std;
 
 // bro im finna have to rewrite like 99% of melee wep code in a bit :sob:
-WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
-
+WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game)
+{
     // Set everything to basic, default values.
 
     CurrentWeapon = nullptr;
@@ -36,7 +36,7 @@ WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
     TriedChargingThisFrame = false;
     CurrentWeaponIndex = -1;
     MeleeAnim = false;
-    ChargeTarget = {0,0};
+    ChargeTarget = {0, 0};
     MeleeAnimTexture = nullptr;
     MeleeAnimAngle = 0;
     MeleeAnimRange = 45;
@@ -45,28 +45,33 @@ WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
     MeleeDisplayRenderTarget = {Owner->GetCenter().x, Owner->GetCenter().y};
     TimeStartedReloading = -1;
     MeleeAnimAlpha = 1;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         AttackCooldowns[i] = 0;
         Weapons[i] = "";
         WeaponAmmo[i] = 0;
     }
 }
 
-WeaponsSystem::WeaponsSystem() {
+WeaponsSystem::WeaponsSystem()
+{
 }
 
-WeaponsSystem::~WeaponsSystem() {
+WeaponsSystem::~WeaponsSystem()
+{
 }
 
-void WeaponsSystem::DisplayWeaponTexture() { // HATSUNE MIKU!!!!
+void WeaponsSystem::DisplayWeaponTexture()
+{
+    // HATSUNE MIKU!!!!
     if (!CanDisplayWeaponTex)
         return;
     auto Owner = OwnerPtr.lock();
     Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
     float Range = CurrentWeapon->Range;
     MeleeAnimTexture = &game->GameResources->Textures[CurrentWeapon->texture];
-    float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
-    float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
+    float width = MeleeAnimTexture->width * CurrentWeapon->WeaponSize;
+    float height = MeleeAnimTexture->height * CurrentWeapon->WeaponSize;
     if (Owner->Type == EnemyType)
     {
         std::shared_ptr<Enemy> ptr = dynamic_pointer_cast<Enemy>(Owner);
@@ -77,18 +82,25 @@ void WeaponsSystem::DisplayWeaponTexture() { // HATSUNE MIKU!!!!
             auto* behaviorPtr = dynamic_cast<WeaponBehavior*>(ptr->Behavior.get());
             Target = behaviorPtr->Target;
         }
-    }else if (Owner->Type == TurretType)
+    }
+    else if (Owner->Type == TurretType)
     {
         std::shared_ptr<Turret> ptr = dynamic_pointer_cast<Turret>(Owner);
-        Target =ptr->Target;
-        Range = width/2;
+        Target = ptr->Target;
+        Range = width / 2;
     }
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
     float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
-    DrawTexturePro(*MeleeAnimTexture, Rectangle{0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)},
-                   Rectangle{Owner->BoundingBox.x + Owner->BoundingBox.width/2 - (cosf((FinalAngle) * DEG2RAD)*Range), Owner->BoundingBox.y + Owner->BoundingBox.height/2 - (sinf((FinalAngle) * DEG2RAD)*Range), width,
-                             height}, Vector2{0, height / 2}, FinalAngle, WHITE);
+    DrawTexturePro(*MeleeAnimTexture, Rectangle{
+                       0, 0, static_cast<float>(MeleeAnimTexture->width), static_cast<float>(MeleeAnimTexture->height)
+                   },
+                   Rectangle{
+                       Owner->BoundingBox.x + Owner->BoundingBox.width / 2 - (cosf((FinalAngle) * DEG2RAD) * Range),
+                       Owner->BoundingBox.y + Owner->BoundingBox.height / 2 - (sinf((FinalAngle) * DEG2RAD) * Range),
+                       width,
+                       height
+                   }, Vector2{0, height / 2}, FinalAngle, WHITE);
 } // LOVELY CAVITY!!!
 
 bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
@@ -112,15 +124,19 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
         Vector2 DropLoc = {0, 0};
         auto Owner = OwnerPtr.lock();
 
-        if (Owner != nullptr) {
+        if (Owner != nullptr)
+        {
             float dirX = (GetRandomValue(1, 2) == 1) ? 1 : -1;
             float dirY = (GetRandomValue(1, 2) == 1) ? 1 : -1;
 
-            DropLoc = {Owner->BoundingBox.x - Owner->BoundingBox.width/2, Owner->BoundingBox.y - Owner->BoundingBox.height/2};
+            DropLoc = {
+                Owner->BoundingBox.x - Owner->BoundingBox.width / 2,
+                Owner->BoundingBox.y - Owner->BoundingBox.height / 2
+            };
             DropLoc = Vector2Add(DropLoc, {
-                (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 1.5f,
-                    (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 1.5f
-            });
+                                     (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 1.5f,
+                                     (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 1.5f
+                                 });
         }
 
         for (int i = 0; i < 3; i++)
@@ -159,7 +175,9 @@ void WeaponsSystem::DisplayWeaponCone()
 {
     auto Owner = OwnerPtr.lock();
     // Display weapon cone if using melee weapon
-    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) && Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter()) < CurrentWeapon->Range + GetRenderWidth()/2)
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) &&
+        Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter()) < CurrentWeapon->Range + GetRenderWidth() /
+        2)
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
@@ -172,20 +190,22 @@ void WeaponsSystem::DisplayWeaponCone()
             {
                 WeaponBehavior* f = (WeaponBehavior*)ptr->Behavior.get();
                 MeleeDisplayRenderTarget = f->Target;
-            } else
+            }
+            else
             {
                 return;
             }
-        } else
+        }
+        else
         {
             return;
         }
 
         MeleeAnimRange = CurrentWeapon->AngleRange;
         // get angle
-        float Angle = (atan2(cy - MeleeDisplayRenderTarget.y, cx - MeleeDisplayRenderTarget.x) * RAD2DEG)+180;
+        float Angle = (atan2(cy - MeleeDisplayRenderTarget.y, cx - MeleeDisplayRenderTarget.x) * RAD2DEG) + 180;
 
-        float LeftAngle = (Angle - MeleeAnimRange/2);
+        float LeftAngle = (Angle - MeleeAnimRange / 2);
         float Dist = CurrentWeapon->Range;
 
         //DrawCircleSector({cx,cy}, Dist, LeftAngle, RightAngle, 40, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
@@ -195,16 +215,17 @@ void WeaponsSystem::DisplayWeaponCone()
         for (int i = 0; i < MeleeAnimRange / opti; i++)
         {
             float Angle = LeftAngle + i * opti;
-            float X = cos(Angle * (2 * PI / 360))*Dist;
-            float Y = sin(Angle * (2 * PI / 360))*Dist;
-            auto p = game->GameMiscTools->RayCastPoint({cx,cy},{cx+X,cy+Y});
-            DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.HitPosition), Angle - opti/2, Angle + opti/2, 1, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
+            float X = cos(Angle * (2 * PI / 360)) * Dist;
+            float Y = sin(Angle * (2 * PI / 360)) * Dist;
+            auto p = game->GameMiscTools->RayCastPoint({cx, cy}, {cx + X, cy + Y});
+            DrawCircleSector({cx, cy}, Vector2Distance({cx, cy}, p.HitPosition), Angle - opti / 2, Angle + opti / 2, 1,
+                             ColorAlpha(WHITE, MeleeAnimAlpha / 2.0f));
         }
     }
 }
 
-void WeaponsSystem::Update() {
-
+void WeaponsSystem::Update()
+{
     // Getting owner variable & updating cooldown info & updating ammo info
     // aarush was here
 
@@ -216,17 +237,22 @@ void WeaponsSystem::Update() {
     if (ChargingProgress >= 1.0f && TriedChargingThisFrame && CurrentWeapon != nullptr && CurrentWeapon->Throwable)
         ShootWeaponOut();
 
-    for (int i = 0; i < 3; i++) {
-        if (!Weapons[i].empty()) {
+    for (int i = 0; i < 3; i++)
+    {
+        if (!Weapons[i].empty())
+        {
             AttackCooldowns[i] += game->GetGameDeltaTime();
-        } else {
+        }
+        else
+        {
             AttackCooldowns[i] = 0;
             WeaponAmmo[i] = 0;
         }
     }
 
     // reload weps
-    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && game->GetGameTime() - TimeStartedReloading >= CurrentWeapon->ReloadTime)
+    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && game->GetGameTime() - TimeStartedReloading >=
+        CurrentWeapon->ReloadTime)
     {
         WeaponAmmo[CurrentWeaponIndex] = CurrentWeapon->Ammo;
         TimeStartedReloading = -1;
@@ -237,7 +263,8 @@ void WeaponsSystem::Update() {
         DisplayWeaponCone();
 
     // display gun tex
-    if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee) && Owner->IsVisible())
+    if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee) && Owner->
+        IsVisible())
         DisplayWeaponTexture();
 
     // display melee animations
@@ -245,7 +272,8 @@ void WeaponsSystem::Update() {
         DisplayMeleeAnim();
 
     // display reflect
-    if (CurrentWeapon != nullptr && Owner->Type == PlayerType && !game->MainPlayer->IsPreparingForDash && CurrentWeapon->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
+    if (CurrentWeapon != nullptr && Owner->Type == PlayerType && !game->MainPlayer->IsPreparingForDash && CurrentWeapon
+        ->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
         DisplayWeaponReflectance();
 
     TriedChargingThisFrame = false;
@@ -257,11 +285,12 @@ void WeaponsSystem::DisplayWeaponReflectance()
     Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
 
     Vector2 Origin = Owner->GetCenter();
-    Vector2 Direction = Vector2Normalize(Vector2Subtract(Target,Origin));
+    Vector2 Direction = Vector2Normalize(Vector2Subtract(Target, Origin));
 
     for (int i = 0; i < 6; i++)
     {
-        auto RayCastData = game->GameMiscTools->RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera->IntendedScreenWidth * 1.5f));
+        auto RayCastData = game->GameMiscTools->RayCastPoint(
+            Origin, Origin + (Direction * (float)game->GameCamera->IntendedScreenWidth * 1.5f));
 
         Vector2 Hit = RayCastData.HitPosition;
 
@@ -271,19 +300,26 @@ void WeaponsSystem::DisplayWeaponReflectance()
         };
 
         float SZ_INC = 2.5f;
-        float OriginHitDist = Vector2Distance(Origin,Hit);
-        DrawTexturePro(game->GameResources->Textures["dotted_line"], {0.0f, (float)-game->GetGameTime() * (10.0f + (50.0f * game->MainPlayer->StressLevel)), 1.0f, OriginHitDist / SZ_INC}, {
-            OriginHitCenter.x, OriginHitCenter.y, SZ_INC, OriginHitDist
-        }, {SZ_INC / 2.0f, OriginHitDist / 2.0f}, (180.0f - Vector2LineAngle(Origin,Hit) * RAD2DEG) + 90.0f, ColorAlpha(WHITE, 0.5f));
+        float OriginHitDist = Vector2Distance(Origin, Hit);
+        DrawTexturePro(game->GameResources->Textures["dotted_line"], {
+                           0.0f, (float)-game->GetGameTime() * (10.0f + (50.0f * game->MainPlayer->StressLevel)), 1.0f,
+                           OriginHitDist / SZ_INC
+                       }, {
+                           OriginHitCenter.x, OriginHitCenter.y, SZ_INC, OriginHitDist
+                       }, {SZ_INC / 2.0f, OriginHitDist / 2.0f},
+                       (180.0f - Vector2LineAngle(Origin, Hit) * RAD2DEG) + 90.0f, ColorAlpha(WHITE, 0.5f));
 
-        int tile_x = (int) (Hit.x / game->GameTiles->TileSize);
-        int tile_y = (int) (Hit.y / game->GameTiles->TileSize);
+        int tile_x = (int)(Hit.x / game->GameTiles->TileSize);
+        int tile_y = (int)(Hit.y / game->GameTiles->TileSize);
 
         if (RayCastData.HitTile == 1)
         {
             Vector2 Normal = {0, 0};
 
-            Rectangle bbox = {tile_x * game->GameTiles->TileSize,tile_y * game->GameTiles->TileSize, game->GameTiles->TileSize, game->GameTiles->TileSize};
+            Rectangle bbox = {
+                tile_x * game->GameTiles->TileSize, tile_y * game->GameTiles->TileSize, game->GameTiles->TileSize,
+                game->GameTiles->TileSize
+            };
 
             float DeltaX = Hit.x - (bbox.x + bbox.width / 2);
             float DeltaY = Hit.y - (bbox.y + bbox.width / 2);
@@ -305,7 +341,8 @@ void WeaponsSystem::DisplayWeaponReflectance()
             Direction -= Vector2Multiply(Normal, {2 * Dot, 2 * Dot});
             Direction = Vector2Normalize(Direction);
             Origin = Hit;
-        } else
+        }
+        else
         {
             break;
         }
@@ -317,12 +354,16 @@ void WeaponsSystem::DisplayMeleeAnim()
     auto Owner = OwnerPtr.lock();
     // Melee animation (signma)
 
-    if (!MeleeAnim) {
+    if (!MeleeAnim)
+    {
         // set some basic values ready
         ResetMeleeAnim();
-    } else if ((CurrentWeapon == nullptr || CurrentWeapon->isMelee) && MeleeAnimTexture != nullptr) {
+    }
+    else if ((CurrentWeapon == nullptr || CurrentWeapon->isMelee) && MeleeAnimTexture != nullptr)
+    {
         // if we still have a weapon equipped, set the animation angle range
-        if (CurrentWeapon != nullptr) {
+        if (CurrentWeapon != nullptr)
+        {
             MeleeAnimRange = CurrentWeapon->AngleRange;
         }
         // increase the animation's progress
@@ -335,28 +376,41 @@ void WeaponsSystem::DisplayMeleeAnim()
         // animation variables for image
         float width = (MeleeAnimTexture->width * 1.35f * CurrentWeapon->WeaponSize);
         float height = (MeleeAnimTexture->height * 1.35f * CurrentWeapon->WeaponSize);
-        float FinalAngle = MeleeAnimAngle - (MeleeAnimRange/2) + (MeleeAnimPercent * MeleeAnimRange);
+        float FinalAngle = MeleeAnimAngle - (MeleeAnimRange / 2) + (MeleeAnimPercent * MeleeAnimRange);
 
         // adding points
-        if (MeleeAnimPercent <= 1.0) {
+        if (MeleeAnimPercent <= 1.0)
+        {
             MeleeAnimAlpha = 1;
-        } else {
+        }
+        else
+        {
             // if the animation is already complete, phase out the sword
             MeleeAnimAlpha -= 3 * CurrentWeapon->Speed * game->GetGameDeltaTime();
         }
 
         // render sword
-        DrawTexturePro(*MeleeAnimTexture, Rectangle{0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)},
-                   Rectangle{Owner->BoundingBox.x + Owner->BoundingBox.width/2 - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - sinf((FinalAngle+90) * DEG2RAD)*150, width,
-                             height}, Vector2{width / 2, height / 2}, FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
-
+        DrawTexturePro(*MeleeAnimTexture, Rectangle{
+                           0, 0, static_cast<float>(MeleeAnimTexture->width),
+                           static_cast<float>(MeleeAnimTexture->height)
+                       },
+                       Rectangle{
+                           Owner->BoundingBox.x + Owner->BoundingBox.width / 2 - cosf((FinalAngle + 90) * DEG2RAD) *
+                           150,
+                           Owner->BoundingBox.y + Owner->BoundingBox.height / 2 - sinf((FinalAngle + 90) * DEG2RAD) *
+                           150,
+                           width,
+                           height
+                       }, Vector2{width / 2, height / 2}, FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
     }
 }
 
-void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
+void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle)
+{
     auto Owner = OwnerPtr.lock();
     // Get angle and distance from victim entity
-    float AngleToEntity = atan2(Owner->GetCenter().y - entity->GetCenter().y, Owner->GetCenter().x - entity->GetCenter().x) * RAD2DEG;
+    float AngleToEntity = atan2(Owner->GetCenter().y - entity->GetCenter().y,
+                                Owner->GetCenter().x - entity->GetCenter().x) * RAD2DEG;
     float Dist = Vector2Distance(entity->GetCenter(), Owner->GetCenter());
 
     float AngleDifference = Angle - AngleToEntity;
@@ -366,7 +420,8 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         AngleDifference -= 360;
 
     // if enemy is in sight & within range, attack!
-    if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->GameMiscTools->RayCast(Owner->GetCenter(), entity->GetCenter()))
+    if (abs(AngleDifference) <= CurrentWeapon->AngleRange / 2 && Dist <= CurrentWeapon->Range && game->GameMiscTools->
+        RayCast(Owner->GetCenter(), entity->GetCenter()))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
@@ -376,22 +431,27 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 
     if (!CurrentWeapon->Flames)
     {
-        std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources->Textures.count(CurrentWeapon->BulletTexture))
-                ? CurrentWeapon->BulletTexture : "bullet";
+        std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources->Textures.
+                                        count(CurrentWeapon->BulletTexture))
+                                        ? CurrentWeapon->BulletTexture
+                                        : "bullet";
 
         float BulletLifetime = 8.5f;
         if (CurrentWeapon->BulletLifetime != -1)
             BulletLifetime = CurrentWeapon->BulletLifetime;
 
         // loop through requested shots
-        for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
-
-            float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
+        for (int i = 1; i < CurrentWeapon->Bullets + 1; i++)
+        {
+            float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0],
+                                                              CurrentWeapon->SpreadRange[1]);
             if (CurrentWeapon->Bullets > 1)
-                Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
+                Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets) * i) - CurrentWeapon->AngleRange / 2.0f;
+            // get offset angle of shot
 
             // create bullet with weapon settings
-            shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
+            shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed,
+                                                            CurrentWeapon->Damage, BulletLifetime,
                                                             game->GameResources->Textures[BulletTexture], Owner, *game);
             bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
             bullet->HealthGain = CurrentWeapon->HealthGain;
@@ -401,31 +461,34 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
                 bullet->EntityColor = {255, 182, 217, 255};
             game->GameEntities->AddEntity(BulletType, bullet);
         }
-    } else
+    }
+    else
     {
         game->GameParticles->ParticleEffect({
-            {cX, cY},
-            CurrentWeapon->Speed,
-            ColorLerp(RED, ORANGE, 0.5f),
-            CurrentWeapon->SlowdownOverTime ? CurrentWeapon->Speed / 2.0f : 0,
-            CurrentWeapon->Size.x,
-            CurrentWeapon->BulletLifetime,
-            ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
-        }, TargetAngle - 180.0f, CurrentWeapon->AngleRange, CurrentWeapon->Bullets, {
-            BURNING, Owner, CurrentWeapon->Damage, CurrentWeapon->HealthGain, CurrentWeapon->BulletLifetime * 2.0f,
-        });
+                                                {cX, cY},
+                                                CurrentWeapon->Speed,
+                                                ColorLerp(RED, ORANGE, 0.5f),
+                                                CurrentWeapon->SlowdownOverTime ? CurrentWeapon->Speed / 2.0f : 0,
+                                                CurrentWeapon->Size.x,
+                                                CurrentWeapon->BulletLifetime,
+                                                ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
+                                            }, TargetAngle - 180.0f, CurrentWeapon->AngleRange, CurrentWeapon->Bullets,
+                                            {
+                                                BURNING, Owner, CurrentWeapon->Damage, CurrentWeapon->HealthGain,
+                                                CurrentWeapon->BulletLifetime * 2.0f,
+                                            });
     }
 
     // pushback character
-    if (CurrentWeapon->PushbackForce != 0) {
-        Owner->VelocityMovement = {cos(TargetAngle * (2 * PI / 360))*100,sin(TargetAngle * (2 * PI / 360))*100};
+    if (CurrentWeapon->PushbackForce != 0)
+    {
+        Owner->VelocityMovement = {cos(TargetAngle * (2 * PI / 360)) * 100, sin(TargetAngle * (2 * PI / 360)) * 100};
         Owner->VelocityPower = CurrentWeapon->PushbackForce;
     }
 }
 
 void WeaponsSystem::ShootWeaponOut()
 {
-
     // TODO: implement the code for actually shooting the weapon out
 
     TriedChargingThisFrame = false;
@@ -449,7 +512,8 @@ void WeaponsSystem::Charge(Vector2 Target)
     ChargeTarget = Target;
 }
 
-void WeaponsSystem::Attack(Vector2 Target) {
+void WeaponsSystem::Attack(Vector2 Target)
+{
     if (CurrentWeapon != nullptr && CurrentWeapon->Throwable)
     {
         Charge(Target);
@@ -457,29 +521,30 @@ void WeaponsSystem::Attack(Vector2 Target) {
     }
     auto Owner = OwnerPtr.lock();
     if (CurrentWeapon != nullptr && AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown &&
-        ( (CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0) || CurrentWeapon->Ammo <= 0 ) &&
-        TimeStartedReloading == -1) {
-
+        ((CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0) || CurrentWeapon->Ammo <= 0) &&
+        TimeStartedReloading == -1)
+    {
         // Get angle + fire point
         float TargetAngle = atan2(Owner->GetCenter().y - Target.y, Owner->GetCenter().x - Target.x) * RAD2DEG;
-        float cX = -cos(TargetAngle * (2 * PI / 360))*CurrentWeapon->Range;
-        float cY = -sin(TargetAngle * (2 * PI / 360))*CurrentWeapon->Range;
+        float cX = -cos(TargetAngle * (2 * PI / 360)) * CurrentWeapon->Range;
+        float cY = -sin(TargetAngle * (2 * PI / 360)) * CurrentWeapon->Range;
         cX += Owner->GetCenter().x;
         cY += Owner->GetCenter().y;
 
         bool Valid = game->GameMiscTools->RayCast(Owner->GetCenter(), {cX, cY});
 
-        std::string s = CurrentWeapon->sound[GetRandomValue(0, CurrentWeapon->sound.size()-1)];
+        std::string s = CurrentWeapon->sound[GetRandomValue(0, CurrentWeapon->sound.size() - 1)];
 
         // Play weapon sound
-        if (game->GameSounds->Sounds.count(s) && (CurrentWeapon->isMelee || Valid)) {
+        if (game->GameSounds->Sounds.count(s) && (CurrentWeapon->isMelee || Valid))
+        {
             float Distance = Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter());
 
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
             DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
 
             game->GameSounds->PlayGameSound(s, CurrentWeapon->Intensity * DistanceMultiplier,
-                1.0f + GetRandomValue(-20, 20) / 100.0f);
+                                            1.0f + GetRandomValue(-20, 20) / 100.0f);
         }
 
         // Shake camera
@@ -487,9 +552,13 @@ void WeaponsSystem::Attack(Vector2 Target) {
             game->GameCamera->ShakeCamera(CurrentWeapon->Intensity);
 
         // Gun attack
-        if (Valid && !CurrentWeapon->isMelee) {
+        if (Valid && !CurrentWeapon->isMelee)
+        {
             GunAttack(TargetAngle, cX, cY);
-        } else if (CurrentWeapon->isMelee) { // Melee attack
+        }
+        else if (CurrentWeapon->isMelee)
+        {
+            // Melee attack
             // Get angle, set basic starting variables
             this->MeleeAnim = true;
             this->MeleeAnimPercent = 0;
@@ -501,11 +570,15 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["game"]["friendly_fire"].get<bool>())
+            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["game"][
+                "friendly_fire"].get<bool>())
             {
                 std::vector<shared_ptr<Entity>>* array = &game->GameEntities->Entities[EnemyType];
-                for (int i = 0; i < array->size(); i++) {
-                    if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
+                for (int i = 0; i < array->size(); i++)
+                {
+                    if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity
+                        != nullptr && !entity->ShouldDelete)
+                    {
                         MeleeAttack(entity, TargetAngle);
                     }
                 }
@@ -523,9 +596,11 @@ void WeaponsSystem::Attack(Vector2 Target) {
     }
 }
 
-void WeaponsSystem::Equip(int Index) {
+void WeaponsSystem::Equip(int Index)
+{
     // if weapon exists and we have space, equip it
-    if (Index < 3 && CurrentWeaponIndex != Index && !Weapons[Index].empty()) {
+    if (Index < 3 && CurrentWeaponIndex != Index && !Weapons[Index].empty())
+    {
         ResetMeleeAnim();
         CurrentWeaponIndex = Index;
         ChargingProgress = 0.0f;
@@ -535,7 +610,8 @@ void WeaponsSystem::Equip(int Index) {
     }
 }
 
-void WeaponsSystem::Unequip() {
+void WeaponsSystem::Unequip()
+{
     // simply set the current weapon to nothing
     ResetMeleeAnim();
     CurrentWeaponIndex = -1;

@@ -1,5 +1,3 @@
-
-
 #include "Controls.h"
 #include <raylib.h>
 

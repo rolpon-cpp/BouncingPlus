@@ -5,7 +5,8 @@
 #ifndef ENTITYTYPE_H
 #define ENTITYTYPE_H
 
-enum EntityType {
+enum EntityType
+{
     DefaultType = 0,
     EnemyType = 1,
     PlayerType = 2,

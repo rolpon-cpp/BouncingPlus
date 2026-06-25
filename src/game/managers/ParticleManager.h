@@ -11,7 +11,8 @@
 
 class Game;
 
-struct ParticleData {
+struct ParticleData
+{
     Vector2 StartPosition;
     float StartVelocity;
     Color StartColor;
@@ -21,7 +22,8 @@ struct ParticleData {
     Color TargetColor;
 };
 
-struct Particle {
+struct Particle
+{
     ParticleData Data;
     Vector2 Position;
     Vector2 Target;
@@ -31,13 +33,16 @@ struct Particle {
     EffectData Effect;
 };
 
-class ParticleManager {
-    Game *game;
+class ParticleManager
+{
+    Game* game;
     std::vector<Particle> Particles;
-    public:
+
+public:
     ParticleManager();
-    ParticleManager(Game *game);
-    void ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount, EffectData PEffectData = {DEFAULT, std::weak_ptr<Entity>(), 0, 0, 0});
+    ParticleManager(Game* game);
+    void ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount,
+                        EffectData PEffectData = {DEFAULT, std::weak_ptr<Entity>(), 0, 0, 0});
     void Clear();
     void Update();
     void Quit();

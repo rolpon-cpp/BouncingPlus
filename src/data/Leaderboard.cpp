@@ -35,9 +35,12 @@ void Leaderboard::UpdateData()
 
     if (FirebaseFuture.status() == firebase::kFutureStatusComplete)
     {
-        if (FirebaseFuture.error() == firebase::database::kErrorNone) {
+        if (FirebaseFuture.error() == firebase::database::kErrorNone)
+        {
             ExtractLeaderboardData();
-        } else {
+        }
+        else
+        {
             printf("Firebase DB error %d: %s\n", FirebaseFuture.error(), FirebaseFuture.error_message());
         }
         AwaitingResponse = false;
@@ -68,7 +71,8 @@ void Leaderboard::ExtractLeaderboardData()
 
     std::vector<std::pair<std::string, int>> sorted(Scores.begin(), Scores.end());
 
-    std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b) {
+    std::sort(sorted.begin(), sorted.end(), [](const auto& a, const auto& b)
+    {
         return a.second > b.second;
     });
 

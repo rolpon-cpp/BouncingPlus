@@ -5,7 +5,8 @@
 #ifndef BOUNCINGPLUS_TILETYPE_H
 #define BOUNCINGPLUS_TILETYPE_H
 
-enum TileType {
+enum TileType
+{
     NothingTileType,
     PlayerSpawnTileType,
     EnemySpawnTileType,

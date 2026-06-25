@@ -71,14 +71,14 @@ void GameModeManager::Update()
 
     if (CurrentGameMode == "wave")
     {
-
         if (CurrentWave < 10)
         {
             if (LevelTimer <= 0 && InWave)
             {
                 InWave = false;
                 LevelTimer = std::max(15.0f - CurrentWave * 1.25f, 5.0f);
-            } else if (LevelTimer <= 0 && !InWave)
+            }
+            else if (LevelTimer <= 0 && !InWave)
             {
                 InWave = true;
                 LevelTimer = std::min(17.5f + (CurrentWave * 4.0f), 60.0f);
@@ -86,31 +86,46 @@ void GameModeManager::Update()
             }
 
             std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[SpawnerType];
-            for (int i = 0; i < array.size(); i++) {
-                if (std::shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete) {
+            for (int i = 0; i < array.size(); i++)
+            {
+                if (std::shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and
+                !entity->ShouldDelete
+                )
+                {
                     entity->SpawnerIsActive = LevelTimer > 0 && InWave ? 999 : 0;
-                    entity->SpawnCooldown = LevelTimer > 0 && InWave ? std::max(11.0f - (CurrentWave * 0.75f), 1.0f) : 999;
+                    entity->SpawnCooldown = LevelTimer > 0 && InWave
+                                                ? std::max(11.0f - (CurrentWave * 0.75f), 1.0f)
+                                                : 999;
                     entity->EnemyDifficulty = LevelTimer > 0 && InWave ? std::min(CurrentWave * 0.05f, 1.0f) : -1.0f;
                 }
             }
 
             std::vector<std::shared_ptr<Entity>> enemyArray = game->GameEntities->Entities[EnemyType];
-            for (int i = 0; i < enemyArray.size(); i++) {
-                if (std::shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                    if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) > 4000)
+            for (int i = 0; i < enemyArray.size(); i++)
+            {
+                if (std::shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and
+                !entity->ShouldDelete
+                )
+                {
+                    if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y}, {
+                                            game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y
+                                        }) > 4000)
                     {
                         entity->ShouldDelete = true;
                     }
                 }
             }
-        } else
+        }
+        else
         {
             InWave = false;
             LevelTimer = 0;
             std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[SpawnerType];
             for (int i = 0; i < array.size(); i++)
             {
-                if (std::shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete)
+                if (std::shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and
+                !entity->ShouldDelete
+                )
                 {
                     entity->SpawnerIsActive = false;
                 }

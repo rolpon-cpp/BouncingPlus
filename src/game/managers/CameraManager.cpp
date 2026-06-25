@@ -6,7 +6,8 @@
 #include "../Game.h"
 #include "../../entities/subentities/player/Player.h"
 
-void CameraManager::Clear() {
+void CameraManager::Clear()
+{
     if (CamTextureInitialized)
         UnloadRenderTexture(CameraRenderTexture);
     CameraPosition = Vector2{0.0f, 0.0f};
@@ -25,17 +26,18 @@ void CameraManager::Clear() {
     CamTextureInitialized = true;
     BGTexture = GetRandomValue(1, 3);
     ShowLines = GetRandomValue(1, 1000) == 783;
-    ZoomResetTimer= 0;
+    ZoomResetTimer = 0;
     ShaderPixelPower = 2;
     uWidth = -1;
     uHeight = -1;
     uPixelSize = -1;
     uImpactFrame = -1;
     uImpactFrameRadius = -1;
-    RaylibCamera = {{0,0}, {0, 0}, 0, 1.0f};
+    RaylibCamera = {{0, 0}, {0, 0}, 0, 1.0f};
 }
 
-CameraManager::CameraManager(Game *game) {
+CameraManager::CameraManager(Game* game)
+{
     this->game = game;
     CamTextureInitialized = false;
     IntendedScreenWidth = 1480;
@@ -43,24 +45,29 @@ CameraManager::CameraManager(Game *game) {
     Clear();
 }
 
-CameraManager::CameraManager() {
+CameraManager::CameraManager()
+{
 }
 
-CameraManager::~CameraManager() {
+CameraManager::~CameraManager()
+{
 }
 
-void CameraManager::QuickZoom(float Zoom, double Time, bool Instant) {
+void CameraManager::QuickZoom(float Zoom, double Time, bool Instant)
+{
     this->CameraZoom = Zoom;
     if (Instant)
         RaylibCamera.zoom = Zoom * GetNaturalZoom();
     ZoomResetTimer = Time;
 }
 
-void CameraManager::Display(int ImpactFrame, float ImpactFrameRadius) {
+void CameraManager::Display(int ImpactFrame, float ImpactFrameRadius)
+{
     BeginShaderMode(game->GameResources->Shaders["main_game"]);
     int w = CameraRenderTexture.texture.width;
     int h = CameraRenderTexture.texture.height;
-    if (uWidth == -1 || uHeight == -1 || uPixelSize == -1 || uImpactFrame == -1 || uImpactFrameRadius == -1) {
+    if (uWidth == -1 || uHeight == -1 || uPixelSize == -1 || uImpactFrame == -1 || uImpactFrameRadius == -1)
+    {
         uWidth = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "renderWidth");
         uHeight = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "renderHeight");
         uPixelSize = GetShaderLocation(this->game->GameResources->Shaders["main_game"], "pixelSize");
@@ -72,68 +79,100 @@ void CameraManager::Display(int ImpactFrame, float ImpactFrameRadius) {
     SetShaderValue(game->GameResources->Shaders["main_game"], uHeight, &h, SHADER_UNIFORM_INT);
     SetShaderValue(game->GameResources->Shaders["main_game"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
     SetShaderValue(game->GameResources->Shaders["main_game"], uImpactFrame, &ImpactFrame, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources->Shaders["main_game"], uImpactFrameRadius, &ImpactFrameRadius, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->GameResources->Shaders["main_game"], uImpactFrameRadius, &ImpactFrameRadius,
+                   SHADER_UNIFORM_FLOAT);
 
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-    DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetRenderWidth(), (float)-GetRenderHeight()}, {0, 0, (float)GetRenderWidth(), (float)GetRenderHeight()}, {0,0},0, WHITE);
+    DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetRenderWidth(), (float)-GetRenderHeight()},
+                   {0, 0, (float)GetRenderWidth(), (float)GetRenderHeight()}, {0, 0}, 0, WHITE);
     EndBlendMode();
     EndShaderMode();
 }
 
-void CameraManager::ProcessCameraShake() {
-    if (game->GetGameTime() - CameraShakeTimer >= 0.02f && game->GameShared->ShakeCamera) {
-        if (CameraShakes > 0) {
-            CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
+void CameraManager::ProcessCameraShake()
+{
+    if (game->GetGameTime() - CameraShakeTimer >= 0.02f && game->GameShared->ShakeCamera)
+    {
+        if (CameraShakes > 0)
+        {
+            CameraShakeOffset = {
+                (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)),
+                (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))
+            };
             CameraShakes--;
-        } else {
+        }
+        else
+        {
             CameraShakeOffset = {0, 0};
         }
         CameraShakeTimer = game->GetGameTime();
     }
 }
 
-void CameraManager::UpdateScreenImageSize() {
-    if (CameraRenderTexture.texture.width != GetRenderWidth() || CameraRenderTexture.texture.height != GetRenderHeight()) {
+void CameraManager::UpdateScreenImageSize()
+{
+    if (CameraRenderTexture.texture.width != GetRenderWidth() || CameraRenderTexture.texture.height !=
+        GetRenderHeight())
+    {
         UnloadRenderTexture(CameraRenderTexture);
         CameraRenderTexture = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 }
 
-void CameraManager::BackgroundLines() {
+void CameraManager::BackgroundLines()
+{
     float ParallaxCamX = CameraPosition.x / BackgroundDepth;
     float ParallaxCamY = CameraPosition.y / BackgroundDepth;
 
     if (ShowLines)
     {
-        for (int i = -1; i < round(GetRenderHeight() / BackgroundGridSize)+1; i++) {
+        for (int i = -1; i < round(GetRenderHeight() / BackgroundGridSize) + 1; i++)
+        {
             int y = (int)(ParallaxCamY / BackgroundGridSize);
-            DrawLineEx({CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, {(float) GetRenderWidth()+CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, 7, ColorBrightness(WHITE, -0.5f));
+            DrawLineEx({CameraPosition.x, ((y + i) * BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, {
+                           (float)GetRenderWidth() + CameraPosition.x,
+                           ((y + i) * BackgroundGridSize) - ParallaxCamY + CameraPosition.y
+                       }, 7, ColorBrightness(WHITE, -0.5f));
         }
 
-        for (int i = -1; i < round(GetRenderWidth() / BackgroundGridSize)+1; i++) {
+        for (int i = -1; i < round(GetRenderWidth() / BackgroundGridSize) + 1; i++)
+        {
             int x = (int)(ParallaxCamX / BackgroundGridSize);
-            DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, CameraPosition.y}, {((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, (float) GetRenderHeight()+CameraPosition.y}, 7, ColorBrightness(WHITE, -0.5f));
-            DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, CameraPosition.y}, {((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, (float) GetRenderHeight()+CameraPosition.y}, 3, ColorAlpha(WHITE, 0.5f));
+            DrawLineEx({((x + i) * BackgroundGridSize) - ParallaxCamX + CameraPosition.x, CameraPosition.y}, {
+                           ((x + i) * BackgroundGridSize) - ParallaxCamX + CameraPosition.x,
+                           (float)GetRenderHeight() + CameraPosition.y
+                       }, 7, ColorBrightness(WHITE, -0.5f));
+            DrawLineEx({((x + i) * BackgroundGridSize) - ParallaxCamX + CameraPosition.x, CameraPosition.y}, {
+                           ((x + i) * BackgroundGridSize) - ParallaxCamX + CameraPosition.x,
+                           (float)GetRenderHeight() + CameraPosition.y
+                       }, 3, ColorAlpha(WHITE, 0.5f));
         }
 
-        for (int i = -1; i < round(GetRenderHeight() / BackgroundGridSize)+1; i++) {
+        for (int i = -1; i < round(GetRenderHeight() / BackgroundGridSize) + 1; i++)
+        {
             int y = (int)(ParallaxCamY / BackgroundGridSize);
-            DrawLineEx({CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, {(float) GetRenderWidth()+CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, 3, ColorAlpha(WHITE, 0.5f));
+            DrawLineEx({CameraPosition.x, ((y + i) * BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, {
+                           (float)GetRenderWidth() + CameraPosition.x,
+                           ((y + i) * BackgroundGridSize) - ParallaxCamY + CameraPosition.y
+                       }, 3, ColorAlpha(WHITE, 0.5f));
         }
-    } else
+    }
+    else
     {
-        Texture& bg = game->GameResources->Textures["bg"+ std::to_string(BGTexture)];
+        Texture& bg = game->GameResources->Textures["bg" + std::to_string(BGTexture)];
 
         float Size = game->GameTiles->MapWidth * game->GameTiles->TileSize;
         Size /= 1.5f;
 
         DrawTexturePro(bg, {0, 0, (float)bg.width, (float)bg.height}, {
-            (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) * RaylibCamera.target.x,
-                (game->GameTiles->MapHeight * game->GameTiles->TileSize / 2.0f) +(1.0f / BackgroundDepth) * RaylibCamera.target.y,
-            //((game->GameTiles.MapWidth * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamX + RaylibCamera.target.x,
-            //((game->GameTiles.MapHeight * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamY + RaylibCamera.target.y,
-            Size, Size
-        }, {Size / 2.0f, Size / 2.0f}, 0.0f, ColorAlpha(WHITE, 0.5f));
+                           (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
+                           RaylibCamera.target.x,
+                           (game->GameTiles->MapHeight * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
+                           RaylibCamera.target.y,
+                           //((game->GameTiles.MapWidth * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamX + RaylibCamera.target.x,
+                           //((game->GameTiles.MapHeight * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamY + RaylibCamera.target.y,
+                           Size, Size
+                       }, {Size / 2.0f, Size / 2.0f}, 0.0f, ColorAlpha(WHITE, 0.5f));
 
         //cout << RaylibCamera.target.x << " " << (game->GameTiles.MapWidth * game->GameTiles.TileSize * .5f) << " " << ParallaxCamX << " " << (game->GameTiles.MapWidth * game->GameTiles.TileSize * .5f) / BackgroundDepth << "\n";
     }
@@ -166,7 +205,8 @@ void CameraManager::EndRenderTexture()
     BeginMode2D(RaylibCamera);
 }
 
-void CameraManager::ShakeCamera(float Intensity) {
+void CameraManager::ShakeCamera(float Intensity)
+{
     this->CameraShakeIntensity = Intensity;
     this->CameraShakeTimer = game->GetGameTime();
     this->CameraShakeOffset = {0, 0};
@@ -182,28 +222,40 @@ void CameraManager::UpdateCamera()
 {
     CameraTarget = game->MainPlayer->GetCenter();
 
-    Vector2 MouseOffset = Vector2Subtract(GetMousePosition(), {static_cast<float>(GetRenderWidth()) / 2.0f, static_cast<float>(GetRenderHeight()) / 2.0f});
-    MouseOffset = Vector2Divide(MouseOffset, {100,100});
+    Vector2 MouseOffset = Vector2Subtract(GetMousePosition(), {
+                                              static_cast<float>(GetRenderWidth()) / 2.0f,
+                                              static_cast<float>(GetRenderHeight()) / 2.0f
+                                          });
+    MouseOffset = Vector2Divide(MouseOffset, {100, 100});
 
     float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetRenderWidth()) / 2.0f);
     float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetRenderHeight()) / 2.0f);
 
     float ImportantVal = 20.0f * (1.0f / game->GetGameDeltaTime() / 144.0f);
-    if (ImportantVal != 0.0f) {
+    if (ImportantVal != 0.0f)
+    {
         CameraPositionUnaffected.x += TargetX / ImportantVal;
         CameraPositionUnaffected.y += TargetY / ImportantVal;
-        CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
+        CameraPosition = {
+            CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y
+        };
         CameraPosition = Vector2Add(CameraPosition, MouseOffset);
-        CameraPosition = Vector2Add(CameraPosition, Vector2{(5.0f + min(game->MainPlayer->Kills, 7)) * (float)sin(game->GetGameTime()),
-            (5.0f + min(game->MainPlayer->Kills, 7)) * (float)cos(game->GetGameTime())});
+        CameraPosition = Vector2Add(CameraPosition, Vector2{
+                                        (5.0f + min(game->MainPlayer->Kills, 7)) * (float)sin(game->GetGameTime()),
+                                        (5.0f + min(game->MainPlayer->Kills, 7)) * (float)cos(game->GetGameTime())
+                                    });
     }
 
     RaylibCamera.zoom = Lerp(RaylibCamera.zoom, CameraZoom * GetNaturalZoom(), 5.0f * game->GetGameDeltaTime());
     RaylibCamera.target = CameraPosition;
-    RaylibCamera.offset = {((float)GetRenderWidth()/2.0f) * (1-RaylibCamera.zoom), ((float)GetRenderHeight()/2.0f) * (1-RaylibCamera.zoom)};
+    RaylibCamera.offset = {
+        ((float)GetRenderWidth() / 2.0f) * (1 - RaylibCamera.zoom),
+        ((float)GetRenderHeight() / 2.0f) * (1 - RaylibCamera.zoom)
+    };
 }
 
-void CameraManager::Begin() {
+void CameraManager::Begin()
+{
     if (ZoomResetTimer > 0)
         ZoomResetTimer -= game->GetGameDeltaTime();
     if (ZoomResetTimer <= 0)
@@ -217,11 +269,13 @@ void CameraManager::Begin() {
     BackgroundLines();
 }
 
-void CameraManager::End() {
+void CameraManager::End()
+{
     EndTextureMode();
     EndMode2D();
 }
 
-void CameraManager::Quit() {
+void CameraManager::Quit()
+{
     UnloadRenderTexture(CameraRenderTexture);
 }

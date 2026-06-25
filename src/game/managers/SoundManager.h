@@ -11,15 +11,16 @@
 
 class Game;
 
-class SoundManager {
-    public:
-    Game *game;
+class SoundManager
+{
+public:
+    Game* game;
     std::unordered_map<std::string, Sound> Sounds;
     std::unordered_map<std::string, Music> Musics;
     std::unordered_map<std::string, std::vector<Sound>> CachedAliases;
-    std::vector<std::tuple<std::string,float,float>> MusicTransitions;
+    std::vector<std::tuple<std::string, float, float>> MusicTransitions;
     int MaxSoundPoolSize;
-    SoundManager(Game *game);
+    SoundManager(Game* game);
     SoundManager();
     ~SoundManager();
     void PlayGameSound(std::string SoundName, float SoundVolume = 1.0f, float SoundPitch = 1.0f);

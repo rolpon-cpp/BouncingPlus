@@ -38,7 +38,7 @@ Burning::Burning(float Damage, double Duration, double ImpactTime) : Effect(Dura
     Type = BURNING;
     SmokeParticleCount = 0;
     GradientProg = 0;
-    LastDidSFX= 0.0f;
+    LastDidSFX = 0.0f;
 }
 
 Burning::Burning(double ImpactTime) : Effect(10.0f, ImpactTime)
@@ -69,7 +69,7 @@ void Burning::SetOwnerReward(double Reward)
 void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
 {
     Effect::Update(ImpactedEntity);
-    Game *game = ImpactedEntity->game;
+    Game* game = ImpactedEntity->game;
 
     if (auto owner = Owner.lock())
     {
@@ -82,14 +82,16 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
                     owner->game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Burn Kill", 50.0f, ORANGE);
             }
         }
-    } else
+    }
+    else
     {
         ImpactedEntity->Health -= Damage * game->GetGameDeltaTime();
     }
 
     float Percent = (game->GetGameTime() - ImpactTime) / Duration;
 
-    float avg = ((float)ImpactedEntity->EntityColor.r + (float)ImpactedEntity->EntityColor.g + (float)ImpactedEntity->EntityColor.b) / 3.0f;
+    float avg = ((float)ImpactedEntity->EntityColor.r + (float)ImpactedEntity->EntityColor.g + (float)ImpactedEntity->
+        EntityColor.b) / 3.0f;
     if (avg >= 70)
         ImpactedEntity->EntityColor = ColorLerp(ImpactedEntity->EntityColor, BLACK, 0.5f * game->GetGameDeltaTime());
 
@@ -99,12 +101,13 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
         GradientProg = lerp(GradientProg, 0.0f, 1.75f * game->GetGameDeltaTime());
 
     float height = ImpactedEntity->BoundingBox.height * GradientProg;
-    DrawRectangleGradientV(ImpactedEntity->BoundingBox.x, ImpactedEntity->BoundingBox.y, ImpactedEntity->BoundingBox.width, height, ColorAlpha(RED, 0.5f), BLANK);
-    Rectangle r = {0,0,ImpactedEntity->BoundingBox.width + 1.25f, ImpactedEntity->BoundingBox.height + 1.25f};
-    r.x = ImpactedEntity->GetCenter().x - r.width/2.0f;
-    r.y = ImpactedEntity->GetCenter().y - r.height/2.0f;
+    DrawRectangleGradientV(ImpactedEntity->BoundingBox.x, ImpactedEntity->BoundingBox.y,
+                           ImpactedEntity->BoundingBox.width, height, ColorAlpha(RED, 0.5f), BLANK);
+    Rectangle r = {0, 0, ImpactedEntity->BoundingBox.width + 1.25f, ImpactedEntity->BoundingBox.height + 1.25f};
+    r.x = ImpactedEntity->GetCenter().x - r.width / 2.0f;
+    r.y = ImpactedEntity->GetCenter().y - r.height / 2.0f;
     float P = 2.0f * (Percent > 0.5 ? 1.0f - Percent : Percent);
-    DrawRectangleRoundedLinesEx(r, 0.1f, 10, 5.0f * max(P, 0.75f), ColorAlpha(RED, P/2.0f));
+    DrawRectangleRoundedLinesEx(r, 0.1f, 10, 5.0f * max(P, 0.75f), ColorAlpha(RED, P / 2.0f));
 
     if (game->GetGameTime() - LastDidSFX >= 0.95f)
     {
@@ -113,35 +116,35 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
         float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
         DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
 
-        game->GameSounds->PlayGameSound((string("burn") + to_string(GetRandomValue(1,2))),
-            0.5f * DistanceMultiplier, 1.0f - GetRandomValue(-50,50)/100.0f);
+        game->GameSounds->PlayGameSound((string("burn") + to_string(GetRandomValue(1, 2))),
+                                        0.5f * DistanceMultiplier, 1.0f - GetRandomValue(-50, 50) / 100.0f);
         LastDidSFX = game->GetGameTime();
     }
     if (game->GetGameTime() - LastDidFireParticle >= (Percent > 0.5f ? 0.1f : 0.2f))
     {
         game->GameParticles->ParticleEffect({
-            ImpactedEntity->GetCenter(),
-            70.0f,
-            ColorLerp(RED, ORANGE, 0.5f),
-            5.0f,
-            6.0f,
-            1.25f,
-            ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
-        }, -90, 35, 3);
+                                                ImpactedEntity->GetCenter(),
+                                                70.0f,
+                                                ColorLerp(RED, ORANGE, 0.5f),
+                                                5.0f,
+                                                6.0f,
+                                                1.25f,
+                                                ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
+                                            }, -90, 35, 3);
         LastDidFireParticle = game->GetGameTime();
 
         SmokeParticleCount++;
         if (SmokeParticleCount > 3)
         {
             game->GameParticles->ParticleEffect({
-            ImpactedEntity->GetCenter(),
-            200.0f,
-            ColorAlpha(GRAY, 0.5f),
-            0.0f,
-            36.0f,
-            5.0f,
-            ColorAlpha(BLACK, 0.5f)
-        }, -90, 35, 3);
+                                                    ImpactedEntity->GetCenter(),
+                                                    200.0f,
+                                                    ColorAlpha(GRAY, 0.5f),
+                                                    0.0f,
+                                                    36.0f,
+                                                    5.0f,
+                                                    ColorAlpha(BLACK, 0.5f)
+                                                }, -90, 35, 3);
             SmokeParticleCount = 0;
         }
     }
@@ -164,7 +167,7 @@ Swiftness::Swiftness(float SpeedInc, double Duration, double ImpactTime) : Effec
 void Swiftness::Update(std::shared_ptr<Entity> ImpactedEntity)
 {
     Effect::Update(ImpactedEntity);
-    Game *game = ImpactedEntity->game;
+    Game* game = ImpactedEntity->game;
 
     double EffectPercentage = (game->GetGameTime() - ImpactTime) / Duration;
     float Multiplier = abs(EffectPercentage - 0.5f) / 0.5f;
@@ -177,14 +180,17 @@ void Swiftness::Update(std::shared_ptr<Entity> ImpactedEntity)
     if (Vector2Distance(ImpactedEntity->GetCenter(), LastPos) > 0 && game->GetGameTime() - LastDidParticle >= 0.1f)
     {
         game->GameParticles->ParticleEffect({
-            ImpactedEntity->GetCenter(),
-            ImpactedEntity->GetSpeed() * 1.5f,
-            ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), ColorBrightness(SKYBLUE, 0.5f), 0.5f),
-            ImpactedEntity->GetSpeed() * 2.5f,
-            16.0f,
-            0.65f,
-            ColorLerp(ColorLerp(WHITE,SKYBLUE,0.65f), SKYBLUE, GetRandomValue(1, 100) / 100.0f)
-        }, 180.0f - (Vector2LineAngle(ImpactedEntity->GetCenter(),LastPos) * RAD2DEG), 35, GetRandomValue(1,2));
+                                                ImpactedEntity->GetCenter(),
+                                                ImpactedEntity->GetSpeed() * 1.5f,
+                                                ColorLerp(ColorLerp(WHITE, SKYBLUE, 0.65f),
+                                                          ColorBrightness(SKYBLUE, 0.5f), 0.5f),
+                                                ImpactedEntity->GetSpeed() * 2.5f,
+                                                16.0f,
+                                                0.65f,
+                                                ColorLerp(ColorLerp(WHITE, SKYBLUE, 0.65f), SKYBLUE,
+                                                          GetRandomValue(1, 100) / 100.0f)
+                                            }, 180.0f - (Vector2LineAngle(ImpactedEntity->GetCenter(), LastPos) *
+                                                RAD2DEG), 35, GetRandomValue(1, 2));
         LastDidParticle = game->GetGameTime();
     }
 
@@ -222,14 +228,14 @@ void Effects::AddEffect(EffectData data)
         break;
     case SWIFTNESS:
         {
-            Swiftness* s = new Swiftness(data.Power, data.Duration, game->GetGameTime());
+            Swiftness * s = new Swiftness(data.Power, data.Duration, game->GetGameTime());
             AddEffect(s);
             break;
         }
 
     case BURNING:
         {
-            Burning* s = new Burning(data.Power, data.Duration, game->GetGameTime());
+            Burning * s = new Burning(data.Power, data.Duration, game->GetGameTime());
             if (auto owner = data.Owner.lock())
                 s->SetOwner(owner);
             s->SetOwnerReward(data.Reward);
@@ -260,7 +266,10 @@ void Effects::AddEffect(Effect* effect)
 
 bool Effects::HasEffect(EffectType Type)
 {
-    for (Effect* effect : CurrentEffects)
+    for (Effect * effect 
+    :
+    CurrentEffects
+    )
     {
         if (effect->Type == Type)
         {
@@ -275,7 +284,10 @@ void Effects::RemoveOldestEffect()
     double EffectTime = std::numeric_limits<double>::max();
     int theIdx = -1;
     int i = 0;
-    for (Effect* effect : CurrentEffects)
+    for (Effect * effect 
+    :
+    CurrentEffects
+    )
     {
         if (effect->ImpactTime < EffectTime)
         {
@@ -307,13 +319,19 @@ void Effects::Update()
     while (CurrentEffects.size() > 10)
         RemoveOldestEffect();
 
-    for (Effect* effect : CurrentEffects)
-        effect->Update(Owner.lock());
+    for (Effect * effect 
+    :
+    CurrentEffects
+    )
+    effect->Update(Owner.lock());
 }
 
 void Effects::Cleanup()
 {
-    for (Effect* effect : CurrentEffects)
-        delete effect;
+    for (Effect * effect 
+    :
+    CurrentEffects
+    )
+    delete effect;
     CurrentEffects.clear();
 }

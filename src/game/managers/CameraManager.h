@@ -9,7 +9,8 @@
 
 class Game;
 
-class CameraManager {
+class CameraManager
+{
     void ProcessCameraShake();
     void UpdateScreenImageSize();
     void BackgroundLines();
@@ -40,31 +41,32 @@ class CameraManager {
     int BGTexture;
 
     double ZoomResetTimer;
-    public:
-        int IntendedScreenWidth;
-        int IntendedScreenHeight;
-        RenderTexture CameraRenderTexture;
-        Game* game;
-        Vector2 CameraPosition;
-        Vector2 CameraPositionUnaffected;
-        Vector2 CameraTarget;
-        Camera2D RaylibCamera;
-        float CameraZoom;
-        float ShaderPixelPower;
-        CameraManager(Game *game);
-        CameraManager();
-        ~CameraManager();
-        void BeginRenderTexture(RenderTexture &Tex, bool UseMainCamera = false);
-        void EndRenderTexture();
-        void StopCamera();
-        void BeginCamera();
-        void ShakeCamera(float Intensity);
-        void QuickZoom(float Zoom, double Time, bool Instant = false);
-        void Display(int ImpactFrame = 0, float ImpactFrameRadius = -1.0f);
-        void Begin();
-        void End();
-        void Clear();
-        void Quit();
+
+public:
+    int IntendedScreenWidth;
+    int IntendedScreenHeight;
+    RenderTexture CameraRenderTexture;
+    Game* game;
+    Vector2 CameraPosition;
+    Vector2 CameraPositionUnaffected;
+    Vector2 CameraTarget;
+    Camera2D RaylibCamera;
+    float CameraZoom;
+    float ShaderPixelPower;
+    CameraManager(Game* game);
+    CameraManager();
+    ~CameraManager();
+    void BeginRenderTexture(RenderTexture& Tex, bool UseMainCamera = false);
+    void EndRenderTexture();
+    void StopCamera();
+    void BeginCamera();
+    void ShakeCamera(float Intensity);
+    void QuickZoom(float Zoom, double Time, bool Instant = false);
+    void Display(int ImpactFrame = 0, float ImpactFrameRadius = -1.0f);
+    void Begin();
+    void End();
+    void Clear();
+    void Quit();
 };
 
 

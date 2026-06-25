@@ -28,13 +28,15 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
         try
         {
             tile_id = std::stoi(cell) + 1;
-        } catch (std::invalid_argument& e)
+        }
+        catch (std::invalid_argument& e)
         {
             cout << e.what() << "\n";
         }
     }
 
-    if (tile_id < 0 || tile_id >= 15) {
+    if (tile_id < 0 || tile_id >= 15)
+    {
         tile_id = 0;
     }
 
@@ -43,41 +45,46 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
     float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
     float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
 
-    switch (TileTypes[tile_id]) {
+    switch (TileTypes[tile_id])
+    {
     case EnemyTileType:
         AddEnemy(bbox_x, bbox_y, tile_id);
         break;
     case EnemySpawnTileType:
-        EnemySpawnLocations.push_back({bbox_x,bbox_y});
+        EnemySpawnLocations.push_back({bbox_x, bbox_y});
         break;
     case PlayerSpawnTileType:
         *PlayerSpawnFound = true;
         PlayerSpawnPosition = Vector2{bbox_x, bbox_y};
         break;
-    case SpawnerTileType: {
+    case SpawnerTileType:
+        {
             std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
             game->GameEntities->AddEntity(SpawnerType, spawner);
             break;
-    }
-    case BossTileType: {
+        }
+    case BossTileType:
+        {
             BossSpawnPosition = Vector2{bbox_x, bbox_y};
             break;
-    };
-    case UpgradeStationTileType: {
+        };
+    case UpgradeStationTileType:
+        {
             std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
             game->GameEntities->AddEntity(UpgradeStationType, station);
             break;
-    }
-    case TurretTileType: {
+        }
+    case TurretTileType:
+        {
             std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
-                "Sniper", bbox_x, bbox_y);
+                                                                 "Sniper", bbox_x, bbox_y);
             game->GameEntities->AddEntity(TurretType, t);
             break;
-    }
+        }
     case CatchEnemyTileType:
         {
-
-            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "", game->GameResources->Textures["enemy"], *game);
+            std::shared_ptr<Enemy> e = make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "",
+                                                          game->GameResources->Textures["enemy"], *game);
             std::unique_ptr<EnemyBehavior> catch_behavior = std::make_unique<CatchBehavior>(*e, *game);
             e->Behavior.reset();
             e->Behavior = std::move(catch_behavior);
@@ -87,7 +94,8 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
         }
     case DwellerEnemyTileType:
         {
-            std::shared_ptr<Enemy> e= make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25), "Enemy Sword", game->GameResources->Textures["enemy"], *game);
+            std::shared_ptr<Enemy> e = make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 0.0f, GetRandomValue(0, 25),
+                                                          "Enemy Sword", game->GameResources->Textures["enemy"], *game);
             std::unique_ptr<EnemyBehavior> dwell_behavior = std::make_unique<DwellerBehavior>(*e, *game);
             auto* db = dynamic_cast<DwellerBehavior*>(dwell_behavior.get());
             db->HasMovedIntoPlace = true;
@@ -117,7 +125,8 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
     }
 }
 
-void TileManager::ReadMapDataFile(std::string FileName) {
+void TileManager::ReadMapDataFile(std::string FileName)
+{
     int y = 0;
     int x = 0;
 
@@ -128,10 +137,10 @@ void TileManager::ReadMapDataFile(std::string FileName) {
     if (PrevFileName != FileName)
     {
         Lines.clear();
-        std::ifstream  data(FileName);
+        std::ifstream data(FileName);
 
         std::string da;
-        while(std::getline(data,da))
+        while (std::getline(data, da))
             Lines.push_back(da);
 
         data.close();
@@ -139,14 +148,15 @@ void TileManager::ReadMapDataFile(std::string FileName) {
 
     for (const std::string& line : Lines)
     {
-        std::stringstream  lineStream(line);
-        std::string        cell;
-        while(std::getline(lineStream,cell,','))
+        std::stringstream lineStream(line);
+        std::string cell;
+        while (std::getline(lineStream, cell, ','))
         {
-            ProcessTile(cell,x,y,&PlayerSpawnFound);
+            ProcessTile(cell, x, y, &PlayerSpawnFound);
             x += 1;
         }
-        if (x > MapWidth) {
+        if (x > MapWidth)
+        {
             MapWidth = x;
         }
         x = 0;
@@ -173,7 +183,8 @@ void TileManager::CreateFileEntity(FileEntity& NewFileEntity)
     if (NewFileEntity.Type == EnemyType)
     {
         NewEntity = make_shared<Enemy>(NewFileEntity.X, NewFileEntity.Y, NewFileEntity.Health, NewFileEntity.Speed,
-            NewFileEntity.Armor, NewFileEntity.Weapon, game->GameResources->Textures["enemy"], *game);
+                                       NewFileEntity.Armor, NewFileEntity.Weapon,
+                                       game->GameResources->Textures["enemy"], *game);
     }
 
     NewEntity->BoundingBox.width = NewFileEntity.W;
@@ -200,7 +211,8 @@ void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, s
                 if (std::stoi(cell) >= 0 && std::stoi(cell) < End)
                 {
                     ThisFileEntity.Type = (EntityType)std::stoi(cell);
-                } else
+                }
+                else
                 {
                     ThisFileEntity.Type = DefaultType;
                 }
@@ -231,7 +243,8 @@ void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, s
             ThisFileEntity.Weapon = cell;
             break;
         }
-    } catch (std::invalid_argument& e)
+    }
+    catch (std::invalid_argument& e)
     {
         cout << e.what() << "\n";
     }
@@ -239,10 +252,10 @@ void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, s
 
 void TileManager::ReadEntitiesFile(std::string FileName)
 {
-    std::ifstream  data(FileName);
+    std::ifstream data(FileName);
 
     std::string line;
-    while(std::getline(data,line))
+    while (std::getline(data, line))
     {
         if (line.starts_with("Type"))
             continue;
@@ -253,9 +266,9 @@ void TileManager::ReadEntitiesFile(std::string FileName)
 
         int i = 0;
 
-        while(std::getline(lineStream,cell,','))
+        while (std::getline(lineStream, cell, ','))
         {
-            SetPropertiesOfFileEntity(ThisFileEntity,i,cell);
+            SetPropertiesOfFileEntity(ThisFileEntity, i, cell);
             i++;
         }
 
@@ -264,7 +277,8 @@ void TileManager::ReadEntitiesFile(std::string FileName)
     }
 }
 
-void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
+void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id)
+{
     std::string Weapon = "Default Gun";
     float Speed = 350.0f;
     float Health = 100.0f;
@@ -284,9 +298,11 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
         Armor = 0.0f;
         break;
     }
-    float Multiplier = 1.0f + 0.15f * (game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["difficulty"].get<int>()-3);
+    float Multiplier = 1.0f + 0.15f * (game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["difficulty"].
+        get<int>() - 3);
     Armor *= Multiplier;
     Speed *= Multiplier;
     Health *= Multiplier;
-    game->GameEntities->AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources->Textures["enemy"], *game));
+    game->GameEntities->AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon,
+                                                                game->GameResources->Textures["enemy"], *game));
 }

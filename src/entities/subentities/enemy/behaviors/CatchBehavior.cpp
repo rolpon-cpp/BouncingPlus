@@ -16,7 +16,7 @@ CatchBehavior::CatchBehavior()
     ResetDirection();
 }
 
-CatchBehavior::CatchBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner,game)
+CatchBehavior::CatchBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner, game)
 {
     BehaviorType = CatchBehaviorType;
     ResetDirection();
@@ -29,7 +29,7 @@ CatchBehavior::~CatchBehavior()
 void CatchBehavior::ResetDirection()
 {
     // changes the direction
-    CurrentDir = Vector2Normalize({GetRandomValue(1,2) == 1 ? -1.0f : 1.0f, GetRandomValue(1,2) == 1 ? -1.0f : 1.0f});
+    CurrentDir = Vector2Normalize({GetRandomValue(1, 2) == 1 ? -1.0f : 1.0f, GetRandomValue(1, 2) == 1 ? -1.0f : 1.0f});
     CurrentSpeed = GetRandomValue(700, 1200);
 }
 
@@ -40,17 +40,22 @@ void CatchBehavior::Update()
     Owner->Movement = CurrentDir;
     Owner->Rotation = 180 - (Vector2LineAngle({Owner->BoundingBox.x, Owner->BoundingBox.y}, LastPosition) * RAD2DEG);
 
-    if (game->GetGameTime() - LastChangedDirCooldown >= 5.0f && !game->GameMiscTools->RayCastPoint(Owner->GetCenter(), Owner->GetCenter() + (CurrentDir * 100.0f)).HitAir)
+    if (game->GetGameTime() - LastChangedDirCooldown >= 5.0f && !game->GameMiscTools->RayCastPoint(
+        Owner->GetCenter(), Owner->GetCenter() + (CurrentDir * 100.0f)).HitAir)
     {
         ResetDirection();
-        LastChangedDirCooldown= game->GetGameTime();
+        LastChangedDirCooldown = game->GetGameTime();
     }
 
     // player damage check
-    float distance = Vector2Distance({Owner->BoundingBox.x, Owner->BoundingBox.y}, {game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y});
+    float distance = Vector2Distance({Owner->BoundingBox.x, Owner->BoundingBox.y}, {
+                                         game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y
+                                     });
     if (distance < 600 && game->GetGameTime() - AttackCooldown >= 1.5f)
     {
-        CurrentDir = Vector2Normalize(Vector2Subtract({game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y}));
+        CurrentDir = Vector2Normalize(Vector2Subtract(
+            {game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y},
+            {Owner->BoundingBox.x, Owner->BoundingBox.y}));
         if (distance < 100)
         {
             Owner->DamageOther(game->MainPlayer, 10);
@@ -58,7 +63,6 @@ void CatchBehavior::Update()
             game->GameSounds->PlayGameSound("dash_hit", 0.1f);
             AttackCooldown = game->GetGameTime();
         }
-
     }
 
     // updating enemy behavior and last properties

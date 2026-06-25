@@ -8,7 +8,8 @@
 
 class Game;
 
-class GameplayUI {
+class GameplayUI
+{
 public:
     float StartingBlackScreenTrans = 1.0f;
     float EndBlackScreenTrans = 0.0f;
@@ -33,7 +34,7 @@ public:
     int Margin = 15;
     float Alpha = 0.75f;
 
-    Vector2 StressShakePos = {0,0};
+    Vector2 StressShakePos = {0, 0};
     double LastChangedStressShakePos = 0;
 
     float RankSideSize = 100.0f;
@@ -42,8 +43,8 @@ public:
     bool WasPausedLast = false;
     bool IsChangingSettings = false;
 
-    Game *game;
-    GameplayUI(Game *game);
+    Game* game;
+    GameplayUI(Game* game);
     GameplayUI();
 
     // in GameplayUIMenus

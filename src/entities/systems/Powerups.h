@@ -56,18 +56,18 @@ struct TankyPowerup : Powerup
 
 class PowerupSystem
 {
-    public:
+public:
     std::weak_ptr<Player> Owner;
     Game* game;
     float CurrentCooldown = 0;
     float CurrentLength = 0;
     bool PowerupIsActive = false;
-    Powerup *CurrentPowerup = nullptr;
-    PowerupSystem(std::shared_ptr<Player> Owner, Game &game);
+    Powerup* CurrentPowerup = nullptr;
+    PowerupSystem(std::shared_ptr<Player> Owner, Game& game);
     PowerupSystem();
     void Update();
     void Activate();
-    void SetPowerup(Powerup *Powerup);
+    void SetPowerup(Powerup* Powerup);
     virtual ~PowerupSystem();
 };
 

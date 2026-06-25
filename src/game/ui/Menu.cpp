@@ -181,15 +181,15 @@ void Menu::LevelSelect()
     };
     DrawRectangleRec({r.x - CameraX, r.y, r.width, r.height}, ColorAlpha(BLACK, 0.5f));
 
-    #ifndef PLATFORM_WEB
-        if (Button({
-                       LevelSelectPanelRectangle.x + 25 - CameraX,
-                       LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40
-                   },
-                   GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick,
-                   "RELOAD LEVELS"))
-            Shared->ReloadLevels();
-    #endif
+#ifndef PLATFORM_WEB
+    if (Button({
+                   LevelSelectPanelRectangle.x + 25 - CameraX,
+                   LevelSelectPanelRectangle.y + LevelSelectPanelRectangle.height - 55, 200, 40
+               },
+               GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick,
+               "RELOAD LEVELS"))
+        Shared->ReloadLevels();
+#endif
 
     if (Button({r.x + r.width * 0.85f - 25 - CameraX, r.y + r.height / 2 - 25, 50, 50}, GetMousePosition(),
                Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, ">"))
@@ -300,9 +300,10 @@ void Menu::ShopStuff()
 
     DrawRectangleRec(r, ColorAlpha(BLACK, 0.5f));
 
-    DrawText(moneyTxt.c_str(), r.x + (r.width / 2.0f) - (txtSize/2.0f),
-        r.y + (r.height/2.0f) - (fntSize/2.0f), fntSize, ColorLerp(WHITE, GREEN,
-        min(Shared->Progress.Data.Money/1000.0f, 1.0f)));
+    DrawText(moneyTxt.c_str(), r.x + (r.width / 2.0f) - (txtSize / 2.0f),
+             r.y + (r.height / 2.0f) - (fntSize / 2.0f), fntSize, ColorLerp(WHITE, GREEN,
+                                                                            min(Shared->Progress.Data.Money / 1000.0f,
+                                                                                1.0f)));
 
     Vector2 ShopPanelSize = Vector2{(float)GetRenderWidth() - 200.0f, (float)GetRenderHeight() - 180.0f};
     Rectangle ShopPanelRect = {
@@ -343,7 +344,7 @@ void Menu::TitleScreen()
                    GetRenderHeight() - 106.0f + (Offset1 + Offset3) / 2, 150, 56
                }, GetMousePosition(),
                Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "BACK") ||
-               Button({
+        Button({
                    GetRenderWidth() * -2 + (GetRenderWidth() / 2.0f) - 75.0f - CameraX,
                    GetRenderHeight() - 106.0f + (Offset1 + Offset3) / 2, 150, 56
                }, GetMousePosition(),
@@ -376,14 +377,14 @@ void Menu::TitleScreen()
                GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "SHOP"))
         CameraTargetX = -2;
 
-    #ifndef PLATFORM_WEB
-        if (Button({
-                       (GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width / 2.0f) - CameraX,
-                       (float)QuitButtonOffsetY + (Offset2 + Offset1 + Offset3) / 3.0f, 150, 56
-                   },
-                   GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "QUIT"))
-            Shared->RequestQuit();
-    #endif
+#ifndef PLATFORM_WEB
+    if (Button({
+                   (GetRenderWidth() / 2.0f) - (int)(Shared->SharedUIAssets.ButtonImg.width / 2.0f) - CameraX,
+                   (float)QuitButtonOffsetY + (Offset2 + Offset1 + Offset3) / 3.0f, 150, 56
+               },
+               GetMousePosition(), Shared->SharedUIAssets.ButtonImg, Shared->SharedUIAssets.ButtonClick, "QUIT"))
+        Shared->RequestQuit();
+#endif
 }
 
 void Menu::UpdateOffsets()
@@ -413,15 +414,21 @@ void Menu::UpdateOffsets()
 
 void Menu::BlackScreenFade()
 {
-    if (isStarting && BlackTransparency > 0)
-        BlackTransparency -= 0.65f * GetFrameTime();
+    if (isStarting&& BlackTransparency 
+    >
+    0
+    )
+    BlackTransparency -= 0.65f * GetFrameTime();
     else
     {
         isStarting = false;
     }
     if (MovingToGame)
         BlackTransparency += 0.65f * GetFrameTime();
-    if (MovingToGame && BlackTransparency >= 1.0f)
+    if (MovingToGame&& BlackTransparency 
+    >=
+    1.0f
+    )
     {
         Map = TargetMap;
         StopMusicStream(Shared->SharedUIAssets.MainMenuMusic);

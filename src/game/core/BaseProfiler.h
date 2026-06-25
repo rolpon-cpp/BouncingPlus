@@ -17,7 +17,7 @@ public:
     double LastTime = -1;
     double LastCleared = -1;
     std::map<std::string, double> DisplayTimes;
-    std::map<std::string,std::vector<double>> AvgTimes;
+    std::map<std::string, std::vector<double>> AvgTimes;
     BaseProfiler();
     ~BaseProfiler();
     void ProfilerLog(std::string Reason);

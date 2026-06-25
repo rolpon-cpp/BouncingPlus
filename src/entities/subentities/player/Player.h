@@ -20,8 +20,8 @@ struct ScoreChange
     double Time;
 };
 
-class Player : public Entity {
-
+class Player : public Entity
+{
     bool SystemsInitialized = false;
 
     float Alpha = 1;
@@ -39,51 +39,49 @@ class Player : public Entity {
 
     float ScrollWheel = 0;
 
-    public:
-
-        std::vector<ScoreChange> ScoreChanges;
+public:
+    std::vector<ScoreChange> ScoreChanges;
 
     double LastSwappedItem = 0;
 
-        float ComboTime= 0;
-        int EnemyCombo = 0;
-        double LastKilledAnEnemy = 0;
+    float ComboTime = 0;
+    int EnemyCombo = 0;
+    double LastKilledAnEnemy = 0;
 
-        float StressLevel = 0;
-        float FrameStressLevel = 0;
-        int EnemiesDetected = 0;
+    float StressLevel = 0;
+    float FrameStressLevel = 0;
+    int EnemiesDetected = 0;
 
-        bool isInvincible;
-        float ExtraSpeed;
+    bool isInvincible;
+    float ExtraSpeed;
 
-        float SpeedBuff;
-        bool WarningSign;
-        bool HealthConcern;
-        double PlayerFrozenTimer = 0;
-        bool ReduceSpeedBuff = false;
-        PlayerLogicProcessor LogicProcessor;
-        WeaponsSystem MainWeaponsSystem;
-        PowerupSystem MainPowerupSystem;
-        Effects MainEffectsSystem;
-        double InvincibilityResetTimer;
-        int Kills;
-        bool IsPreparingForDash = false;
-        bool Dodging =false;
+    float SpeedBuff;
+    bool WarningSign;
+    bool HealthConcern;
+    double PlayerFrozenTimer = 0;
+    bool ReduceSpeedBuff = false;
+    PlayerLogicProcessor LogicProcessor;
+    WeaponsSystem MainWeaponsSystem;
+    PowerupSystem MainPowerupSystem;
+    Effects MainEffectsSystem;
+    double InvincibilityResetTimer;
+    int Kills;
+    bool IsPreparingForDash = false;
+    bool Dodging = false;
 
-        Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
-        Player();
-    ~Player()override;
-        void PhysicsUpdate(float DeltaTime, double Time)override;
-        void Update()override;
-        void OnDeath() override;
-        void OnDelete() override;
-        void OnWallVelocityBump(float Power)override;
-        void PlayerControls();
-        void ProcessKills();
-        void ProcessWarningSign();
-        void SystemsInitCheck();
-        void ToggleInvincibility();
-
+    Player(float X, float Y, float Speed, Texture2D& PlayerTexture, Game& game);
+    Player();
+    ~Player() override;
+    void PhysicsUpdate(float DeltaTime, double Time) override;
+    void Update() override;
+    void OnDeath() override;
+    void OnDelete() override;
+    void OnWallVelocityBump(float Power) override;
+    void PlayerControls();
+    void ProcessKills();
+    void ProcessWarningSign();
+    void SystemsInitCheck();
+    void ToggleInvincibility();
 };
 
 

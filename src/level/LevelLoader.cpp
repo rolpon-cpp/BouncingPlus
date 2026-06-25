@@ -12,17 +12,16 @@ using json = nlohmann::json;
 
 using namespace std;
 
-std::unordered_map<std::string,json> GetLevelsData()
+std::unordered_map<std::string, json> GetLevelsData()
 {
-    std::unordered_map<std::string,json> level_data = std::unordered_map<std::string,json>();
+    std::unordered_map<std::string, json> level_data = std::unordered_map<std::string, json>();
     std::vector<std::string> level_order = std::vector<std::string>();
 
     try
     {
-
         std::ifstream g("assets/maps/LevelOrder.txt");
         std::string line;
-        while(std::getline(g,line))
+        while (std::getline(g, line))
         {
             if (!line.empty() && line.back() == '\r')
                 line.pop_back();
@@ -41,7 +40,8 @@ std::unordered_map<std::string,json> GetLevelsData()
         }
 
         g.close();
-    } catch (std::exception &e)
+    }
+    catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
     }
@@ -54,7 +54,7 @@ std::unordered_map<std::string,json> GetLevelsData()
     }
 
     int i = level_order.size();
-    for (auto &[name, val] : level_data)
+    for (auto& [name, val] : level_data)
     {
         if (!val.count("order"))
         {
@@ -75,7 +75,8 @@ void ReloadLevel(std::string LevelName, std::map<std::string, json>& LevelData)
         json h = json::parse(f);
         LevelData[LevelName] = h;
         f.close();
-    } catch (std::exception &e)
+    }
+    catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
     }

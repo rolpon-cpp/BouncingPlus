@@ -9,7 +9,8 @@
 #include "../../managers/ResourceManager.h"
 #include "../../managers/GameModeManager.h"
 
-GameplayUI::GameplayUI(Game *game) {
+GameplayUI::GameplayUI(Game* game)
+{
     this->game = game;
     this->WeaponUITexture = LoadRenderTexture(GetRenderWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
@@ -18,7 +19,8 @@ GameplayUI::GameplayUI(Game *game) {
     Clear();
 }
 
-GameplayUI::GameplayUI() {
+GameplayUI::GameplayUI()
+{
 }
 
 void GameplayUI::Clear()
@@ -41,7 +43,7 @@ void GameplayUI::Clear()
     this->Margin = 15;
     this->Alpha = 0.75f;
 
-    this->StressShakePos = {0,0};
+    this->StressShakePos = {0, 0};
     this->LastChangedStressShakePos = 0;
     this->RankSideSize = 100.0f;
     this->RankSizeHeight = 250.0f;
@@ -66,29 +68,31 @@ void GameplayUI::GameUI()
     float highest_height = -1;
 
     float tPrev = 0;
-    for (int i = 0; i < 3; i ++ )
+    for (int i = 0; i < 3; i++)
     {
         float offset = 0;
         float size = 0;
-        if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex == i) {
+        if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex == i)
+        {
             WeaponSlotIndex = i;
         }
         if (WeaponSlotIndex == i)
         {
-            offset=WeaponSlotOffset;
-            size=WeaponSlotSize;
+            offset = WeaponSlotOffset;
+            size = WeaponSlotSize;
         }
         std::string name = game->MainPlayer->MainWeaponsSystem.Weapons[i];
         if (name.empty())
             name = "Empty";
         if (i == 2)
             highest_height = tPrev + 20 + size;
-        if (MeasureText(name.c_str(), 20+size)+offset > highest_width)
-            highest_width = MeasureText(name.c_str(), 20+size)+offset;
+        if (MeasureText(name.c_str(), 20 + size) + offset > highest_width)
+            highest_width = MeasureText(name.c_str(), 20 + size) + offset;
         tPrev += 35 + size;
     }
 
-    DrawRectangle(lowest_x-Margin,lowest_y-Margin,highest_width+(Margin*2),highest_height+(Margin*2),ColorAlpha(BLACK, Alpha));
+    DrawRectangle(lowest_x - Margin, lowest_y - Margin, highest_width + (Margin * 2), highest_height + (Margin * 2),
+                  ColorAlpha(BLACK, Alpha));
 
     // cooldown meter
     DisplayCooldownMeter(lowest_x, lowest_y, highest_width, highest_height);
@@ -107,14 +111,19 @@ void GameplayUI::GameUI()
 
     if (game->DebugDraw && game->MainPlayer->MainWeaponsSystem.CurrentWeapon != nullptr)
         DrawText(("Weapon info " + to_string(game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex) + " "
-            + to_string(game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]) + " " +
-            game->MainPlayer->MainWeaponsSystem.Weapons[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] + " " +
-            to_string(game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex])
-            ).c_str(), 0, 0, 25, WHITE);
+                     + to_string(
+                         game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.
+                             CurrentWeaponIndex]) + " " +
+                     game->MainPlayer->MainWeaponsSystem.Weapons[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]
+                     + " " +
+                     to_string(
+                         game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.
+                                                                              CurrentWeaponIndex])
+                 ).c_str(), 0, 0, 25, WHITE);
 
     EndTextureMode();
 
-    DeathTextAnimRot = sin(GetTime()*2) * 6;
+    DeathTextAnimRot = sin(GetTime() * 2) * 6;
 
     BeginTextureMode(DeathScreen);
     ClearBackground(ColorAlpha(RED, 0.2f));
@@ -133,15 +142,24 @@ void GameplayUI::GameUI()
     if (game->GameMode->WonLevel)
         GameWin();
     else
-        DrawTextureRec(DeathScreen.texture, Rectangle{0, 0, (float)DeathScreen.texture.width, -(float)DeathScreen.texture.height}, Vector2{0, (float)GetRenderHeight() - DeathScreen.texture.height}, ColorAlpha(WHITE, 1.0f - UITransparency));
+        DrawTextureRec(DeathScreen.texture,
+                       Rectangle{0, 0, (float)DeathScreen.texture.width, -(float)DeathScreen.texture.height},
+                       Vector2{0, (float)GetRenderHeight() - DeathScreen.texture.height},
+                       ColorAlpha(WHITE, 1.0f - UITransparency));
 
-    DrawTextureRec(WeaponUITexture.texture, Rectangle{0, 0, (float)WeaponUITexture.texture.width, -(float)WeaponUITexture.texture.height}, Vector2{0.0f, (float)GetRenderHeight() - WeaponUITexture.texture.height}, ColorAlpha(WHITE, UITransparency));
+    DrawTextureRec(WeaponUITexture.texture,
+                   Rectangle{0, 0, (float)WeaponUITexture.texture.width, -(float)WeaponUITexture.texture.height},
+                   Vector2{0.0f, (float)GetRenderHeight() - WeaponUITexture.texture.height},
+                   ColorAlpha(WHITE, UITransparency));
 
-    if (game->MainPlayer->Health > 0 && !game->GameMode->WonLevel && UITransparency < 1.0f) {
+    if (game->MainPlayer->Health > 0 && !game->GameMode->WonLevel && UITransparency < 1.0f)
+    {
         UITransparency += 1.9f * GetFrameTime();
         if (UITransparency > 1.0f)
             UITransparency = 1.0f;
-    } else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->GameMode->WonLevel)) {
+    }
+    else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->GameMode->WonLevel))
+    {
         UITransparency -= 2.2f * GetFrameTime();
         if (UITransparency < 0.0f)
             UITransparency = 0.0f;
@@ -173,7 +191,7 @@ void GameplayUI::GameUI()
         DisplayCursor();
         WasPausedLast = false;
     }
-    
+
     StartingBlackScreenTrans -= 0.65f * GetFrameTime();
     DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
     DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, EndBlackScreenTrans));
@@ -181,28 +199,33 @@ void GameplayUI::GameUI()
 
 void GameplayUI::RefreshRenderTextures()
 {
-    if (WeaponUITexture.texture.width != GetRenderWidth()) {
+    if (WeaponUITexture.texture.width != GetRenderWidth())
+    {
         UnloadRenderTexture(WeaponUITexture);
         WeaponUITexture = LoadRenderTexture(GetRenderWidth(), WeaponUITexture.texture.height);
     }
 
-    if (DeathScreen.texture.width != GetRenderWidth() || DeathScreen.texture.height != GetRenderHeight()) {
+    if (DeathScreen.texture.width != GetRenderWidth() || DeathScreen.texture.height != GetRenderHeight())
+    {
         UnloadRenderTexture(DeathScreen);
         DeathScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
-    if (GameWinScreen.texture.width != GetRenderWidth() || GameWinScreen.texture.height != GetRenderHeight()) {
+    if (GameWinScreen.texture.width != GetRenderWidth() || GameWinScreen.texture.height != GetRenderHeight())
+    {
         UnloadRenderTexture(GameWinScreen);
         GameWinScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
-    if (PauseScreen.texture.width != GetRenderWidth() || PauseScreen.texture.height != GetRenderHeight()) {
+    if (PauseScreen.texture.width != GetRenderWidth() || PauseScreen.texture.height != GetRenderHeight())
+    {
         UnloadRenderTexture(PauseScreen);
         PauseScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 }
 
-void GameplayUI::Quit() {
+void GameplayUI::Quit()
+{
     UnloadRenderTexture(WeaponUITexture);
     UnloadRenderTexture(PauseScreen);
     UnloadRenderTexture(GameWinScreen);

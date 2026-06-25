@@ -30,7 +30,7 @@ DwellerBehavior::DwellerBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner
 
     Owner.Armor = 0.0f;
     Owner.Speed = 300.0f;
-    Owner.Texture = &game.GameResources->Textures[GetRandomValue(0,100) <= 50 ? "delete_wall" : "bouncy_wall"];
+    Owner.Texture = &game.GameResources->Textures[GetRandomValue(0, 100) <= 50 ? "delete_wall" : "bouncy_wall"];
 
     ChooseNewMovementSpot();
 }
@@ -39,25 +39,25 @@ void DwellerBehavior::ChooseNewMovementSpot()
 {
     HasMovedIntoPlace = false;
 
-    float RandomX = (float) GetRandomValue(-360, 360);
-    float RandomY = (float) GetRandomValue(-360, 360);
-    Vector2 MovementDir = Vector2Normalize({RandomX,RandomY});
+    float RandomX = (float)GetRandomValue(-360, 360);
+    float RandomY = (float)GetRandomValue(-360, 360);
+    Vector2 MovementDir = Vector2Normalize({RandomX, RandomY});
 
     Vector2 Targ = Owner->GetCenter() + (MovementDir * 2000);
     RayCastData d = game->GameMiscTools->RayCastPoint(Owner->GetCenter(), Targ);
-    
+
     d.HitPosition.x /= game->GameTiles->TileSize;
     d.HitPosition.y /= game->GameTiles->TileSize;
-    
+
     d.HitPosition.x = (int)(d.HitPosition.x);
     d.HitPosition.y = (int)(d.HitPosition.y);
-    
+
     d.HitPosition.x *= game->GameTiles->TileSize;
     d.HitPosition.y *= game->GameTiles->TileSize;
-    
+
     PlaceSpot = d.HitPosition;
-    
-    TravelDistance = Vector2Distance(Owner->GetCenter(), PlaceSpot)+1;
+
+    TravelDistance = Vector2Distance(Owner->GetCenter(), PlaceSpot) + 1;
     TravelStartTime = this->game->GetGameTime();
 
     /*
@@ -77,15 +77,15 @@ DwellerBehavior::~DwellerBehavior()
 void DwellerBehavior::Update()
 {
     if (game->DebugDraw)
-        DrawCircleV(PlaceSpot,game->GameTiles->TileSize / 4.0f,ColorAlpha(RED, 0.5f));
-    Owner->MainWeaponsSystem.CanDisplayWeaponTex= false;
+        DrawCircleV(PlaceSpot, game->GameTiles->TileSize / 4.0f, ColorAlpha(RED, 0.5f));
+    Owner->MainWeaponsSystem.CanDisplayWeaponTex = false;
     if (!HasMovedIntoPlace)
     {
-        Owner->Movement = Vector2Subtract(PlaceSpot,Owner->GetCenter());
-        
+        Owner->Movement = Vector2Subtract(PlaceSpot, Owner->GetCenter());
+
         if (Vector2Distance(Owner->GetCenter(), PlaceSpot) <= game->GameTiles->TileSize)
             HasMovedIntoPlace = true;
-        
+
         if (!HasMovedIntoPlace)
         {
             float TimePassed = this->game->GetGameTime() - TravelStartTime;
@@ -93,21 +93,23 @@ void DwellerBehavior::Update()
             if (ExpectedDistance >= TravelDistance * 1.5f)
                 ChooseNewMovementSpot();
         }
-    } else
+    }
+    else
     {
         float PlrDistance = Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter());
         if (PlrDistance < 250 && game->GameMiscTools->RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
         {
-            Owner->Movement = Vector2Subtract(game->MainPlayer->GetCenter(),Owner->GetCenter());
+            Owner->Movement = Vector2Subtract(game->MainPlayer->GetCenter(), Owner->GetCenter());
             Owner->MainWeaponsSystem.Attack(game->MainPlayer->GetCenter());
-        } else
+        }
+        else
         {
-            PlaceSpot= Owner->GetCenter();
+            PlaceSpot = Owner->GetCenter();
             PlaceSpot.x = (int)(PlaceSpot.x / game->GameTiles->TileSize) * game->GameTiles->TileSize;
             PlaceSpot.y = (int)(PlaceSpot.y / game->GameTiles->TileSize) * game->GameTiles->TileSize;
-            Owner->Movement = Vector2Subtract(PlaceSpot,Owner->GetCenter());
+            Owner->Movement = Vector2Subtract(PlaceSpot, Owner->GetCenter());
             if (Vector2Distance(Owner->GetCenter(), PlaceSpot) <= 2.5f)
-                Owner->Movement = {0,0};
+                Owner->Movement = {0, 0};
         }
     }
 

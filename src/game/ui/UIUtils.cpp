@@ -6,13 +6,16 @@
 #include "string"
 #include "UIUtils.h"
 
-Color GetHealthColor(float Percent, float Armor) {
+Color GetHealthColor(float Percent, float Armor)
+{
     if (Armor > 0)
         return BLUE;
-    if (Percent >= 0.5f) {
+    if (Percent >= 0.5f)
+    {
         return ColorLerp(YELLOW, GREEN, (Percent - 0.5f) / 0.5f);
     }
-    if (Percent < 0.5f) {
+    if (Percent < 0.5f)
+    {
         return ColorLerp(RED, YELLOW, Percent / 0.5f);
     }
     return {0, 0, 0, 255};
@@ -27,8 +30,16 @@ void UIAssets::Load()
     ButtonSmallRedImg = LoadTexture("assets/ui/button_small_red.png");
     ButtonImg = LoadTexture("assets/ui/button.png");
     MenuImg = LoadTexture("assets/ui/menu_img.png");
-    EasterEggImg = LoadTexture(neruChance == 2 ? "assets/ui/neru.png" : tetoChance <= 3 ? "assets/ui/teto.png" : "assets/ui/miku.png"); // chance to load either miku or teto image
-    EasterEggMusic = LoadMusicStream(neruChance == 2 ? "assets/ui/flop_era.mp3" : tetoChance <= 3 ? "assets/ui/teto_territory.mp3" : "assets/ui/lovely_cavity.mp3"); // chance to load either miku or teto sound
+    EasterEggImg = LoadTexture(neruChance == 2
+                                   ? "assets/ui/neru.png"
+                                   : tetoChance <= 3
+                                   ? "assets/ui/teto.png"
+                                   : "assets/ui/miku.png"); // chance to load either miku or teto image
+    EasterEggMusic = LoadMusicStream(neruChance == 2
+                                         ? "assets/ui/flop_era.mp3"
+                                         : tetoChance <= 3
+                                         ? "assets/ui/teto_territory.mp3"
+                                         : "assets/ui/lovely_cavity.mp3"); // chance to load either miku or teto sound
     ButtonClick = LoadSound("assets/ui/button_click.wav");
     SliderDrag = LoadSound("assets/ui/slider_dragging.wav");
     CursorImg = LoadTexture("assets/ui/cursor.png");
@@ -61,31 +72,32 @@ void UIAssets::Quit()
 }
 
 void Checkmark(Vector2 Position, Vector2 MousePos, Sound& CheckmarkClick,
-                 Texture2D& ButtonSmallImg, Texture2D& ButtonSmallImgRed, std::string Text, bool* Value)
+               Texture2D& ButtonSmallImg, Texture2D& ButtonSmallImgRed, std::string Text, bool* Value)
 {
-
     float checkmarks_size = 100;
 
     float fnt_size = 35;
     float tx_size = MeasureText(Text.c_str(), fnt_size);
     float w = tx_size + checkmarks_size + 48;
     float h = fnt_size + 16;
-    Position.x -= w/2;
-    Rectangle rec = {Position.x, Position.y,w, h};
+    Position.x -= w / 2;
+    Rectangle rec = {Position.x, Position.y, w, h};
 
-    DrawRectangleRec({rec.x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
+    DrawRectangleRec({rec.x, rec.y, rec.width, rec.height}, ColorAlpha(BLACK, 0.5f));
     if (!Text.empty())
         DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f), fnt_size, WHITE);
 
-    DrawTexturePro(ButtonSmallImg, {0,0,56,56}, {Position.x + tx_size + 32, rec.y + rec.height/2 - 20, 40,40}, {0, 0}, 0, WHITE);
-    DrawTexturePro(ButtonSmallImgRed, {0,0,56,56}, {rec.x + rec.width - 56, rec.y + rec.height/2 - 20, 40,40}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonSmallImg, {0, 0, 56, 56}, {Position.x + tx_size + 32, rec.y + rec.height / 2 - 20, 40, 40},
+                   {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonSmallImgRed, {0, 0, 56, 56}, {rec.x + rec.width - 56, rec.y + rec.height / 2 - 20, 40, 40},
+                   {0, 0}, 0, WHITE);
 
-    Vector2 HighlightPos = {Position.x + tx_size + 32, rec.y + rec.height/2 - 20};
-    Vector2 OtherHighlightPos = {rec.x + rec.width - 56, rec.y + rec.height/2 - 20};
+    Vector2 HighlightPos = {Position.x + tx_size + 32, rec.y + rec.height / 2 - 20};
+    Vector2 OtherHighlightPos = {rec.x + rec.width - 56, rec.y + rec.height / 2 - 20};
     if (!*Value)
     {
-        HighlightPos = {rec.x + rec.width - 56, rec.y + rec.height/2 - 20};
-        OtherHighlightPos = {Position.x + tx_size + 32, rec.y + rec.height/2 - 20};
+        HighlightPos = {rec.x + rec.width - 56, rec.y + rec.height / 2 - 20};
+        OtherHighlightPos = {Position.x + tx_size + 32, rec.y + rec.height / 2 - 20};
     }
 
     Rectangle CheckmarkRect = {HighlightPos.x, HighlightPos.y, 40, 40};
@@ -112,14 +124,19 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
     float tx_size = MeasureText(Text.c_str(), fnt_size);
     float w = tx_size + slider_size + 48;
     float h = fnt_size + 16;
-    Position.x -= w/2;
-    Rectangle rec = {Position.x, Position.y,w, h};
+    Position.x -= w / 2;
+    Rectangle rec = {Position.x, Position.y, w, h};
 
-    Rectangle slider_rec = {Position.x + tx_size + 32, Position.y + (rec.height / 2) - (fnt_size / 2.5f), slider_size, fnt_size / 1.25f};
+    Rectangle slider_rec = {
+        Position.x + tx_size + 32, Position.y + (rec.height / 2) - (fnt_size / 2.5f), slider_size, fnt_size / 1.25f
+    };
 
     Rectangle green_slider_rec = {slider_rec.x, slider_rec.y, slider_rec.width * percentage, slider_rec.height};
 
-    Rectangle red_slider_rec = {slider_rec.x + (slider_rec.width * percentage), slider_rec.y, slider_rec.width * (1.0f - percentage), slider_rec.height};
+    Rectangle red_slider_rec = {
+        slider_rec.x + (slider_rec.width * percentage), slider_rec.y, slider_rec.width * (1.0f - percentage),
+        slider_rec.height
+    };
 
     bool colliding = CheckCollisionPointRec(MousePos, slider_rec);
     bool clicking = IsMouseButtonDown(0);
@@ -144,52 +161,67 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
             PlaySound(SliderDrag);
             *LastPlayedProgress = *Value;
         }
-
     }
 
-    DrawRectangleRec({rec.x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
-    DrawRectangleRec({green_slider_rec.x,green_slider_rec.y,green_slider_rec.width,green_slider_rec.height}, GREEN);
-    DrawRectangleRec({red_slider_rec.x,red_slider_rec.y,red_slider_rec.width,red_slider_rec.height}, RED);
+    DrawRectangleRec({rec.x, rec.y, rec.width, rec.height}, ColorAlpha(BLACK, 0.5f));
+    DrawRectangleRec({green_slider_rec.x, green_slider_rec.y, green_slider_rec.width, green_slider_rec.height}, GREEN);
+    DrawRectangleRec({red_slider_rec.x, red_slider_rec.y, red_slider_rec.width, red_slider_rec.height}, RED);
     if (!Text.empty())
-        DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f),fnt_size, WHITE);
+        DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f), fnt_size, WHITE);
 
     float siz = fnt_size + 5;
     if (colliding)
         siz = fnt_size + 7;
-    DrawTexturePro(ButtonSmallImg, {0, 0, 56, 56}, {green_slider_rec.x + green_slider_rec.width, green_slider_rec.y + green_slider_rec.height/2, siz, siz}, {siz / 2, siz / 2}, 0, WHITE);
+    DrawTexturePro(ButtonSmallImg, {0, 0, 56, 56}, {
+                       green_slider_rec.x + green_slider_rec.width, green_slider_rec.y + green_slider_rec.height / 2,
+                       siz, siz
+                   }, {siz / 2, siz / 2}, 0, WHITE);
 
     float ind_fnt_size = 20;
     float ind_size = MeasureText(std::to_string((int)*Value).c_str(), ind_fnt_size);
-    DrawTextEx(GetFontDefault(), std::to_string((int)*Value).c_str(), {green_slider_rec.x + green_slider_rec.width - ind_size/2, green_slider_rec.y + green_slider_rec.height/2 - ind_fnt_size/2}, ind_fnt_size, 1, BLACK);
+    DrawTextEx(GetFontDefault(), std::to_string((int)*Value).c_str(), {
+                   green_slider_rec.x + green_slider_rec.width - ind_size / 2,
+                   green_slider_rec.y + green_slider_rec.height / 2 - ind_fnt_size / 2
+               }, ind_fnt_size, 1, BLACK);
 
     return rec;
 }
 
-bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, Sound& ButtonClick, std::string Text) {
-
+bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, Sound& ButtonClick, std::string Text)
+{
     int f = ButtonRectangle.height - 6.0f;
     if (CheckCollisionPointRec(MousePos, ButtonRectangle))
     {
         ButtonRectangle.width += 20;
         ButtonRectangle.height += 20;
         ButtonRectangle.x -= 10;
-        ButtonRectangle.y -=10;
+        ButtonRectangle.y -= 10;
         f += 10;
     }
 
     float tx_size = MeasureText(Text.c_str(), f);
-    float mul = f / (tx_size / (ButtonRectangle.width-10));
-    mul= std::min(mul,ButtonRectangle.height);
+    float mul = f / (tx_size / (ButtonRectangle.width - 10));
+    mul = std::min(mul, ButtonRectangle.height);
     tx_size = MeasureText(Text.c_str(), mul);
-    float side_w = 7.0f;//(ButtonRectangle.width/ButtonImg.width) * 7.0f;
-    DrawTexturePro(ButtonImg, {0,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x, ButtonRectangle.y, side_w, ButtonRectangle.height}, {0, 0}, 0, WHITE);
-    DrawTexturePro(ButtonImg, {(float)ButtonImg.width - 7.0f,0,7.0f,(float)ButtonImg.height}, {ButtonRectangle.x + ButtonRectangle.width - side_w, ButtonRectangle.y, side_w, ButtonRectangle.height}, {0, 0}, 0, WHITE);
-    DrawTexturePro(ButtonImg, {7.0f,0,(float)ButtonImg.width-14.0f,(float)ButtonImg.height}, {ButtonRectangle.x + side_w, ButtonRectangle.y, ButtonRectangle.width - (side_w * 2), ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    float side_w = 7.0f; //(ButtonRectangle.width/ButtonImg.width) * 7.0f;
+    DrawTexturePro(ButtonImg, {0, 0, 7.0f, (float)ButtonImg.height},
+                   {ButtonRectangle.x, ButtonRectangle.y, side_w, ButtonRectangle.height}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonImg, {(float)ButtonImg.width - 7.0f, 0, 7.0f, (float)ButtonImg.height}, {
+                       ButtonRectangle.x + ButtonRectangle.width - side_w, ButtonRectangle.y, side_w,
+                       ButtonRectangle.height
+                   }, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonImg, {7.0f, 0, (float)ButtonImg.width - 14.0f, (float)ButtonImg.height}, {
+                       ButtonRectangle.x + side_w, ButtonRectangle.y, ButtonRectangle.width - (side_w * 2),
+                       ButtonRectangle.height
+                   }, {0, 0}, 0, WHITE);
     if (!Text.empty())
-        DrawText(Text.c_str(), ButtonRectangle.x + ButtonRectangle.width/2 - tx_size/2, ButtonRectangle.y + ButtonRectangle.height/2 - (mul/2), mul, WHITE);
+        DrawText(Text.c_str(), ButtonRectangle.x + ButtonRectangle.width / 2 - tx_size / 2,
+                 ButtonRectangle.y + ButtonRectangle.height / 2 - (mul / 2), mul, WHITE);
 
-    if (CheckCollisionPointRec(MousePos, ButtonRectangle)) {
-        DrawRectangleLinesEx({ButtonRectangle.x,ButtonRectangle.y,ButtonRectangle.width,ButtonRectangle.height}, 4, WHITE);
+    if (CheckCollisionPointRec(MousePos, ButtonRectangle))
+    {
+        DrawRectangleLinesEx({ButtonRectangle.x, ButtonRectangle.y, ButtonRectangle.width, ButtonRectangle.height}, 4,
+                             WHITE);
         if (IsMouseButtonPressed(0) && !IsSoundPlaying(ButtonClick))
         {
             PlaySound(ButtonClick);
@@ -204,12 +236,15 @@ Rectangle Panel(Rectangle rectangle, std::string text, float Offset1)
     Vector2 PanelSize = Vector2{rectangle.width, rectangle.height};
     Rectangle PanelRectangle = {rectangle.x, rectangle.y - Offset1, PanelSize.x, PanelSize.y};
 
-    DrawRectangleRec({PanelRectangle.x, PanelRectangle.y, PanelRectangle.width, PanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
+    DrawRectangleRec({PanelRectangle.x, PanelRectangle.y, PanelRectangle.width, PanelRectangle.height},
+                     ColorAlpha(BLACK, 0.5f));
 
     float TextWidth = MeasureText(text.c_str(), 55.0f);
-    DrawText(text.c_str(), PanelRectangle.x + PanelRectangle.width/2.0f - TextWidth/2.0f, PanelRectangle.y + 25.0f, 55.0f, WHITE);
+    DrawText(text.c_str(), PanelRectangle.x + PanelRectangle.width / 2.0f - TextWidth / 2.0f, PanelRectangle.y + 25.0f,
+             55.0f, WHITE);
 
-    DrawLineEx(Vector2{PanelRectangle.x + 25.0f, PanelRectangle.y + 100}, Vector2{PanelRectangle.x + PanelSize.x - 25.0f, PanelRectangle.y + 100}, 4, WHITE);
+    DrawLineEx(Vector2{PanelRectangle.x + 25.0f, PanelRectangle.y + 100},
+               Vector2{PanelRectangle.x + PanelSize.x - 25.0f, PanelRectangle.y + 100}, 4, WHITE);
 
     return PanelRectangle;
 }

@@ -8,16 +8,17 @@
 #include "../../game/Game.h"
 #include "../../game/managers/CameraManager.h"
 
-TileManager::TileManager() {
-
+TileManager::TileManager()
+{
 }
 
-TileManager::TileManager(Game *game) {
+TileManager::TileManager(Game* game)
+{
     this->game = game;
     PrevFileName = "";
     Lines = std::vector<std::string>();
     Distortions = std::vector<Distortion>();
-    TileMapTex = LoadRenderTexture(1,1);
+    TileMapTex = LoadRenderTexture(1, 1);
     TileTypes[0] = NothingTileType; // air
     TileTypes[-1] = NothingTileType; // air
     TileTypes[1] = WallTileType; // bouncy wall
@@ -49,7 +50,7 @@ int TileManager::GetTileAt(int x, int y)
 
 int TileManager::GetTileAt(Vector2 coord)
 {
-    return GetTileAt(coord.x,coord.y);
+    return GetTileAt(coord.x, coord.y);
 }
 
 void TileManager::SetTileAt(int x, int y, int id)
@@ -64,8 +65,8 @@ void TileManager::SetTileAt(int x, int y, int id)
 
 int TileManager::GetTileAtWorldCoords(Vector2 coord)
 {
-    int x = (int) (coord.x / TileSize);
-    int y = (int) (coord.y / TileSize);
+    int x = (int)(coord.x / TileSize);
+    int y = (int)(coord.y / TileSize);
     return GetTileAt(x, y);
 }
 
@@ -81,7 +82,7 @@ void TileManager::Clear()
     MapWidth = 0;
     MapHeight = 0;
     PlayerSpawnPosition = {0, 0};
-    BossSpawnPosition = {0,0};
+    BossSpawnPosition = {0, 0};
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
@@ -90,7 +91,8 @@ void TileManager::Clear()
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
 }
 
-void TileManager::Quit() {
+void TileManager::Quit()
+{
     Clear();
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);

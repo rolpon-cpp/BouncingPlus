@@ -29,26 +29,28 @@ ResourceManager::ResourceManager(Game* game)
     Weapons = std::unordered_map<std::string, Weapon>();
     Powerups = std::unordered_map<std::string, Powerup*>();
     Shaders = std::unordered_map<std::string, Shader>();
-    EnemyWeaponNamesList= std::vector<std::string>();
+    EnemyWeaponNamesList = std::vector<std::string>();
 }
 
 void ResourceManager::Load()
 {
     std::string path = "assets/img";
-    for (const auto & entry : fs::directory_iterator(path)) {
+    for (const auto& entry : fs::directory_iterator(path))
+    {
         std::string p = entry.path().filename().string();
         p.erase(p.end() - 4, p.end());
         Texture tex = LoadTexture(entry.path().string().c_str());
         Textures.insert({p, tex});
     }
     path = "assets/shaders";
-    for (const auto & entry : fs::directory_iterator(path)) {
+    for (const auto& entry : fs::directory_iterator(path))
+    {
         std::string p = entry.path().filename().string();
         p.erase(p.end() - 5, p.end());
 
         if (p != "vertex")
         {
-            Shader shader = LoadShader((path+"/vertex.glsl").c_str(),entry.path().string().c_str());
+            Shader shader = LoadShader((path + "/vertex.glsl").c_str(), entry.path().string().c_str());
             Shaders.insert({p, shader});
         }
     }
@@ -69,15 +71,17 @@ void ResourceManager::LoadWeaponData()
 {
     unordered_map<std::string, Weapon> NewWeapons;
     std::string path = "assets/weapondata";
-    for (const auto & entry : fs::directory_iterator(path)) {
+    for (const auto& entry : fs::directory_iterator(path))
+    {
         try
         {
             std::string p = entry.path().filename().string();
             p.erase(p.end() - 5, p.end());
             std::ifstream g(entry.path().c_str());
-            if (!g.is_open()) {
+            if (!g.is_open())
+            {
                 std::cout << "WARNING: RESOURCEMANAGER: Failed to open: "
-                          << entry.path() << std::endl;
+                    << entry.path() << std::endl;
                 continue;
             }
 
@@ -145,7 +149,8 @@ void ResourceManager::LoadWeaponData()
             }
             NewWeapons.insert({p, wep});
             g.close();
-        } catch (...)
+        }
+        catch (...)
         {
             cout << "WARNING: WEAPON: Failed to read " << entry << "\n";
         }

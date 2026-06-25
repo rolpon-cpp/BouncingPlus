@@ -26,11 +26,11 @@ public:
     // Settings
     float FrameRate = -1;
     float Volume = 0.0f;
-    #ifndef PLATFORM_WEB
-        float CosmeticParticleLimit = 400.0f;
-    #else
-        float CosmeticParticleLimit = 150.0f;
-    #endif
+#ifndef PLATFORM_WEB
+    float CosmeticParticleLimit = 400.0f;
+#else
+    float CosmeticParticleLimit = 150.0f;
+#endif
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;

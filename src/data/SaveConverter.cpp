@@ -69,10 +69,14 @@ SaveData ConvertSave(std::vector<unsigned char> save)
             uint32_t versionId;
             memcpy(&versionId, converted.data(), sizeof(versionId));
 
-            std::cout << "Conversion successful!" << (versionId == SAVE_DATA_VERSION ? "" : " (Still not modern, attempting another conversion...)") << "\n";
+            std::cout << "Conversion successful!" << (versionId == SAVE_DATA_VERSION
+                                                          ? ""
+                                                          : " (Still not modern, attempting another conversion...)") <<
+                "\n";
             return ConvertSave(converted);
         }
-    } else
+    }
+    else
     {
         SaveData d;
         memcpy(&d, save.data(), sizeof(d));

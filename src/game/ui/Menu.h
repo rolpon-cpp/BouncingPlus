@@ -10,8 +10,8 @@
 #include "../../level/LevelLoader.h"
 #include "../core/SharedManager.h"
 
-class Menu {
-
+class Menu
+{
     static float MusicLevel;
     static void AudioCallback(void* buffer, unsigned int frames);
 
@@ -49,12 +49,12 @@ class Menu {
     void UpdateOffsets();
     void TitleScreen();
 
-    public:
-        Menu(SharedManager& GameSettings);
-        void Update();
-        void Reset();
-        std::string LeaveMenu();
-        void Quit();
+public:
+    Menu(SharedManager& GameSettings);
+    void Update();
+    void Reset();
+    std::string LeaveMenu();
+    void Quit();
 };
 
 

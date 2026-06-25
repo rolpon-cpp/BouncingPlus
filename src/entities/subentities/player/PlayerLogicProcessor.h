@@ -15,7 +15,6 @@ class Player;
 class PlayerLogicProcessor
 {
 public:
-
     std::weak_ptr<Player> Owner;
 
     int uTime = -1;

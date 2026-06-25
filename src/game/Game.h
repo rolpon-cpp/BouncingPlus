@@ -21,8 +21,8 @@ class GameMisc;
 #include <string>
 #include <vector>
 
-class Game {
-
+class Game
+{
     float FreezeTime;
     float MaxFreezeTime;
 
@@ -30,47 +30,47 @@ class Game {
     void SetGameData();
     void ProcessSlowdownAnimation();
 
-    public:
-        SharedManager* GameShared;
-        Controls* GameControls;
+public:
+    SharedManager* GameShared;
+    Controls* GameControls;
 
-        // Timing, Speed, and Menu Management
-        double GameTime;
-        float GameSpeed;
-        bool Paused;
-        bool isReturning;
-        bool ShouldReturn;
-        bool DebugDraw;
-        float GameScore;
-        float FinalLevelCompletionScore;
+    // Timing, Speed, and Menu Management
+    double GameTime;
+    float GameSpeed;
+    bool Paused;
+    bool isReturning;
+    bool ShouldReturn;
+    bool DebugDraw;
+    float GameScore;
+    float FinalLevelCompletionScore;
 
-        // Managers
-        std::unique_ptr<TileManager> GameTiles;
-        std::unique_ptr<EntityManager> GameEntities;
-        std::unique_ptr<CameraManager> GameCamera;
-        std::unique_ptr<ParticleManager> GameParticles;
-        std::unique_ptr<SoundManager> GameSounds;
-        std::unique_ptr<GameModeManager> GameMode;
-        std::unique_ptr<ResourceManager> GameResources;
-        std::unique_ptr<GameMisc> GameMiscTools;
+    // Managers
+    std::unique_ptr<TileManager> GameTiles;
+    std::unique_ptr<EntityManager> GameEntities;
+    std::unique_ptr<CameraManager> GameCamera;
+    std::unique_ptr<ParticleManager> GameParticles;
+    std::unique_ptr<SoundManager> GameSounds;
+    std::unique_ptr<GameModeManager> GameMode;
+    std::unique_ptr<ResourceManager> GameResources;
+    std::unique_ptr<GameMisc> GameMiscTools;
 
-        std::shared_ptr<Player> MainPlayer;
+    std::shared_ptr<Player> MainPlayer;
 
-        // Extra Assets
-        std::unordered_map<std::string, std::string> EnemyRoleWeapons;
-        std::vector<std::string> BannedWeaponDrops;
+    // Extra Assets
+    std::unordered_map<std::string, std::string> EnemyRoleWeapons;
+    std::vector<std::string> BannedWeaponDrops;
 
-        Game(SharedManager& Shared);
-        ~Game();
+    Game(SharedManager& Shared);
+    ~Game();
 
-        // Base game functions
-        void Freeze(float Time);
-        void Reload(std::string Filename);
-        void Update();
-        void Clear();
-        void Quit();
-        float GetGameDeltaTime();
-        double GetGameTime();
+    // Base game functions
+    void Freeze(float Time);
+    void Reload(std::string Filename);
+    void Update();
+    void Clear();
+    void Quit();
+    float GetGameDeltaTime();
+    double GetGameTime();
 };
 
 

@@ -62,18 +62,33 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
         circle_transparency += TransBuff;
 
     std::vector<shared_ptr<Entity>>* array = &Owner->game->GameEntities->Entities[BulletType];
-    for (int i = 0; i < array->size(); i++) {
-        if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(array->at(i)); entity != nullptr && !entity->ShouldDelete) {
-            float dist = Vector2Distance({Owner->BoundingBox.x + Owner->BoundingBox.width / 2, Owner->BoundingBox.y + Owner->BoundingBox.height / 2},
-                    {entity->BoundingBox.x + entity->BoundingBox.width / 2, entity->BoundingBox.y + entity->BoundingBox.height / 2});
+    for (int i = 0; i < array->size(); i++)
+    {
+        if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(array->at(i)); entity != nullptr && !entity->
+            ShouldDelete)
+        {
+            float dist = Vector2Distance({
+                                             Owner->BoundingBox.x + Owner->BoundingBox.width / 2,
+                                             Owner->BoundingBox.y + Owner->BoundingBox.height / 2
+                                         },
+                                         {
+                                             entity->BoundingBox.x + entity->BoundingBox.width / 2,
+                                             entity->BoundingBox.y + entity->BoundingBox.height / 2
+                                         });
             auto p = entity->OwnerPtr.lock();
             if (dist <= FieldSize && p != Owner)
             {
-                entity->RotGoal = -(180 - (Vector2LineAngle({Owner->BoundingBox.x + Owner->BoundingBox.width / 2, Owner->BoundingBox.y + Owner->BoundingBox.height / 2},
-                    {entity->BoundingBox.x + entity->BoundingBox.width / 2, entity->BoundingBox.y + entity->BoundingBox.height / 2}) * RAD2DEG));
+                entity->RotGoal = -(180 - (Vector2LineAngle({
+                                                                Owner->BoundingBox.x + Owner->BoundingBox.width / 2,
+                                                                Owner->BoundingBox.y + Owner->BoundingBox.height / 2
+                                                            },
+                                                            {
+                                                                entity->BoundingBox.x + entity->BoundingBox.width / 2,
+                                                                entity->BoundingBox.y + entity->BoundingBox.height / 2
+                                                            }) * RAD2DEG));
 
-                float X = cos(entity->RotGoal * (2 * PI / 360))*100;
-                float Y = sin(entity->RotGoal * (2 * PI / 360))*100;
+                float X = cos(entity->RotGoal * (2 * PI / 360)) * 100;
+                float Y = sin(entity->RotGoal * (2 * PI / 360)) * 100;
 
                 entity->Movement = Vector2{X, Y};
 
@@ -82,10 +97,12 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
         }
     }
 
-    displayFieldSize = Lerp(displayFieldSize,FieldSize,Owner->game->GetGameDeltaTime() * LerpSpeed);
+    displayFieldSize = Lerp(displayFieldSize, FieldSize, Owner->game->GetGameDeltaTime() * LerpSpeed);
     for (int i = 0; i < ShieldThickness; i++)
     {
-        DrawCircleLines(round(Owner->BoundingBox.x + Owner->BoundingBox.width / 2), round(Owner->BoundingBox.y + Owner->BoundingBox.height / 2), displayFieldSize/2 - i, ColorAlpha(YELLOW, circle_transparency));
+        DrawCircleLines(round(Owner->BoundingBox.x + Owner->BoundingBox.width / 2),
+                        round(Owner->BoundingBox.y + Owner->BoundingBox.height / 2), displayFieldSize / 2 - i,
+                        ColorAlpha(YELLOW, circle_transparency));
     }
 }
 
@@ -105,13 +122,15 @@ FreezePowerup::FreezePowerup()
 
 void FreezePowerup::Complete(std::shared_ptr<Player> Owner)
 {
-    auto r = Owner->game->GameMiscTools->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera->RaylibCamera));
+    auto r = Owner->game->GameMiscTools->RayCastPoint(Owner->GetCenter(),
+                                                      GetScreenToWorld2D(
+                                                          GetMousePosition(), Owner->game->GameCamera->RaylibCamera));
     float w = GetRandomValue(400, 600);
     float h = GetRandomValue(400, 600);
 
     w *= 1.0f + (Owner->StressLevel / 2.0f);
 
-    Rectangle rec = {r.HitPosition.x - w/2, r.HitPosition.y - h/2, w, h};
+    Rectangle rec = {r.HitPosition.x - w / 2, r.HitPosition.y - h / 2, w, h};
     Owner->game->GameMiscTools->FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
 
     Powerup::Complete(Owner);
@@ -134,7 +153,8 @@ void TankyPowerup::Complete(std::shared_ptr<Player> Owner)
     Owner->ExtraSpeed = -Owner->Speed * 0.75f;
     Owner->game->GameCamera->QuickZoom(1.5f, 0.1f);
     if (Owner->MainWeaponsSystem.CurrentWeaponIndex != -1)
-        Owner->MainWeaponsSystem.AttackCooldowns[Owner->MainWeaponsSystem.CurrentWeaponIndex] -= 0.5f * Owner->game->GetGameDeltaTime();
+        Owner->MainWeaponsSystem.AttackCooldowns[Owner->MainWeaponsSystem.CurrentWeaponIndex] -= 0.5f * Owner->game->
+            GetGameDeltaTime();
     if (!Owner->isInvincible)
         Owner->ToggleInvincibility();
     Powerup::Complete(Owner);
@@ -194,7 +214,8 @@ void PowerupSystem::Update()
                 PowerupIsActive = false;
                 CurrentCooldown = CurrentPowerup->Cooldown;
             }
-        } else
+        }
+        else
         {
             CurrentCooldown -= game->GetGameDeltaTime();
         }

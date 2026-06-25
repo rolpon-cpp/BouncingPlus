@@ -56,7 +56,8 @@ Game::Game(SharedManager& Shared)
     SetGameData();
 }
 
-void Game::SetGameData() {
+void Game::SetGameData()
+{
     GameResources->Load();
     GameMiscTools->SetGameData();
     BannedWeaponDrops.emplace_back("Default Gun");
@@ -73,34 +74,40 @@ double Game::GetGameTime()
     return GameTime;
 }
 
-void Game::Freeze(float Time) {
+void Game::Freeze(float Time)
+{
     FreezeTime = Time;
     MaxFreezeTime = Time;
 }
 
-void Game::ProcessSlowdownAnimation() {
-    if (FreezeTime > 0 && MaxFreezeTime > 0) {
+void Game::ProcessSlowdownAnimation()
+{
+    if (FreezeTime > 0 && MaxFreezeTime > 0)
+    {
         GameSpeed = 0.0f;
         FreezeTime -= GetFrameTime();
-    } else {
+    }
+    else
+    {
         FreezeTime = 0;
         MaxFreezeTime = 0;
         GameSpeed = GameMode->LevelGameSpeed;
     }
 }
 
-void Game::Update() {
-
+void Game::Update()
+{
     if (this->GameControls->IsControlPressed("pause"))
         Paused = !Paused;
     if (!IsWindowFocused())
-        Paused=true;
+        Paused = true;
 
-    if (!Paused) {
-        #ifndef PLATFORM_WEB
-            if (!IsCursorHidden())
-                HideCursor();
-        #endif
+    if (!Paused)
+    {
+#ifndef PLATFORM_WEB
+        if (!IsCursorHidden())
+            HideCursor();
+#endif
 
         if (this->GameControls->IsControlPressed("debug") && GameShared->DevMode)
             DebugDraw = !DebugDraw;
@@ -113,12 +120,14 @@ void Game::Update() {
         {
             if (GameMode->WonLevel)
             {
-                isReturning=true;
-                if (!GameMode->GetCurrentLevelName().empty() && !this->GameShared->LevelData[GameMode->GetCurrentLevelName()]["music"].get<string>().empty())
+                isReturning = true;
+                if (!GameMode->GetCurrentLevelName().empty() && !this->GameShared->LevelData[GameMode->
+                    GetCurrentLevelName()]["music"].get<string>().empty())
                 {
                     for (int i = 1; i < 5; i++)
                     {
-                        std::string FightTrack = this->GameShared->LevelData[GameMode->GetCurrentLevelName()]["music"].get<string>()+"_layer"+to_string(i);
+                        std::string FightTrack = this->GameShared->LevelData[GameMode->GetCurrentLevelName()]["music"].
+                            get<string>() + "_layer" + to_string(i);
                         GameSounds->StopGameMusic(FightTrack, true);
                     }
                 }
@@ -155,12 +164,11 @@ void Game::Update() {
         GameMiscTools->GameProfiler.StopLog();
 
         GameCamera->End();
-
     }
-    #ifndef PLATFORM_WEB
-        else if (IsCursorHidden())
-            ShowCursor();
-    #endif
+#ifndef PLATFORM_WEB
+    else if (IsCursorHidden())
+        ShowCursor();
+#endif
 
     GameCamera->Display(GameSpeed == 0.0f);
 
@@ -176,7 +184,8 @@ void Game::Update() {
         GameTiles->PrevFileName.clear();
         if (GameUI->EndBlackScreenTrans >= 0.9f)
             ShouldReturn = true;
-    } else
+    }
+    else
         GameUI->EndBlackScreenTrans = 0;
     if (ShouldReturn)
     {
@@ -185,7 +194,8 @@ void Game::Update() {
     }
 }
 
-void Game::Clear() {
+void Game::Clear()
+{
     Paused = false;
     ShouldReturn = false;
     isReturning = false;
@@ -208,38 +218,42 @@ void Game::Clear() {
     GameSounds->ClearCache();
 }
 
-void Game::Reload(std::string MapName) {
+void Game::Reload(std::string MapName)
+{
     Clear();
 
     GameMode->PrepareGameMode(this->GameShared->LevelData[MapName], MapName);
 
     for (std::string s : this->GameShared->LevelData[MapName]["game"]["banned_spawn_weapons"])
         BannedWeaponDrops.emplace_back(s);
-    EnemyRoleWeapons= this->GameShared->LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
+    EnemyRoleWeapons = this->GameShared->LevelData[MapName]["enemy_weapons"].get<unordered_map<
+        std::string, std::string>>();
 
     GameTiles->ReadMapDataFile("assets/maps/" + GameMode->GetCurrentLevelName() + "/map_data.csv");
     if (fs::exists(("assets/maps/" + GameMode->GetCurrentLevelName() + "/entities->csv").c_str()))
         GameTiles->ReadEntitiesFile("assets/maps/" + GameMode->GetCurrentLevelName() + "/entities.csv");
 
     MainPlayer = make_shared<Player>(GameTiles->PlayerSpawnPosition.x,
-                                     GameTiles->PlayerSpawnPosition.y, this->GameShared->LevelData[MapName]["player"]["starting_speed"],
+                                     GameTiles->PlayerSpawnPosition.y,
+                                     this->GameShared->LevelData[MapName]["player"]["starting_speed"],
                                      GameResources->Textures["player"], *this);
     MainPlayer->MaxHealth = this->GameShared->LevelData[MapName]["player"]["starting_health"];
     MainPlayer->Health = this->GameShared->LevelData[MapName]["player"]["starting_health"];
     GameCamera->CameraPosition = Vector2Add(MainPlayer->GetCenter(), {
-        (float)GetRandomValue(-100, 100),
-        (float)GetRandomValue(-100, 100),
-    });
+                                                (float)GetRandomValue(-100, 100),
+                                                (float)GetRandomValue(-100, 100),
+                                            });
     GameEntities->AddEntity(PlayerType, MainPlayer);
 }
 
-void Game::Quit() {
+void Game::Quit()
+{
     Clear();
-    
+
     EnemyRoleWeapons.clear();
     GameResources->Weapons.clear();
     BannedWeaponDrops.clear();
-    
+
     GameEntities->Quit();
     GameTiles->Quit();
     GameUI->Quit();

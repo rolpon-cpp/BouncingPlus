@@ -10,12 +10,12 @@
 
 class Throwable : public Entity
 {
-
-    public:
+public:
     double SpawnTime;
-    Throwable(Vector2 From, Vector2 Direction, std::string Texture, float EntityHitWidth, float CollisionHitWidth, float Height, Game& game);
+    Throwable(Vector2 From, Vector2 Direction, std::string Texture, float EntityHitWidth, float CollisionHitWidth,
+              float Height, Game& game);
     Throwable();
-    ~Throwable()override;
+    ~Throwable() override;
     void Update() override;
     void PhysicsUpdate(float DeltaTime, double time) override;
 };

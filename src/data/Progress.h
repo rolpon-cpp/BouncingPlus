@@ -9,7 +9,8 @@
 #include "SaveConverter.h"
 
 #pragma pack(push, 1)
-struct SaveData {
+struct SaveData
+{
     // Save file data (recognized by all versions)
     uint32_t Version = SAVE_DATA_VERSION;
 
@@ -24,23 +25,22 @@ struct SaveData {
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
     bool DevMode = false;
-    #ifndef PLATFORM_WEB
-        float CosmeticParticleLimit = 400.0f;
-    #else
-        float CosmeticParticleLimit = 100.0f;
-    #endif
+#ifndef PLATFORM_WEB
+    float CosmeticParticleLimit = 400.0f;
+#else
+    float CosmeticParticleLimit = 100.0f;
+#endif
 };
 #pragma pack(pop)
 
 class Progress
 {
-    public:
+public:
     SaveData Data = SaveData{};
     Progress();
     ~Progress();
     void SaveProgress();
     void LoadProgress();
-
 };
 
 
