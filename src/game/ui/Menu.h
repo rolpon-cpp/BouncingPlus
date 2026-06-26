@@ -32,7 +32,7 @@ class Menu
 #endif
     float EasterEggOffset;
     float MenuImgOffsetY;
-    float BlackTransparency;
+
     bool MovingToGame;
     bool isStarting;
     SharedManager* Shared;
@@ -50,6 +50,7 @@ class Menu
     void TitleScreen();
 
 public:
+    float BlackTransparency;
     Menu(SharedManager& GameSettings);
     void Update();
     void Reset();

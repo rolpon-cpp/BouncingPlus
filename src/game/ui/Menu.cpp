@@ -55,7 +55,7 @@ void Menu::Reset()
     Offset3 = 0;
     isStarting = true;
     CurrentLevelsPage = 0;
-    BlackTransparency = 1.0f;
+    BlackTransparency = 0.0f;
     MusicLevel = 0.0f;
     EasterEggOffset = 0.0f;
     MenuImgOffsetY = GetRandomValue(0, Shared->SharedUIAssets.MenuImg.height);

@@ -26,12 +26,21 @@ bool IsCursorOnScreenCrossPlatform()
 
 SharedManager::SharedManager()
 {
-    ReloadLevels();
+
     SharedUIAssets = UIAssets();
+
+}
+
+SharedManager::~SharedManager()
+{
+}
+
+void SharedManager::Load()
+{
+    ReloadLevels();
     SharedUIAssets.Load();
     Progress.LoadProgress();
     Controls.SetDefaultBindings();
-
     CursorWindowLock = Progress.Data.CursorWindowLock;
     FrameRate = Progress.Data.FrameRate;
     Volume = Progress.Data.Volume;
@@ -39,10 +48,6 @@ SharedManager::SharedManager()
     CosmeticParticleLimit = Progress.Data.CosmeticParticleLimit;
     ShakeCamera = Progress.Data.ShakeCamera;
     DevMode = Progress.Data.DevMode;
-}
-
-SharedManager::~SharedManager()
-{
 }
 
 void SharedManager::ReloadLevels()

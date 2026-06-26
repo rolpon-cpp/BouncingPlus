@@ -21,10 +21,13 @@ using namespace std;
 
 Game::~Game() = default;
 
-Game::Game(SharedManager& Shared)
+Game::Game(SharedManager& Shared, LoadingStage* LoadingStagePtr)
 {
     this->GameShared = &Shared;
     GameControls = &GameShared->Controls;
+
+    CurrentLoadingStage.stage = 0;
+    *LoadingStagePtr = CurrentLoadingStage;
 
     // init game services
     GameUI = make_unique<GameplayUI>(this);
@@ -32,10 +35,9 @@ Game::Game(SharedManager& Shared)
     GameParticles = make_unique<ParticleManager>(this);
     GameCamera = make_unique<CameraManager>(this);
     GameEntities = make_unique<EntityManager>(this);
-    GameSounds = make_unique<SoundManager>(this);
     GameMode = make_unique<GameModeManager>(this);
-    GameResources = make_unique<ResourceManager>(this);
     GameMiscTools = make_unique<GameMisc>(this);
+    GameResources = make_unique<ResourceManager>(this);
 
     // game speed & timing
     GameSpeed = 1.0f;
@@ -53,13 +55,18 @@ Game::Game(SharedManager& Shared)
     ShouldReturn = false;
     isReturning = false;
 
-    SetGameData();
-}
+    // Loading phase
+    CurrentLoadingStage.stage = 1;
+    CurrentLoadingStage.start_time = GetTime();
+    *LoadingStagePtr = CurrentLoadingStage;
 
-void Game::SetGameData()
-{
-    GameResources->Load();
-    GameMiscTools->SetGameData();
+    // Loading asset managers
+    GameResources->Load(LoadingStagePtr);
+    GameSounds = make_unique<SoundManager>(this, LoadingStagePtr);
+
+    // Final loading phase
+    CurrentLoadingStage.stage = 2;
+    *LoadingStagePtr = CurrentLoadingStage;
     BannedWeaponDrops.emplace_back("Default Gun");
     BannedWeaponDrops.emplace_back("Player Gun");
 }

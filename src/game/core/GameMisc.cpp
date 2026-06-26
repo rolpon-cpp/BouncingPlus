@@ -36,10 +36,6 @@ GameMisc::~GameMisc()
 {
 }
 
-void GameMisc::SetGameData()
-{
-}
-
 void GameMisc::Update()
 {
     ProcessFreezeZones();

@@ -14,6 +14,13 @@ class GameModeManager;
 class ResourceManager;
 class GameMisc;
 
+struct LoadingStage
+{
+    int stage = 0;
+    int assets_loaded = 0;
+    double start_time = 0;
+};
+
 #include "raylib.h"
 #include "raymath.h"
 #include <memory>
@@ -27,7 +34,6 @@ class Game
     float MaxFreezeTime;
 
     std::unique_ptr<GameplayUI> GameUI;
-    void SetGameData();
     void ProcessSlowdownAnimation();
 
 public:
@@ -43,6 +49,8 @@ public:
     bool DebugDraw;
     float GameScore;
     float FinalLevelCompletionScore;
+
+    LoadingStage CurrentLoadingStage = {0};
 
     // Managers
     std::unique_ptr<TileManager> GameTiles;
@@ -60,7 +68,7 @@ public:
     std::unordered_map<std::string, std::string> EnemyRoleWeapons;
     std::vector<std::string> BannedWeaponDrops;
 
-    Game(SharedManager& Shared);
+    Game(SharedManager& Shared, LoadingStage* LoadingStagePtr = nullptr);
     ~Game();
 
     // Base game functions

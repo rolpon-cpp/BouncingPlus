@@ -12,6 +12,7 @@
 class Game;
 class Weapon;
 class Powerup;
+struct LoadingStage;
 
 class ResourceManager
 {
@@ -25,8 +26,8 @@ public:
     ResourceManager();
     ~ResourceManager();
     ResourceManager(Game* game);
-    void LoadWeaponData();
-    void Load();
+    void LoadWeaponData(LoadingStage* stage = nullptr);
+    void Load(LoadingStage* stage = nullptr);
     void Quit();
 };
 

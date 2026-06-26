@@ -55,6 +55,7 @@ public:
 
     // Functions
     void RequestQuit();
+    void Load();
     void DisplaySettings(Vector2 Position, float Offset1, float Offset2);
     void ResetSettings();
     void ReloadLevels();

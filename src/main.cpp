@@ -1,8 +1,12 @@
+#include <iostream>
+#include <thread>
+
 #include "raylib.h"
 #include "game/Game.h"
 #include "game/ui/Menu.h"
 #include "globals.h"
 #include "game/core/SharedManager.h"
+#include "game/managers/ResourceManager.h"
 #include "level/LevelLoader.h"
 
 #ifdef PLATFORM_WEB
@@ -11,20 +15,34 @@
 #include "data/Leaderboard.h"
 #endif
 
+#ifndef PLATFORM_WEB
+#include "GLFW/glfw3.h"
+#endif
+
 struct Data
 {
     SharedManager& SharedManager;
-    Game& MainGame;
-    Menu& MainMenu;
+    Game* MainGame;
+    Menu* MainMenu;
     bool& InGame;
 };
+
+void load_game(Game*& g, Menu*& m, SharedManager& s, GLFWwindow*& window, LoadingStage* ld, bool* IsDone)
+{
+    glfwMakeContextCurrent(window);
+    s.Load();
+    g = new Game(s,ld);
+    m = new Menu(s);
+    glfwMakeContextCurrent(nullptr);
+    *IsDone = true;
+}
 
 void loop(void* arg)
 {
     Data* d = (Data*)arg;
     SharedManager& SharedMgr = d->SharedManager;
-    Game& MainGame = d->MainGame;
-    Menu& MainMenu = d->MainMenu;
+    Game& MainGame = *d->MainGame;
+    Menu& MainMenu = *d->MainMenu;
     bool& InGame = d->InGame;
 
 #ifdef PLATFORM_WEB
@@ -102,10 +120,8 @@ int main(int argc, char* argv[])
     // test commit
     SharedManager SharedMgr = SharedManager();
 
-    Game MainGame = Game(SharedMgr);
-    Menu MainMenu = Menu(SharedMgr);
-
-    bool InGame = false;
+    Game* MainGame;
+    Menu* MainMenu;
 
 #ifdef PLATFORM_WEB
     SharedMgr.FrameRate = 60;
@@ -116,12 +132,94 @@ int main(int argc, char* argv[])
                       GetMonitorHeight(GetCurrentMonitor()) / 2 - WINDOW_HEIGHT / 2);
 #endif
 
+#ifdef PLATFORM_WEB
+    SharedMgr.Load();
+    MainGame = new Game(SharedMgr);
+    MainMenu = new Menu(SharedMgr);
+#else
+    GLFWwindow* mainCtx = glfwGetCurrentContext();
+
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    GLFWwindow* loaderCtx = glfwCreateWindow(1, 1, "", nullptr, mainCtx);
+
+    bool IsDoneLoading = false;
+    LoadingStage ld = {0};
+    std::thread cool_thread(load_game, std::ref(MainGame), std::ref(MainMenu), std::ref(SharedMgr), std::ref(loaderCtx), &ld, &IsDoneLoading);
+
+    float anim_state = 0.0f;
+    int dots = 0;
+
+    float LoadingTransparency = 1.0f;
+
+    while (!WindowShouldClose() && LoadingTransparency > 0.0f)
+    {
+        if (IsDoneLoading)
+            LoadingTransparency -= 2.0f * GetFrameTime();
+        BeginDrawing();
+        ClearBackground(BLACK);
+        anim_state += GetFrameTime();
+        if (anim_state >= 0.4)
+        {
+            dots += 1;
+            if (dots >= 4)
+                dots = 0;
+            anim_state = 0;
+        }
+
+        std::string s = "LOADING";
+        for (int i = 0; i < dots; i++)
+            s += ".";
+
+        std::string s2 = "";
+        std::string s3 = "";
+
+        switch (ld.stage)
+        {
+        case 0:
+            {
+                s2 = "Initializing systems...";
+                break;
+            }
+        case 1:
+            {
+                s2 = "Loading assets from disk...";
+                s3 = std::to_string(ld.assets_loaded) + " assets loaded\ntime taken: "
+                + std::to_string((int)round(GetTime()- ld.start_time)) + "s";
+                break;
+            }
+        case 2:
+            {
+                s2 = "Finishing up...";
+            }
+        }
+
+        DrawText(s.c_str(),GetRenderWidth()/2.0f - MeasureText(s.c_str(),50)/2.0f,
+            GetRenderHeight()/2.0f-25.0f,50,ColorAlpha(WHITE,LoadingTransparency));
+
+        DrawText(s2.c_str(),GetRenderWidth()/2.0f - MeasureText(s2.c_str(),20)/2.0f,
+            GetRenderHeight()/2.0f+40,20,ColorAlpha(WHITE,LoadingTransparency));
+
+        if (!s3.empty())
+        {
+            DrawText(s3.c_str(),GetRenderWidth()/2.0f - MeasureText(s3.c_str(),20)/2.0f,
+            GetRenderHeight()/2.0f+60,20,ColorAlpha(WHITE,LoadingTransparency));
+        }
+
+        EndDrawing();
+    }
+    cool_thread.join();
+    glfwDestroyWindow(loaderCtx);
+    MainMenu->BlackTransparency = 1.0f;
+#endif
+
+    bool InGame = false;
+
     SetExitKey(KEY_NULL);
 
     if (argc == 2 && std::string(argv[1]) == "test")
     {
-        MainMenu.Reset();
-        MainGame.Reload("debug");
+        MainMenu->Reset();
+        MainGame->Reload("debug");
         InGame = true;
     }
 
@@ -157,11 +255,14 @@ int main(int argc, char* argv[])
 #endif
 #endif
 
-    MainMenu.Quit();
-    MainGame.Quit();
+    MainMenu->Quit();
+    MainGame->Quit();
     SharedMgr.Quit();
     CloseAudioDevice();
     CloseWindow();
+
+    delete MainGame;
+    delete MainMenu;
 
     return 0;
 }

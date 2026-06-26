@@ -9,7 +9,7 @@
 #include "../../game/managers/CameraManager.h"
 #include <raymath.h>
 
-SoundManager::SoundManager(Game* game)
+SoundManager::SoundManager(Game* game, LoadingStage *stage)
 {
     this->game = game;
 
@@ -29,11 +29,17 @@ SoundManager::SoundManager(Game* game)
             Sounds.insert({p, sound});
             std::vector<Sound> s = std::vector<Sound>();
             CachedAliases[p] = s;
+            game->CurrentLoadingStage.assets_loaded += 1;
+            if (stage != nullptr)
+                *stage = game->CurrentLoadingStage;
         }
         else
         {
             Music m = LoadMusicStream(entry.path().string().c_str());
             Musics.insert({p, m});
+            game->CurrentLoadingStage.assets_loaded += 1;
+            if (stage != nullptr)
+                *stage = game->CurrentLoadingStage;
         }
     }
     path = "assets/chasethemes";
@@ -46,6 +52,9 @@ SoundManager::SoundManager(Game* game)
             p.erase(p.end() - 4, p.end());
             Music m = LoadMusicStream(chase_theme_layer.path().string().c_str());
             Musics.insert({p, m});
+            game->CurrentLoadingStage.assets_loaded += 1;
+            if (stage != nullptr)
+                *stage = game->CurrentLoadingStage;
         }
     }
 }

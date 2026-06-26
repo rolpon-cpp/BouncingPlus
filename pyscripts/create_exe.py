@@ -46,7 +46,7 @@ if os.path.exists('../cmake-build-release/BouncingPlus.exe') and os.path.exists(
         print(maxf, f3)
         p = '../cmake-build-optimized-release/BouncingPlus.exe'
 
-p = '../cmake-build-release/BouncingPlus.exe'
+p = '../cmake-build-optimized-release/BouncingPlus.exe'
 print(p)
 shutil.copy(p, dst)
 for file in os.listdir(p.replace("/BouncingPlus.exe", "")):

@@ -45,8 +45,6 @@ public:
     GameMisc(Game* game);
     ~GameMisc();
 
-    void SetGameData();
-
     void Update();
     void Clear();
     void Quit();

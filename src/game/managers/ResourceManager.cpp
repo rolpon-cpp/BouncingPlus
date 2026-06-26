@@ -32,8 +32,9 @@ ResourceManager::ResourceManager(Game* game)
     EnemyWeaponNamesList = std::vector<std::string>();
 }
 
-void ResourceManager::Load()
+void ResourceManager::Load(LoadingStage* stage)
 {
+    
     std::string path = "assets/img";
     for (const auto& entry : fs::directory_iterator(path))
     {
@@ -41,6 +42,9 @@ void ResourceManager::Load()
         p.erase(p.end() - 4, p.end());
         Texture tex = LoadTexture(entry.path().string().c_str());
         Textures.insert({p, tex});
+        game->CurrentLoadingStage.assets_loaded += 1;
+        if (stage != nullptr)
+            *stage = game->CurrentLoadingStage;
     }
     path = "assets/shaders";
     for (const auto& entry : fs::directory_iterator(path))
@@ -52,10 +56,13 @@ void ResourceManager::Load()
         {
             Shader shader = LoadShader((path + "/vertex.glsl").c_str(), entry.path().string().c_str());
             Shaders.insert({p, shader});
+            game->CurrentLoadingStage.assets_loaded += 1;
+            if (stage != nullptr)
+                *stage = game->CurrentLoadingStage;
         }
     }
 
-    LoadWeaponData();
+    LoadWeaponData(stage);
 
     auto* p = new SpeedPowerup();
     auto* s = new ShieldPowerup();
@@ -65,9 +72,12 @@ void ResourceManager::Load()
     Powerups.insert({"freeze", f});
     Powerups.insert({"shield", s});
     Powerups.insert({"tank", t});
+    game->CurrentLoadingStage.assets_loaded += 4;
+    if (stage != nullptr)
+        *stage = game->CurrentLoadingStage;
 }
 
-void ResourceManager::LoadWeaponData()
+void ResourceManager::LoadWeaponData(LoadingStage* stage)
 {
     unordered_map<std::string, Weapon> NewWeapons;
     std::string path = "assets/weapondata";
@@ -147,6 +157,9 @@ void ResourceManager::LoadWeaponData()
             {
                 wep.sound = data["sound"].get<vector<string>>();
             }
+            game->CurrentLoadingStage.assets_loaded += 1;
+            if (stage != nullptr)
+                *stage = game->CurrentLoadingStage;
             NewWeapons.insert({p, wep});
             g.close();
         }
