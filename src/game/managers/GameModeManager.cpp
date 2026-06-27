@@ -46,6 +46,12 @@ void GameModeManager::PrepareGameMode(nlohmann::json Data, std::string LevelName
     game->GameSpeed = LevelGameSpeed;
 }
 
+void GameModeManager::PrepareForInfiniteMode()
+{
+    InfiniteMode = true;
+    PrepareGameMode(game->GameShared->LevelData["Infinite"], "Infinite");
+}
+
 void GameModeManager::TriggerGameWin()
 {
     WonLevel = true;
@@ -142,6 +148,7 @@ std::string GameModeManager::GetCurrentLevelName()
 void GameModeManager::Clear()
 {
     this->CurrentBoss = nullptr;
+    this->InfiniteMode = false;
     this->CurrentBossName = "";
     this->WinCondition = "";
     this->CurrentLevelName = "";

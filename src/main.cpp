@@ -31,6 +31,7 @@ void load_game(Game*& g, Menu*& m, SharedManager& s, GLFWwindow*& window, Loadin
 {
     glfwMakeContextCurrent(window);
     s.Load();
+    ld->stage = -1;
     g = new Game(s,ld);
     m = new Menu(s);
     glfwMakeContextCurrent(nullptr);
@@ -175,6 +176,11 @@ int main(int argc, char* argv[])
 
         switch (ld.stage)
         {
+        case -1:
+            {
+                s2 = "Loading UI and save file...";
+                break;
+            }
         case 0:
             {
                 s2 = "Initializing systems...";

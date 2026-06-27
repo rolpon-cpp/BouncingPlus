@@ -225,6 +225,34 @@ void Game::Clear()
     GameSounds->ClearCache();
 }
 
+void Game::ReloadInfinite()
+{
+    Clear();
+
+    std::string MapName = "Infinite";
+
+    GameMode->PrepareForInfiniteMode();
+
+    for (std::string s : this->GameShared->LevelData[MapName]["game"]["banned_spawn_weapons"])
+        BannedWeaponDrops.emplace_back(s);
+    EnemyRoleWeapons = this->GameShared->LevelData[MapName]["enemy_weapons"].get<unordered_map<
+        std::string, std::string>>();
+
+    GameTiles->PrepareAsInfiniteMode();
+
+    MainPlayer = make_shared<Player>(GameTiles->PlayerSpawnPosition.x,
+                                     GameTiles->PlayerSpawnPosition.y,
+                                     this->GameShared->LevelData[MapName]["player"]["starting_speed"],
+                                     GameResources->Textures["player"], *this);
+    MainPlayer->MaxHealth = this->GameShared->LevelData[MapName]["player"]["starting_health"];
+    MainPlayer->Health = this->GameShared->LevelData[MapName]["player"]["starting_health"];
+    GameCamera->CameraPosition = Vector2Add(MainPlayer->GetCenter(), {
+                                                (float)GetRandomValue(-100, 100),
+                                                (float)GetRandomValue(-100, 100),
+                                            });
+    GameEntities->AddEntity(PlayerType, MainPlayer);
+}
+
 void Game::Reload(std::string MapName)
 {
     Clear();

@@ -162,8 +162,19 @@ void CameraManager::BackgroundLines()
         Texture& bg = game->GameResources->Textures["bg" + std::to_string(BGTexture)];
 
         float Size = game->GameTiles->MapWidth * game->GameTiles->TileSize;
-        Size /= 1.5f;
+        Size /= 3.5f;
 
+        DrawTexturePro(bg, {0, 0, (float)bg.width, (float)bg.height}, {
+                           (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
+                           RaylibCamera.target.x,
+                           (game->GameTiles->MapHeight * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
+                           RaylibCamera.target.y,
+                           //((game->GameTiles.MapWidth * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamX + RaylibCamera.target.x,
+                           //((game->GameTiles.MapHeight * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamY + RaylibCamera.target.y,
+                           Size, Size
+                       }, {Size / 2.0f, Size / 2.0f}, 0.0f, ColorAlpha(WHITE, 0.5f));
+
+        Size *= 2.0f;
         DrawTexturePro(bg, {0, 0, (float)bg.width, (float)bg.height}, {
                            (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
                            RaylibCamera.target.x,
@@ -220,7 +231,7 @@ float CameraManager::GetNaturalZoom()
 
 void CameraManager::UpdateCamera()
 {
-    CameraTarget = game->MainPlayer->GetCenter();
+    CameraTarget = game->MainPlayer->GetCenter() + (game->MainPlayer->Movement * game->MainPlayer->GetSpeed() * 0.05f);
 
     Vector2 MouseOffset = Vector2Subtract(GetMousePosition(), {
                                               static_cast<float>(GetRenderWidth()) / 2.0f,

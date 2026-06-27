@@ -62,10 +62,8 @@ void PlayerLogicProcessor::ProcessStress()
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and
     !entity->ShouldDelete
     )
-    if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y}, {
-                            MyPlayer->game->MainPlayer->BoundingBox.x, MyPlayer->game->MainPlayer->BoundingBox.y
-                        }) < 600)
-        MyPlayer->FrameStressLevel += 0.02f;
+    if (Vector2Distance(entity->GetCenter(), MyPlayer->GetCenter()) < 600)
+        MyPlayer->FrameStressLevel += 0.005f;
 
     std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities->Entities[TurretType];
     for (int i = 0; i < turretArray.size(); i++)
@@ -75,7 +73,7 @@ void PlayerLogicProcessor::ProcessStress()
     if (entity->CurrentState != LOOKING)
         MyPlayer->FrameStressLevel += 0.1f;
 
-    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.1f;
+    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.035f;
 
     if (MyPlayer->game->GameMode->InWave)
         MyPlayer->FrameStressLevel += 0.15f;
@@ -87,7 +85,7 @@ void PlayerLogicProcessor::ProcessStress()
                                      2.0f * MyPlayer->game->GetGameDeltaTime());
     else
         MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel,
-                                     0.25f * MyPlayer->game->GetGameDeltaTime());
+                                     0.5f * MyPlayer->game->GetGameDeltaTime());
 }
 
 void PlayerLogicProcessor::HandleFightMusic()

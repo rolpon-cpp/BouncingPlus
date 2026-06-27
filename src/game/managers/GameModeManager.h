@@ -35,11 +35,13 @@ public:
     bool InWave;
     double LevelTimer;
     bool WonLevel;
+    bool InfiniteMode;
     ~GameModeManager();
     GameModeManager();
     GameModeManager(Game* game);
     std::string GetCurrentLevelName();
     void PrepareGameMode(nlohmann::json Data, std::string LevelName);
+    void PrepareForInfiniteMode();
     void Update();
     void Clear();
     void Quit();

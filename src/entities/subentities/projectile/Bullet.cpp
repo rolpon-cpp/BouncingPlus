@@ -3,7 +3,6 @@
 //
 
 #include "Bullet.h"
-#include "typeinfo"
 #include <cmath>
 #include "../../../game/managers/CameraManager.h"
 #include "../../../game/managers/ParticleManager.h"
@@ -12,7 +11,6 @@
 #include "../../../entities/subentities/player/Player.h"
 #include "../../../level/tiles/TileManager.h"
 #include "../../../level/tiles/TileType.h"
-#include "../../../game/core/SharedManager.h"
 #include <raymath.h>
 #include "../../../game/Game.h"
 

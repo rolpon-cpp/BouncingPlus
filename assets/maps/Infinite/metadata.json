@@ -1,0 +1,32 @@
+{
+  "description": "Tread carefully!",
+  "difficulty": 2,
+  "music": "",
+  "player": {
+    "starting_health": 300,
+    "starting_speed": 425,
+    "weapon_health_gain_buff": 1.0,
+    "inventory": ["Player Gun", "Shotgun", "Sword"],
+    "powerup": "shield",
+    "dash_base_power": 2500,
+    "dash_power_multiplier": 1,
+    "dash_base_cooldown": 1.1,
+    "dash_concentration_boost": 1.0,
+    "dodge_cooldown": 3.0,
+    "dodge_iframe_time": 1.0,
+    "dash_iframe_time": 0.1,
+    "dash_frozen_multiplier": 0.5
+  },
+  "game": {
+    "timer": -1,
+    "win": "kill_all_enemies",
+    "mode": "default",
+    "friendly_fire": true,
+    "time_pass_speed": 1.0,
+    "banned_spawn_weapons": ["Default Gun","Player Gun","Sword","Enemy Sword"]
+  },
+  "enemy_weapons": {
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
+  }
+}

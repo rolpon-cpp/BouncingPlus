@@ -210,7 +210,7 @@ void TileManager::ProcessUniformLocations()
     }
 }
 
-void TileManager::Update()
+void TileManager::Display()
 {
     UpdateDistance = Vector2{
         round(game->GameCamera->IntendedScreenWidth / TileSize) + 1,
@@ -222,11 +222,6 @@ void TileManager::Update()
         UnloadRenderTexture(TileMapTex);
         TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
-
-    UpdateDistance = Vector2{
-        round(GetRenderWidth() / game->GameCamera->RaylibCamera.zoom / TileSize) + 3,
-        round(GetRenderHeight() / game->GameCamera->RaylibCamera.zoom / TileSize) + 3
-    };
 
     ProcessUniformLocations();
     ProcessDistortions();

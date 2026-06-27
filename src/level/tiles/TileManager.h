@@ -36,6 +36,14 @@ struct FileEntity
     std::string Weapon;
 };
 
+struct CollisionData
+{
+    bool HitWall = false;
+    int Tile = -1;
+    Vector2 Normal = {0, 0};
+    Vector2 TileCoord = {0, 0};
+};
+
 class TileManager
 {
     Game* game;
@@ -56,8 +64,11 @@ class TileManager
     void CreateFileEntity(FileEntity& NewFileEntity);
     void SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, std::string cell);
     void ProcessUniformLocations();
+    void Display();
 
 public:
+    std::unordered_map<int, bool> InfiniteChunksGenerated;
+
     std::vector<std::string> Lines;
     std::string PrevFileName;
 
@@ -77,9 +88,11 @@ public:
     void SetTileAt(int x, int y, int id);
     void SetTileAt(Vector2 coord, int id);
     void Update();
+    CollisionData IsColliding(Rectangle BoundingBox, std::vector<TileType> tile_types = {}, std::vector<Vector2> exclusions = {});
     void DistortArea(Distortion DistortionForArea);
     void ReadMapDataFile(std::string FileName);
     void ReadEntitiesFile(std::string FileName);
+    void PrepareAsInfiniteMode();
     void Clear();
     void Quit();
 };

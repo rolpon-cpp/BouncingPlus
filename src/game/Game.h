@@ -74,6 +74,7 @@ public:
     // Base game functions
     void Freeze(float Time);
     void Reload(std::string Filename);
+    void ReloadInfinite();
     void Update();
     void Clear();
     void Quit();
