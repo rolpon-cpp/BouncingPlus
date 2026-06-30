@@ -5,12 +5,12 @@
 #ifndef BOUNCINGPLUS_BEHAVIORTYPE_H
 #define BOUNCINGPLUS_BEHAVIORTYPE_H
 
-enum BehaviorType
+enum EnemyBehaviorType
 {
-    DefaultBehaviorType,
-    CatchBehaviorType,
-    DwellerBehaviorType,
-    WeaponBehaviorType
+    DefaultEnemyBehaviorType,
+    CatchEnemyBehaviorType,
+    DwellerEnemyBehaviorType,
+    WeaponEnemyBehaviorType
 };
 
 #endif //BOUNCINGPLUS_BEHAVIORTYPE_H

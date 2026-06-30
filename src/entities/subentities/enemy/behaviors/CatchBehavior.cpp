@@ -18,7 +18,7 @@ CatchBehavior::CatchBehavior()
 
 CatchBehavior::CatchBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner, game)
 {
-    BehaviorType = CatchBehaviorType;
+    BehaviorType = CatchEnemyBehaviorType;
     ResetDirection();
 }
 

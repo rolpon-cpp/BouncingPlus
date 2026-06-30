@@ -4,7 +4,7 @@
 
 #ifndef BOUNCINGPLUS_ENEMYBEHAVIOR_H
 #define BOUNCINGPLUS_ENEMYBEHAVIOR_H
-#include "BehaviorType.h"
+#include "EnemyBehaviorType.h"
 
 class Enemy;
 class Game;
@@ -15,7 +15,7 @@ class EnemyBehavior
 public:
     Enemy* Owner;
     Game* game;
-    BehaviorType BehaviorType;
+    EnemyBehaviorType BehaviorType;
     EnemyBehavior();
     EnemyBehavior(Enemy& Owner, Game& game);
     virtual ~EnemyBehavior();

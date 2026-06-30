@@ -250,7 +250,7 @@ void Game::ReloadInfinite()
                                                 (float)GetRandomValue(-100, 100),
                                                 (float)GetRandomValue(-100, 100),
                                             });
-    GameEntities->AddEntity(PlayerType, MainPlayer);
+    GameEntities->AddEntity(PlayerEntityType, MainPlayer);
 }
 
 void Game::Reload(std::string MapName)
@@ -278,7 +278,7 @@ void Game::Reload(std::string MapName)
                                                 (float)GetRandomValue(-100, 100),
                                                 (float)GetRandomValue(-100, 100),
                                             });
-    GameEntities->AddEntity(PlayerType, MainPlayer);
+    GameEntities->AddEntity(PlayerEntityType, MainPlayer);
 }
 
 void Game::Quit()

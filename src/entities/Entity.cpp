@@ -28,7 +28,8 @@ void Entity::Initialize(Texture2D& Texture, Rectangle BoundingBox, float Speed)
     this->MaxHealth = 100;
     this->WeaponWeightSpeedMultiplier = 1;
     this->Health = this->MaxHealth;
-    this->Type = DefaultType;
+    this->Type = DefaultEntityType;
+    this->Priority = NearbyPlayerPriorityType;
     this->VelocityMovement = {0, 0};
     this->VelocityPower = 0;
     this->LastVelBounceCoord = {0, 0};
@@ -77,10 +78,10 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     if (owner->Health <= 0)
         return;
 
-    if (entity->Type == PlayerType)
+    if (entity->Type == PlayerEntityType)
         game->MainPlayer->LogicProcessor.DamageNotification(owner->GetCenter());
 
-    if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
+    if (entity->Type == PlayerEntityType && game->MainPlayer->isInvincible)
         return;
 
     int ParticleAmount = GetRandomValue(9, 15) * (Damage / 100.0f);
@@ -98,11 +99,11 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
                                         (180.0f - Vector2LineAngle(entity->GetCenter(), owner->GetCenter()) * RAD2DEG),
                                         15, ParticleAmount);
 
-    if (entity->Type == EnemyType)
+    if (entity->Type == EnemyEntityType)
     {
         // if victim is enemy, check for armor damage
         shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
-        if (owner->Type == PlayerType)
+        if (owner->Type == PlayerEntityType)
             enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
         if (enemy->Armor <= 0)
             enemy->Health -= Damage;
@@ -118,13 +119,13 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
         entity->ShouldDelete = true;
         if (owner->Health > 0)
         {
-            if (owner->Type != PlayerType)
+            if (owner->Type != PlayerEntityType)
                 owner->Health += HealthGain;
             else if (!game->MainPlayer->isInvincible)
                 owner->Health += HealthGain * game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()][
                     "player"]["weapon_health_gain_buff"].get<float>();
         }
-        if (owner->Type == PlayerType)
+        if (owner->Type == PlayerEntityType)
             game->MainPlayer->Kills += 1;
     }
 }
@@ -137,42 +138,39 @@ void Entity::PhysicsUpdate(float DeltaTime, double time)
         if (abs(VelocityPower) < 5)
             VelocityPower = 0;
     }
-    Vector2 mov = Vector2Normalize(Movement);
-    Vector2 vel = Vector2Normalize(VelocityMovement);
+
+    Vector2 EntityMovement = Vector2Normalize(Movement);
+    Vector2 EntityVelocityMovement = Vector2Normalize(VelocityMovement);
+
     Vector2 FinalMovement = Vector2{
-        (mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower)
+        EntityMovement.x * GetSpeed() + EntityVelocityMovement.x * VelocityPower, EntityMovement.y * GetSpeed() + EntityVelocityMovement.y * VelocityPower
     };
-    if (Vector2Distance({0, 0}, vel) != 0 && CollisionsEnabled)
-    {
-        BoundingBox.x += FinalMovement.x * DeltaTime;
-        BoundingBox.y += FinalMovement.y * DeltaTime;
 
-        auto tile_types = std::vector<TileType>();
-        if (Type == EnemyType)
-            tile_types.push_back(EnemyWallTileType);
-        CollisionData ReflectCollision = game->GameTiles->IsColliding(BoundingBox, tile_types, {LastVelBounceCoord});
-        LastVelBounceCoord = ReflectCollision.TileCoord;
-
-        BoundingBox.x -= FinalMovement.x * DeltaTime;
-        BoundingBox.y -= FinalMovement.y * DeltaTime;
-        FinalMovement = Vector2{
-            (mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower)
-        };
-    }
     if (Vector2Distance({0, 0}, FinalMovement) > 0)
     {
         if (CollisionsEnabled)
         {
+            auto tile_types = std::vector<TileType>();
+            if (Type == EnemyEntityType)
+                tile_types.push_back(EnemyWallTileType);
+
             BoundingBox.x += FinalMovement.x * DeltaTime;
-            if (game->GameTiles->IsColliding(BoundingBox).HitWall)
+            CollisionData XCollision = game->GameTiles->IsColliding(BoundingBox, tile_types);
+            if (XCollision.HitWall)
             {
                 BoundingBox.x -= FinalMovement.x * DeltaTime;
             }
 
             BoundingBox.y += FinalMovement.y * DeltaTime;
-            if (game->GameTiles->IsColliding(BoundingBox).HitWall)
+            CollisionData YCollision = game->GameTiles->IsColliding(BoundingBox, tile_types);
+            if (YCollision.HitWall)
             {
                 BoundingBox.y -= FinalMovement.y * DeltaTime;
+            }
+
+            if (XCollision.Normal.x != 0.0f && XCollision.Normal.y != 0.0f)
+            {
+                VelocityMovement = Vector2Reflect(VelocityMovement, XCollision.Normal);
             }
         }
         else

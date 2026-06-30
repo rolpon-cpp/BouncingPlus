@@ -7,16 +7,24 @@
 
 enum EntityType
 {
-    DefaultType = 0,
-    EnemyType = 1,
-    PlayerType = 2,
-    SpawnerType = 3,
-    UpgradeStationType = 4,
-    BulletType = 5,
-    BossType = 6,
-    TurretType = 7,
-    ThrowableType = 8,
-    End = 9
+    DefaultEntityType,
+    EnemyEntityType,
+    PlayerEntityType,
+    SpawnerEntityType,
+    BulletEntityType,
+    BossEntityType,
+    TurretEntityType,
+    ThrowableEntityType,
+    EndOfEntityType
+};
+
+enum EntityPriorityType
+{
+    AlwaysPriorityType,
+    CloseToPlayerPriorityType,
+    NearbyPlayerPriorityType,
+    LargeAreaNearbyPlayerPriorityType,
+    NeverPriorityType,
 };
 
 #endif //ENTITYTYPE_H

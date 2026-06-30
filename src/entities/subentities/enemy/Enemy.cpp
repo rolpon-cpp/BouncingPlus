@@ -41,11 +41,13 @@ Enemy::~Enemy()
 void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
                  std::unique_ptr<EnemyBehavior> behavior, Game& game)
 {
+    Priority = LargeAreaNearbyPlayerPriorityType;
+
     this->MaxHealth = Health;
     this->Health = Health;
     this->Speed = Speed;
     this->Armor = Armor;
-    this->Type = EnemyType;
+    this->Type = EnemyEntityType;
     this->AngeredRangeBypassTimer = 0;
     this->LastFreezingState = false;
     this->AngeredRangeBypassTimerMax = 0.25f;
@@ -54,11 +56,10 @@ void Enemy::Init(float Health, float Speed, float Armor, std::string Weapon,
     this->MyWeapon = Weapon;
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = true;
-    this->Alpha = 0;
+    this->EnemyTransparency = 0;
     this->WanderingCooldown = GetRandomValue(1, 4);
     this->LastSetWanderPos = WanderingCooldown;
-    this->EntityColor = ColorAlpha(WHITE, Alpha);
-    this->ActivationTimer = game.GetGameTime();
+    this->EntityColor = ColorAlpha(WHITE, EnemyTransparency);
     this->WallMovement = {0, 0};
     this->Behavior = std::move(behavior);
     this->Behavior->Owner = this;
@@ -158,24 +159,17 @@ void Enemy::Update()
         RemainingHealthOfOriginalHealth = Health + Armor;
     RemainingHealthOfOriginalHealth = RemainingHealthOfOriginalHealth / TotalHealth;
 
-    if (Alpha < 0.9f)
+    if (EnemyTransparency < 0.9f)
     {
-        Alpha = Lerp(Alpha, 1.0f, 2 * game->GetGameDeltaTime());
-        EntityColor = ColorAlpha(WHITE, Alpha);
+        EnemyTransparency = Lerp(EnemyTransparency, 1.0f, 2 * game->GetGameDeltaTime());
+        EntityColor = ColorAlpha(WHITE, EnemyTransparency);
     }
     else
     {
-        Alpha = 1.0f;
-    }
-    if (ActivationTimer != -1)
-        ActivationTimer += game->GetGameDeltaTime();
-    if (ActivationTimer > 1)
-    {
-        isActive = true;
-        ActivationTimer = -1;
+        EnemyTransparency = 1.0f;
     }
 
-    if (!this->weaponsSystemInit)
+    if (!this->WeaponsSystemInit)
     {
         this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->MainEffectsSystem = Effects(shared_from_this(), *game);
@@ -184,15 +178,12 @@ void Enemy::Update()
             this->MainWeaponsSystem.GiveWeapon(MyWeapon);
             this->MainWeaponsSystem.Equip(0);
         }
-        this->weaponsSystemInit = true;
+        this->WeaponsSystemInit = true;
     }
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
 
-    if (isActive&& Behavior 
-    !=
-    nullptr
-    )
+    if (Behavior != nullptr)
     {
         bool IsTouchingFreezeZone = false;
 

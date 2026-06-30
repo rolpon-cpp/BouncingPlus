@@ -18,7 +18,7 @@ DwellerBehavior::DwellerBehavior()
 
 DwellerBehavior::DwellerBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner, game)
 {
-    BehaviorType = DwellerBehaviorType;
+    BehaviorType = DwellerEnemyBehaviorType;
     Owner.RenderHealthBar = false;
 
     Vector2 Pos = Owner.GetCenter();

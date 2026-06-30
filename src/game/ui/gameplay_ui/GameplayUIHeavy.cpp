@@ -33,9 +33,9 @@ void GameplayUI::DisplayLevelTimer()
 
         Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
         DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20},
-                         ColorAlpha(BLACK, 0.5f * UITransparency));
-        DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
-        DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
+                         ColorAlpha(BLACK, PanelAlpha));
+        DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, PanelAlpha));
+        DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, PanelAlpha));
 
         std::string o_txt = "TIME LEFT";
         if (game->GameMode->CurrentGameMode == "wave")
@@ -47,58 +47,7 @@ void GameplayUI::DisplayLevelTimer()
         }
 
         DrawText(o_txt.c_str(), rec.x + rec.width / 2 - MeasureText(o_txt.c_str(), font_size / 1.5f) / 2,
-                 rec.y - (font_size / 1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
-    }
-}
-
-void GameplayUI::DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight)
-{
-    for (int i = 0; i < 3; i++)
-    {
-        std::string name = game->MainPlayer->MainWeaponsSystem.Weapons[i];
-        if (name.empty())
-            name = "Empty";
-        Color MainColor = RED;
-        if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex == i)
-        {
-            Found = true;
-            WeaponSlotIndex = i;
-        }
-        float offset = 0;
-        float size = 0;
-        if (WeaponSlotIndex == i)
-        {
-            MainColor = GREEN;
-            if (Found)
-            {
-                WeaponSlotOffset += 240 * GetFrameTime();
-                WeaponSlotSize += 100 * GetFrameTime();
-            }
-            WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
-            WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
-            offset = WeaponSlotOffset;
-            size = WeaponSlotSize;
-        }
-        if (MeasureText(name.c_str(), 20 + size) > HighestWidth)
-        {
-            HighestWidth = MeasureText(name.c_str(), 20 + size) + offset;
-        }
-        if (i == 2)
-            *HighestHeight = Prev + 20 + size;
-        DrawLineEx(Vector2{50, Prev + 2.0f},
-                   Vector2{(50 + MeasureText(name.c_str(), 20 + size) + offset), Prev + 2.0f}, 4,
-                   MainColor);
-        DrawText(name.c_str(), 50, Prev + 4.0f, 20 + size, MainColor);
-        Prev += 20 + size + 15;
-    }
-    if (!Found)
-    {
-        WeaponSlotOffset -= 240 * GetFrameTime();
-        WeaponSlotSize -= 100 * GetFrameTime();
-        WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
-        WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
-        if (WeaponSlotOffset <= 0 && WeaponSlotSize <= 0)
-            WeaponSlotIndex = -1;
+                 rec.y - (font_size / 1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, 1.0f));
     }
 }
 
@@ -112,10 +61,10 @@ void GameplayUI::DisplayInventoryIndicator()
     float W = (Margin * 4.0f) + (32.0f * 3);
     float H = 32.0f + (Margin * 2.0f);
     Rectangle rectangle = {
-        GetRenderWidth() / 2.0f - W / 2.0f, GetRenderHeight() - WeaponUITexture.texture.height - H - 20,
+        GetRenderWidth() / 2.0f - W / 2.0f, GetRenderHeight() - H - 20,
         W, H
     };
-    DrawRectangleRec(rectangle, ColorAlpha(BLACK, 0.5f * InvIndTrans * UITransparency));
+    DrawRectangleRec(rectangle, ColorAlpha(BLACK, 0.5f * InvIndTrans));
     for (int i = 0; i < 3; i++)
     {
         std::string WepName = game->MainPlayer->MainWeaponsSystem.Weapons[i];
@@ -129,9 +78,9 @@ void GameplayUI::DisplayInventoryIndicator()
             32.0f
         };
         if (i == game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex)
-            DrawRectangleRec(thisTileRect, ColorAlpha(WHITE, 0.5f * InvIndTrans * UITransparency));
+            DrawRectangleRec(thisTileRect, ColorAlpha(WHITE, 0.5f * InvIndTrans));
         DrawTexturePro(game->GameResources->Textures[game->GameResources->Weapons[WepName].Icon], {0, 0, 32.0f, 32.0f},
-                       thisTileRect, {0.0f, 0.0f}, 0.0f, ColorAlpha(WHITE, InvIndTrans * UITransparency));
+                       thisTileRect, {0.0f, 0.0f}, 0.0f, ColorAlpha(WHITE, InvIndTrans));
     }
 }
 
@@ -182,7 +131,7 @@ void GameplayUI::DisplayRank()
     SideRectangle.x = 50.0f;
     SideRectangle.y = GetRenderHeight() / 2 - SideRectangle.height / 2;
 
-    DrawRectangleRec(SideRectangle, ColorAlpha(BLACK, 0.25f * UITransparency));
+    DrawRectangleRec(SideRectangle, ColorAlpha(BLACK, 0.25f));
 
     Color OtherColor = Color{
         (unsigned char)(127.0f + sin(game->GetGameTime()) * 127.0f),
@@ -190,7 +139,7 @@ void GameplayUI::DisplayRank()
         (unsigned char)(127.0f + sin(game->GetGameTime() + 10.0f) * 127.0f),
         255
     };
-    Color RainbowColor = ColorAlpha(ColorLerp(WHITE, OtherColor, RankLevel * 1.5f), UITransparency);
+    Color RainbowColor = ColorAlpha(ColorLerp(WHITE, OtherColor, RankLevel * 1.5f), 1.0f);
 
     if (!RankClassification.empty())
         DrawText(RankClassification.c_str(), SideRectangle.x + 15 - StressShakePos.x * 2.5f,
@@ -216,11 +165,11 @@ void GameplayUI::DisplayRank()
         if (Trans > 0.0f)
             DrawText((ScoreChange.Reason + " (+" + to_string((int)round(ScoreChange.Points)) + ")").c_str(),
                      SideRectangle.x + 15, EndPos.y + 15 + (i * 25), 25,
-                     ColorAlpha(ColorContrast(ScoreChange.ScoreColor, 0.5f), Trans * UITransparency));
+                     ColorAlpha(ColorContrast(ScoreChange.ScoreColor, 0.5f), Trans));
     }
     DrawText(("TOTAL SCORE: " + to_string((int)game->GameScore)).c_str(), SideRectangle.x + 15,
              max(EndPos.y + 15 + (len * 25), SideRectangle.y + SideRectangle.height - 40), 25,
-             ColorAlpha(WHITE, UITransparency));
+             ColorAlpha(WHITE, 1.0f));
 }
 
 void GameplayUI::DisplayCursor()

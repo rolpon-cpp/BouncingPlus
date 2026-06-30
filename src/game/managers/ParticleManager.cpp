@@ -63,12 +63,12 @@ void ParticleManager::Update()
     {
         double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
         bool sd = Percent >= 1.0f;
-        if (Vector2Distance(p.Position, game->MainPlayer->GetCenter()) >= 3000 && p.Effect.Type == DEFAULT)
+        if (Vector2Distance(p.Position, game->MainPlayer->GetCenter()) >= 3000 && p.Effect.Type == DefaultEffectType)
         {
             sd = true;
             return sd;
         }
-        if (!sd && p.Effect.Type == DEFAULT && Particles.size() > game->GameShared->CosmeticParticleLimit)
+        if (!sd && p.Effect.Type == DefaultEffectType && Particles.size() > game->GameShared->CosmeticParticleLimit)
         {
             sd = true;
             return sd;
@@ -86,9 +86,9 @@ void ParticleManager::Update()
 
             p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, std::min((float)Percent / 0.2f, 1.0f));
 
-            if (p.Effect.Type != DEFAULT)
+            if (p.Effect.Type != DefaultEffectType)
             {
-                for (std::shared_ptr entity : game->GameEntities->Entities[EnemyType])
+                for (std::shared_ptr entity : game->GameEntities->Entities[EnemyEntityType])
                 {
                     if (entity != nullptr && entity != p.Effect.Owner.lock() && !entity->ShouldDelete)
                     {
@@ -97,8 +97,8 @@ void ParticleManager::Update()
                         {
                             if (auto o = p.Effect.Owner.lock())
                             {
-                                if (p.Effect.Type == BURNING && o->Type == PlayerType && !enemy->MainEffectsSystem.
-                                    HasEffect(BURNING))
+                                if (p.Effect.Type == BurningEffectType && o->Type == PlayerEntityType && !enemy->MainEffectsSystem.
+                                    HasEffect(BurningEffectType))
                                 {
                                     game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Burn", 15.0f, RED);
                                 }

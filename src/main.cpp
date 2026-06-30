@@ -103,7 +103,7 @@ void loop(void* arg)
 
 int main(int argc, char* argv[])
 {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "BouncingPlus");
     InitAudioDevice();

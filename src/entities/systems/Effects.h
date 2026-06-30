@@ -15,12 +15,12 @@ class Game;
 
 enum EffectType
 {
-    DEFAULT, BURNING, SWIFTNESS
+    DefaultEffectType, BurningEffectType, SwiftnessEffectType
 };
 
 struct EffectData
 {
-    EffectType Type = DEFAULT;
+    EffectType Type = DefaultEffectType;
     std::weak_ptr<Entity> Owner; // make sure this isnt a nullptr before using!!!
     float Power = 0;
     float Reward = 0;
@@ -30,7 +30,7 @@ struct EffectData
 class Effect
 {
 public:
-    EffectType Type = DEFAULT;
+    EffectType Type = DefaultEffectType;
     double Duration;
     double ImpactTime;
     Effect(double Duration, double ImpactTime);

@@ -11,7 +11,7 @@
 
 void GameplayUI::DeathMenu()
 {
-    BeginTextureMode(DeathScreen);
+    DrawRectangle(0,0,GetRenderWidth(),GetRenderHeight(),ColorAlpha(RED, 0.5f));
 
     DrawTextPro(GetFontDefault(), "You died!", {GetRenderWidth() / 2.0f, 250.0f},
                 {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x / 2.0f, 50.0f}, DeathTextAnimRot, 100, 10,
@@ -37,21 +37,15 @@ void GameplayUI::DeathMenu()
     DrawText(txt_3.c_str(), GetRenderWidth() / 2 - size2 / 2, ey + es - DeathTextAnimRot, es,
              ColorBrightness(RED, 0.4f));
 
-    EndTextureMode();
+
 }
 
 void GameplayUI::PauseMenu()
 {
-    BeginTextureMode(PauseScreen);
-    ClearBackground(game->GameControls->IsControlDown("debug2") ? BLANK : ColorAlpha(BLACK, 0.65f));
-    EndTextureMode();
+    DrawRectangle(0,0,GetRenderWidth(),GetRenderHeight(),ColorAlpha(BLACK, 0.5f));
 
     if (!WasPausedLast)
         IsChangingSettings = false;
-
-    DrawTextureRec(PauseScreen.texture,
-                   Rectangle{0, 0, (float)PauseScreen.texture.width, -(float)PauseScreen.texture.height},
-                   Vector2{0, (float)GetRenderHeight() - PauseScreen.texture.height}, WHITE);
 
     if (!IsChangingSettings)
     {
@@ -59,7 +53,7 @@ void GameplayUI::PauseMenu()
         Rectangle r = {0, 0, 43.5f + TxtSize, 41.0f};
 
         Rectangle BaseRect = {
-            PauseScreen.texture.width / 2.0f - 225, PauseScreen.texture.height / 2.0f - 175, 450, 350
+            GetRenderWidth() / 2.0f - 225, GetRenderHeight() / 2.0f - 175, 450, 350
         };
         DrawRectangleRec(BaseRect, ColorAlpha(BLACK, 0.5f));
 
@@ -71,9 +65,9 @@ void GameplayUI::PauseMenu()
         DrawText("BouncingBallz", r.x + 41.0f, r.y + 2.5f, 36.0f, WHITE);
 
         game->Paused = !Button({
-                                   (float)PauseScreen.texture.width / 2 - (float)game->GameShared->SharedUIAssets.
+                                   (float)GetRenderWidth() / 2 - (float)game->GameShared->SharedUIAssets.
                                    ButtonImg.width / 2,
-                                   (float)PauseScreen.texture.height / 2 - 100 - (float)game->GameShared->SharedUIAssets
+                                   (float)GetRenderHeight() / 2 - 100 - (float)game->GameShared->SharedUIAssets
                                    .ButtonImg.height / 2,
                                    (float)game->GameShared->SharedUIAssets.ButtonImg.width,
                                    (float)game->GameShared->SharedUIAssets.ButtonImg.height
@@ -83,8 +77,8 @@ void GameplayUI::PauseMenu()
 
         IsChangingSettings = Button(
             {
-                (float)PauseScreen.texture.width / 2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width / 2,
-                (float)PauseScreen.texture.height / 2 - (float)game->GameShared->SharedUIAssets.ButtonImg.height / 2,
+                (float)GetRenderWidth() / 2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width / 2,
+                (float)GetRenderHeight() / 2 - (float)game->GameShared->SharedUIAssets.ButtonImg.height / 2,
                 (float)game->GameShared->SharedUIAssets.ButtonImg.width,
                 (float)game->GameShared->SharedUIAssets.ButtonImg.height
             },
@@ -92,9 +86,9 @@ void GameplayUI::PauseMenu()
             game->GameShared->SharedUIAssets.ButtonClick, "SETTINGS");
 
         if (Button({
-                       (float)PauseScreen.texture.width / 2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width /
+                       (float)GetRenderWidth() / 2 - (float)game->GameShared->SharedUIAssets.ButtonImg.width /
                        2,
-                       (float)PauseScreen.texture.height / 2 + 100 - (float)game->GameShared->SharedUIAssets.ButtonImg.
+                       (float)GetRenderHeight() / 2 + 100 - (float)game->GameShared->SharedUIAssets.ButtonImg.
                        height / 2,
                        (float)game->GameShared->SharedUIAssets.ButtonImg.width,
                        (float)game->GameShared->SharedUIAssets.ButtonImg.height
@@ -103,7 +97,7 @@ void GameplayUI::PauseMenu()
             game->isReturning = true;
 
 #ifndef PLATFORM_WEB
-        if (Button({(float)PauseScreen.texture.width - 320.0f, 20.0f, 300.0f, 50.0f}, GetMousePosition(),
+        if (Button({(float)GetRenderWidth() - 320.0f, 20.0f, 300.0f, 50.0f}, GetMousePosition(),
                    game->GameShared->SharedUIAssets.ButtonImg, game->GameShared->SharedUIAssets.ButtonClick,
                    "RELOAD WEAPONS"))
             game->GameResources->LoadWeaponData();
@@ -125,8 +119,7 @@ void GameplayUI::PauseMenu()
 
 void GameplayUI::GameWin()
 {
-    BeginTextureMode(GameWinScreen);
-    ClearBackground(ColorAlpha(GREEN, 0.2f));
+    DrawRectangle(0,0,GetRenderWidth(),GetRenderHeight(),ColorAlpha(GREEN, 0.5f));
 
     DrawTextPro(GetFontDefault(), "You won!", {GetRenderWidth() / 2.0f, 250.0f},
                 {MeasureTextEx(GetFontDefault(), "You won!", 150, 10.0f).x / 2.0f, 50.0f}, DeathTextAnimRot, 150, 10,
@@ -151,10 +144,4 @@ void GameplayUI::GameWin()
              ColorBrightness(WHITE, -0.1f));
     DrawText(txt_3.c_str(), GetRenderWidth() / 2 - size2 / 2, ey + es - DeathTextAnimRot, es,
              ColorBrightness(WHITE, -0.1f));
-
-    EndTextureMode();
-    DrawTextureRec(GameWinScreen.texture,
-                   Rectangle{0, 0, (float)GameWinScreen.texture.width, -(float)GameWinScreen.texture.height},
-                   Vector2{0, (float)GetRenderHeight() - GameWinScreen.texture.height},
-                   ColorAlpha(WHITE, ((1 - UITransparency) - 0.5f) / 0.5f));
 }

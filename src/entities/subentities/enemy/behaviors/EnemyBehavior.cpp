@@ -19,7 +19,7 @@ EnemyBehavior::~EnemyBehavior()
 
 EnemyBehavior::EnemyBehavior(Enemy& Owner, Game& game)
 {
-    BehaviorType = DefaultBehaviorType;
+    BehaviorType = DefaultEnemyBehaviorType;
     this->Owner = &Owner;
     this->game = &game;
 }

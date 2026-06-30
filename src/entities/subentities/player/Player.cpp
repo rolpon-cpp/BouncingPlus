@@ -23,11 +23,11 @@ using namespace std;
 Player::Player(float X, float Y, float Speed, Texture2D& PlayerTexture, Game& game) : Entity(PlayerTexture,
     Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
 {
-    this->Type = PlayerType;
+    this->Type = PlayerEntityType;
     this->Kills = 0;
     this->isInvincible = false;
     this->LastKills = 0;
-    this->OrigSpeed = Speed;
+    this->OriginalSpeed = Speed;
     this->ExtraSpeed = 0;
     this->IntervalHealth = Health;
     this->LastInterval = game.GetGameTime();
@@ -115,7 +115,7 @@ void Player::PhysicsUpdate(float DeltaTime, double Time)
         }
     }
     ExtraSpeed = min(ExtraSpeed, 400.0f);
-    Speed = (OrigSpeed + ExtraSpeed + SpeedBuff);
+    Speed = (OriginalSpeed + ExtraSpeed + SpeedBuff);
     if ((Health / MaxHealth) > 2.0f)
         Speed *= (1.0f - min(((Health / MaxHealth) - 3.0f) / 2.0f, 0.5f));
     LogicProcessor.PhysicsUpdate();
@@ -312,8 +312,8 @@ void Player::Update()
                                  game->GameShared->Progress.Data.PlayerColor[1],
                                  game->GameShared->Progress.Data.PlayerColor[2],
                                  game->GameShared->Progress.Data.PlayerColor[3]
-                             }, Alpha);
-    Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f * game->GetGameDeltaTime());
+                             }, PlayerTransparency);
+    PlayerTransparency = Lerp(PlayerTransparency, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f * game->GetGameDeltaTime());
 
     if (InvincibilityResetTimer > 0)
         InvincibilityResetTimer -= game->GetGameDeltaTime();

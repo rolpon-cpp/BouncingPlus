@@ -13,35 +13,40 @@
 class Enemy : public Entity
 {
     float AnimatedHealth;
+    float TotalHealth = -1;
 
     Vector2 WanderPos;
-    float TotalHealth = -1;
     double LastSetWanderPos = 0;
     double WanderingCooldown;
-    bool weaponsSystemInit = false;
 
-    bool isActive = false;
+    bool WeaponsSystemInit = false;
+
     bool LastFreezingState = false;
-    double ActivationTimer;
+
     Vector2 WallMovement;
-    float Alpha = 0;
+
+    float EnemyTransparency = 0;
+
     void Init(float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior,
               Game& game);
 
 public:
     bool RenderHealthBar = true;
+    bool WanderingEnabled = true;
+
     std::string MyWeapon;
     std::unique_ptr<EnemyBehavior> Behavior = nullptr;
 
     WeaponsSystem MainWeaponsSystem;
     Effects MainEffectsSystem;
 
+    float Armor;
+    float HealthRegenRate;
+
     float AngeredRangeBypassTimerMax;
     float RemainingHealthOfOriginalHealth = 0;
     float AngeredRangeBypassTimer;
-    float Armor;
-    float HealthRegenRate;
-    bool WanderingEnabled;
+
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture,
           Game& game);
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon,

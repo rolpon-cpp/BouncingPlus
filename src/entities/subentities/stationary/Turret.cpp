@@ -18,9 +18,9 @@ Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.G
                                                                           Rectangle{X - 24, Y - 24, 48, 48}, 0, game)
 {
     this->Weapon = Weapon;
-    this->Type = TurretType;
+    this->Type = TurretEntityType;
     this->Target = {BoundingBox.x, BoundingBox.y};
-    this->CurrentState = LOOKING;
+    this->CurrentState = SearchingTurretState;
     this->Initialized = false;
     this->TurretRotation = GetRandomValue(0, 360);
     this->RotationSpeed = GetRandomValue(50, 100);
@@ -29,6 +29,11 @@ Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.G
     this->SuspiciousRotationLockCooldown = 2.5f;
     this->Range = GetRandomValue(600, 1200);
     this->AngleRange = GetRandomValue(35, 70);
+
+    // Collisions Optimization
+    this->CollisionsEnabled = false;
+
+    Priority = CloseToPlayerPriorityType;
 }
 
 void Turret::SetTarget()
@@ -43,16 +48,16 @@ void Turret::ChangeState(TurretState NewState)
 {
     TurretState OldState = this->CurrentState;
     this->CurrentState = NewState;
-    if (OldState == SUSPICIOUS)
+    if (OldState == SuspiciousPlayerTurretState)
     {
         this->SuspiciousRotationLockCooldown = 2.5f;
     }
-    else if (OldState == LOOKING)
+    else if (OldState == SearchingTurretState)
     {
         this->LookingRotationGoal = GetRandomValue(0, 360);
         this->GoalSwitchCooldown = 0.5f;
     }
-    else if (OldState == DETECTED)
+    else if (OldState == DetectedPlayerTurretState)
     {
         SetTarget();
     }
@@ -103,7 +108,7 @@ void Turret::Update()
     }
     switch (this->CurrentState)
     {
-    case LOOKING:
+    case SearchingTurretState:
         {
             if (abs(this->TurretRotation - this->LookingRotationGoal) < 5)
             {
@@ -124,10 +129,10 @@ void Turret::Update()
             SetTarget();
 
             if (PlayerIsVisible())
-                ChangeState(DETECTED);
+                ChangeState(DetectedPlayerTurretState);
             break;
         }
-    case DETECTED:
+    case DetectedPlayerTurretState:
         {
             this->TurretRotation = 180 - Vector2LineAngle(GetCenter(), Target) * RAD2DEG + 180;
             Target = Vector2Lerp(Target, game->MainPlayer->GetCenter(), 6.5f * game->GetGameDeltaTime());
@@ -135,17 +140,17 @@ void Turret::Update()
             if (MyWeaponsSystem.WeaponAmmo[MyWeaponsSystem.CurrentWeaponIndex] <= 0)
                 MyWeaponsSystem.Reload();
             if (!PlayerIsVisible())
-                ChangeState(SUSPICIOUS);
+                ChangeState(SuspiciousPlayerTurretState);
             break;
         }
-    case SUSPICIOUS:
+    case SuspiciousPlayerTurretState:
         {
             this->TurretRotation = 180 - Vector2LineAngle(GetCenter(), Target) * RAD2DEG + 180;
             SuspiciousRotationLockCooldown -= game->GetGameDeltaTime();
             if (PlayerIsVisible())
-                ChangeState(DETECTED);
+                ChangeState(DetectedPlayerTurretState);
             else if (SuspiciousRotationLockCooldown <= 0)
-                ChangeState(LOOKING);
+                ChangeState(SearchingTurretState);
             break;
         }
     }

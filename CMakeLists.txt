@@ -97,8 +97,6 @@ add_executable(BouncingPlus src/data/Progress.cpp
         src/entities/subentities/stationary/Spawner.h
         src/entities/subentities/stationary/Turret.cpp
         src/entities/subentities/stationary/Turret.h
-        src/entities/subentities/stationary/UpgradeStation.cpp
-        src/entities/subentities/stationary/UpgradeStation.h
         src/entities/systems/Effects.cpp
         src/entities/systems/Effects.h
         src/entities/systems/Powerups.cpp

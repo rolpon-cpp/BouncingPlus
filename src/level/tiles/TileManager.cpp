@@ -30,7 +30,7 @@ TileManager::TileManager(Game* game)
     TileTypes[6] = PlayerSpawnTileType; // player spawn
     TileTypes[7] = SpawnerTileType; // enemy spawner tile type
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
-    TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
+    TileTypes[9] = NothingTileType; // upgrade station tile type
     TileTypes[10] = BossTileType; // boss
     TileTypes[11] = TurretTileType; // turrets
     TileTypes[12] = EnemyWallTileType; // enemy walls
@@ -74,6 +74,11 @@ int TileManager::GetTileAtWorldCoords(Vector2 coord)
 void TileManager::SetTileAt(Vector2 coord, int id)
 {
     SetTileAt(coord.x, coord.y, id);
+}
+
+Vector2 TileManager::GetWorldCenter()
+{
+    return {MapWidth * TileSize * .5f, MapHeight * TileSize * .5f};
 }
 
 void TileManager::PrepareAsInfiniteMode()

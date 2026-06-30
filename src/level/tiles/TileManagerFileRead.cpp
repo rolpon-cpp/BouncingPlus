@@ -16,7 +16,6 @@
 #include "../../game/Game.h"
 #include "../../entities/subentities/stationary/Spawner.h"
 #include "../../entities/subentities/stationary/Turret.h"
-#include "../../entities/subentities/stationary/UpgradeStation.h"
 #include "../../entities/subentities/enemy/behaviors/CatchBehavior.h"
 #include "../../entities/subentities/enemy/behaviors/DwellerBehavior.h"
 
@@ -60,7 +59,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
     case SpawnerTileType:
         {
             std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
-            game->GameEntities->AddEntity(SpawnerType, spawner);
+            game->GameEntities->AddEntity(SpawnerEntityType, spawner);
             break;
         }
     case BossTileType:
@@ -68,17 +67,11 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             BossSpawnPosition = Vector2{bbox_x, bbox_y};
             break;
         };
-    case UpgradeStationTileType:
-        {
-            std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
-            game->GameEntities->AddEntity(UpgradeStationType, station);
-            break;
-        }
     case TurretTileType:
         {
             std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
                                                                  "Sniper", bbox_x, bbox_y);
-            game->GameEntities->AddEntity(TurretType, t);
+            game->GameEntities->AddEntity(TurretEntityType, t);
             break;
         }
     case CatchEnemyTileType:
@@ -89,7 +82,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             e->Behavior.reset();
             e->Behavior = std::move(catch_behavior);
 
-            game->GameEntities->AddEntity(EnemyType, e);
+            game->GameEntities->AddEntity(EnemyEntityType, e);
             break;
         }
     case DwellerEnemyTileType:
@@ -103,7 +96,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             e->Behavior.reset();
             e->Behavior = std::move(dwell_behavior);
 
-            game->GameEntities->AddEntity(EnemyType, e);
+            game->GameEntities->AddEntity(EnemyEntityType, e);
             break;
         }
     case NothingTileType:
@@ -174,13 +167,13 @@ void TileManager::ReadMapDataFile(std::string FileName)
 void TileManager::CreateFileEntity(FileEntity& NewFileEntity)
 {
     // TEMPORARY CHECK, SINCE OTHER ENTITIES ARE NOT SUPPORTED
-    if (NewFileEntity.Type != EnemyType)
+    if (NewFileEntity.Type != EnemyEntityType)
         return;
     // REMOVE THIS IF YOU PLAN TO INCLUDE MORE ENTITY TYPES!
 
     std::shared_ptr<Entity> NewEntity;
 
-    if (NewFileEntity.Type == EnemyType)
+    if (NewFileEntity.Type == EnemyEntityType)
     {
         NewEntity = make_shared<Enemy>(NewFileEntity.X, NewFileEntity.Y, NewFileEntity.Health, NewFileEntity.Speed,
                                        NewFileEntity.Armor, NewFileEntity.Weapon,
@@ -208,13 +201,13 @@ void TileManager::SetPropertiesOfFileEntity(FileEntity& ThisFileEntity, int i, s
         {
         case 0:
             {
-                if (std::stoi(cell) >= 0 && std::stoi(cell) < End)
+                if (std::stoi(cell) >= 0 && std::stoi(cell) < EndOfEntityType)
                 {
                     ThisFileEntity.Type = (EntityType)std::stoi(cell);
                 }
                 else
                 {
-                    ThisFileEntity.Type = DefaultType;
+                    ThisFileEntity.Type = DefaultEntityType;
                 }
                 break;
             }
@@ -262,7 +255,7 @@ void TileManager::ReadEntitiesFile(std::string FileName)
         std::stringstream lineStream(line);
         std::string cell;
 
-        FileEntity ThisFileEntity = {DefaultType};
+        FileEntity ThisFileEntity = {DefaultEntityType};
 
         int i = 0;
 
@@ -303,6 +296,6 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id)
     Armor *= Multiplier;
     Speed *= Multiplier;
     Health *= Multiplier;
-    game->GameEntities->AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon,
+    game->GameEntities->AddEntity(EnemyEntityType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon,
                                                                 game->GameResources->Textures["enemy"], *game));
 }

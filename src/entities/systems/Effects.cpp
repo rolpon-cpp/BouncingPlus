@@ -16,14 +16,14 @@ Effect::Effect(double Duration, double ImpactTime)
 {
     this->Duration = Duration;
     this->ImpactTime = ImpactTime;
-    Type = DEFAULT;
+    Type = DefaultEffectType;
 }
 
 Effect::Effect(double ImpactTime)
 {
     this->Duration = 0.0f;
     this->ImpactTime = ImpactTime;
-    Type = DEFAULT;
+    Type = DefaultEffectType;
 }
 
 void Effect::Update(std::shared_ptr<Entity> ImpactedEntity)
@@ -35,7 +35,7 @@ Burning::Burning(float Damage, double Duration, double ImpactTime) : Effect(Dura
     this->Damage = Damage;
     LastDidFireParticle = 0.0f;
     OwnerReward = 0;
-    Type = BURNING;
+    Type = BurningEffectType;
     SmokeParticleCount = 0;
     GradientProg = 0;
     LastDidSFX = 0.0f;
@@ -47,7 +47,7 @@ Burning::Burning(double ImpactTime) : Effect(10.0f, ImpactTime)
     LastDidFireParticle = 0.0f;
     OwnerReward = 0;
     SmokeParticleCount = 0;
-    Type = BURNING;
+    Type = BurningEffectType;
     GradientProg = 0;
     LastDidSFX = 0.0f;
 }
@@ -78,7 +78,7 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
             owner->DamageOther(ImpactedEntity, Damage * game->GetGameDeltaTime(), owner, OwnerReward);
             if (ImpactedEntity->Health <= 0.0f)
             {
-                if (owner->Type == PlayerType)
+                if (owner->Type == PlayerEntityType)
                     owner->game->MainPlayer->LogicProcessor.IncreaseScore("Enemy Burn Kill", 50.0f, ORANGE);
             }
         }
@@ -153,14 +153,14 @@ void Burning::Update(std::shared_ptr<Entity> ImpactedEntity)
 Swiftness::Swiftness(double ImpactTime) : Effect(5.0f, ImpactTime)
 {
     this->LastDidParticle = 0.0f;
-    Type = SWIFTNESS;
+    Type = SwiftnessEffectType;
     this->SpeedInc = 500.0f;
 }
 
 Swiftness::Swiftness(float SpeedInc, double Duration, double ImpactTime) : Effect(Duration, ImpactTime)
 {
     this->SpeedInc = SpeedInc;
-    Type = SWIFTNESS;
+    Type = SwiftnessEffectType;
     this->LastDidParticle = 0.0f;
 }
 
@@ -224,16 +224,16 @@ void Effects::AddEffect(EffectData data)
 {
     switch (data.Type)
     {
-    case DEFAULT:
+    case DefaultEffectType:
         break;
-    case SWIFTNESS:
+    case SwiftnessEffectType:
         {
             Swiftness * s = new Swiftness(data.Power, data.Duration, game->GetGameTime());
             AddEffect(s);
             break;
         }
 
-    case BURNING:
+    case BurningEffectType:
         {
             Burning * s = new Burning(data.Power, data.Duration, game->GetGameTime());
             if (auto owner = data.Owner.lock())

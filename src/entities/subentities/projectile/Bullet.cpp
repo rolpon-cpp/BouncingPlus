@@ -19,7 +19,8 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     BulletTexture, {0, 0, 1, 1}, Speed, game)
 {
     this->Speed = Speed;
-    this->Type = BulletType;
+    this->Priority = LargeAreaNearbyPlayerPriorityType;
+    this->Type = BulletEntityType;
     this->ExistenceTimer = 0;
     this->BoundingBox = Rectangle{X - (15 * Size.x / 2.0f), Y - (7.5f * Size.y / 2.0f), 15 * Size.x, 7.5f * Size.y};
     this->Texture = &BulletTexture;
@@ -166,7 +167,7 @@ void Bullet::PhysicsUpdate(float dt, double time)
             Normal = Vector2Normalize(Normal);
 
             auto Owner = OwnerPtr.lock();
-            if (Owner != nullptr && Owner->Type == PlayerType)
+            if (Owner != nullptr && Owner->Type == PlayerEntityType)
             {
                 float Bonus = Owner->Health / 5.0f;
                 HealthGain += min(Bonus / 20.0f, 5.0f);
@@ -233,7 +234,7 @@ void Bullet::Update()
         ShouldDelete = true;
     }
     auto Owner = OwnerPtr.lock();
-    for (shared_ptr entity : game->GameEntities->Entities[EnemyType])
+    for (shared_ptr entity : game->GameEntities->Entities[EnemyEntityType])
     {
         if (entity != nullptr && entity != Owner && !entity->ShouldDelete)
         {

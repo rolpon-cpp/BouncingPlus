@@ -16,11 +16,14 @@ class Entity : public std::enable_shared_from_this<Entity>
     void Initialize(Texture2D& Texture, Rectangle BoundingBox, float Speed);
 
 public:
+    EntityType Type;
+    EntityPriorityType Priority;
+
     Game* game;
     Rectangle BoundingBox;
     Texture2D* Texture;
     Vector2 Movement;
-    EntityType Type;
+
     Color EntityColor;
 
     Vector2 VelocityMovement;

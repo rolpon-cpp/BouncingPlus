@@ -66,7 +66,7 @@ void GameModeManager::Update()
 
     if (!WonLevel)
     {
-        std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[EnemyType];
+        std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[EnemyEntityType];
         if (WinCondition == "kill_all_enemies" && array.size() == 0)
             TriggerGameWin();
         else if (WinCondition == "complete_10_waves" && CurrentWave >= 10)
@@ -91,7 +91,7 @@ void GameModeManager::Update()
                 CurrentWave += 1;
             }
 
-            std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[SpawnerType];
+            std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[SpawnerEntityType];
             for (int i = 0; i < array.size(); i++)
             {
                 if (std::shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and
@@ -106,7 +106,7 @@ void GameModeManager::Update()
                 }
             }
 
-            std::vector<std::shared_ptr<Entity>> enemyArray = game->GameEntities->Entities[EnemyType];
+            std::vector<std::shared_ptr<Entity>> enemyArray = game->GameEntities->Entities[EnemyEntityType];
             for (int i = 0; i < enemyArray.size(); i++)
             {
                 if (std::shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and
@@ -126,7 +126,7 @@ void GameModeManager::Update()
         {
             InWave = false;
             LevelTimer = 0;
-            std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[SpawnerType];
+            std::vector<std::shared_ptr<Entity>> array = game->GameEntities->Entities[SpawnerEntityType];
             for (int i = 0; i < array.size(); i++)
             {
                 if (std::shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and

@@ -24,8 +24,10 @@ class Player : public Entity
 {
     bool SystemsInitialized = false;
 
-    float Alpha = 1;
-    float OrigSpeed;
+    float PlayerTransparency = 1.0f;
+
+    float OriginalSpeed;
+
     Vector2 LastPos = Vector2{0, 0};
 
     double LastMovedTime;
@@ -60,10 +62,12 @@ public:
     bool HealthConcern;
     double PlayerFrozenTimer = 0;
     bool ReduceSpeedBuff = false;
+
     PlayerLogicProcessor LogicProcessor;
     WeaponsSystem MainWeaponsSystem;
     PowerupSystem MainPowerupSystem;
     Effects MainEffectsSystem;
+
     double InvincibilityResetTimer;
     int Kills;
     bool IsPreparingForDash = false;

@@ -61,7 +61,7 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
     else
         circle_transparency += TransBuff;
 
-    std::vector<shared_ptr<Entity>>* array = &Owner->game->GameEntities->Entities[BulletType];
+    std::vector<shared_ptr<Entity>>* array = &Owner->game->GameEntities->Entities[BulletEntityType];
     for (int i = 0; i < array->size(); i++)
     {
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(array->at(i)); entity != nullptr && !entity->
@@ -176,7 +176,7 @@ void PowerupSystem::Activate()
         return;
     if (CurrentPowerup != nullptr && CurrentCooldown <= 0 && CurrentLength <= 0)
     {
-        if (Player->Type == PlayerType)
+        if (Player->Type == PlayerEntityType)
             Player->LogicProcessor.IncreaseScore("Powerup Use, " + CurrentPowerup->Name, 25.0f, YELLOW);
         CurrentCooldown = CurrentPowerup->Cooldown;
         CurrentLength = CurrentPowerup->Length;

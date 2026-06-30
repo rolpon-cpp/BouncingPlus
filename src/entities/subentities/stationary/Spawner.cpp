@@ -30,7 +30,7 @@ Spawner::Spawner(Game& game, float MyX, float MyY) : Entity(game.GameResources->
     StartPos = Vector2{MyX, MyY};
     RandPoint = {0, 0};
     DistF = 0;
-    this->Type = SpawnerType;
+    this->Type = SpawnerEntityType;
     SpawnerIsActive = 0;
     SpawnerRageCooldown = 0;
     PosMultiplier = 10;
@@ -42,6 +42,9 @@ Spawner::Spawner(Game& game, float MyX, float MyY) : Entity(game.GameResources->
     {
         RandomNumbers[i] = GetRandomValue(-100, 100) / 10.0f;
     }
+
+    // Collisions Optimization
+    this->CollisionsEnabled = false;
 }
 
 void Spawner::Render()
@@ -285,7 +288,7 @@ void Spawner::Update()
             if (EnemyDifficulty >= 0.6f)
                 e->HealthRegenRate = GetRandomValue(25, 70) / 10.0f;
             e->WanderingEnabled = false;
-            game->GameEntities->AddEntity(EnemyType, e);
+            game->GameEntities->AddEntity(EnemyEntityType, e);
             game->GameParticles->ParticleEffect({
                                                     p,
                                                     150,

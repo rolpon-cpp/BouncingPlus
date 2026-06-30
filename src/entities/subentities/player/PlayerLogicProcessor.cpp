@@ -57,7 +57,7 @@ void PlayerLogicProcessor::ProcessStress()
     if (MyPlayer->HealthConcern)
         MyPlayer->FrameStressLevel += 0.5f;
 
-    std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities->Entities[BulletType];
+    std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities->Entities[BulletEntityType];
     for (int i = 0; i < bulletArray.size(); i++)
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and
     !entity->ShouldDelete
@@ -65,12 +65,12 @@ void PlayerLogicProcessor::ProcessStress()
     if (Vector2Distance(entity->GetCenter(), MyPlayer->GetCenter()) < 600)
         MyPlayer->FrameStressLevel += 0.005f;
 
-    std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities->Entities[TurretType];
+    std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities->Entities[TurretEntityType];
     for (int i = 0; i < turretArray.size(); i++)
         if (shared_ptr<Turret> entity = dynamic_pointer_cast<Turret>(turretArray.at(i)); entity != nullptr and
     !entity->ShouldDelete
     )
-    if (entity->CurrentState != LOOKING)
+    if (entity->CurrentState != SearchingTurretState)
         MyPlayer->FrameStressLevel += 0.1f;
 
     MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.035f;
@@ -186,13 +186,15 @@ void PlayerLogicProcessor::RankLevelLogic()
 {
     auto MyPlayer = Owner.lock();
 
-    RankLevel -= RankLevel * (1.0f - MyPlayer->StressLevel) * 0.17f * MyPlayer->game->GetGameDeltaTime();
+    RankLevel -= RankLevel * 0.1f * MyPlayer->game->GetGameDeltaTime();
 
     RankLevel = max(min(RankLevel, 1.0f), 0.0f);
+
     std::erase_if(MyPlayer->ScoreChanges, [MyPlayer](ScoreChange& e)
     {
         return MyPlayer->game->GetGameTime() - e.Time >= 10;
     });
+
     std::sort(MyPlayer->ScoreChanges.begin(), MyPlayer->ScoreChanges.end(), [MyPlayer](ScoreChange& e1, ScoreChange& e2)
     {
         return e1.Time < e2.Time;
@@ -203,9 +205,9 @@ void PlayerLogicProcessor::IncreaseScore(std::string Reason, float Points, Color
 {
     auto MyPlayer = Owner.lock();
 
-    Points *= min(MyPlayer->StressLevel, 0.7f);
+    Points *= max(min(MyPlayer->StressLevel, 0.7f),1.1f);
 
-    RankLevel += min(Points / 600.0f, 0.1f);
+    RankLevel += min(Points / 700.0f, 0.1f);
 
     MyPlayer->ScoreChanges.push_back({Reason, Points, ScoreColor, MyPlayer->game->GetGameTime()});
     MyPlayer->game->GameScore += Points;
@@ -319,7 +321,7 @@ void PlayerLogicProcessor::DashAttacking()
     if (MyPlayer->VelocityPower > 1000 && !MyPlayer->Dodging)
     {
         // get enemies list
-        std::vector<shared_ptr<Entity>>* array = &MyPlayer->game->GameEntities->Entities[EnemyType];
+        std::vector<shared_ptr<Entity>>* array = &MyPlayer->game->GameEntities->Entities[EnemyEntityType];
         for (int i = 0; i < array->size(); i++)
         {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and
@@ -477,20 +479,22 @@ void PlayerLogicProcessor::DashLogic()
     int h = 15;
     float a = 0;
     if (MyPlayer->IsPreparingForDash)
+    {
         a = Lerp(0, 0.6f, min((float)(MyPlayer->game->GetGameTime() - DashTimeStart) / 0.2f, 1.0f));
 
-    DrawRectangle((int)(MyPlayer->BoundingBox.x + (MyPlayer->BoundingBox.width / 2) - (w / 2)),
-                  (int)(MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.width + 10),
-                  w, h, ColorAlpha(BLACK, a));
+        DrawRectangle((int)(MyPlayer->BoundingBox.x + (MyPlayer->BoundingBox.width / 2) - (w / 2)),
+                      (int)(MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.width + 10),
+                      w, h, ColorAlpha(BLACK, a));
 
-    DrawRectangle(
-        (int)(MyPlayer->BoundingBox.x + (MyPlayer->BoundingBox.width / 2) - (w / 2)) + 5,
-        (int)(MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.width + 10) + 5,
-        (!MyPlayer->IsPreparingForDash
-             ? 0
-             : min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart) / 1.1f, 1.0f)) * (w - 10),
-        h - 10,
-        ColorAlpha(WHITE, a * 1.25f));
+        DrawRectangle(
+            (int)(MyPlayer->BoundingBox.x + (MyPlayer->BoundingBox.width / 2) - (w / 2)) + 5,
+            (int)(MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.width + 10) + 5,
+            (!MyPlayer->IsPreparingForDash
+                 ? 0
+                 : min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart) / 1.1f, 1.0f)) * (w - 10),
+            h - 10,
+            ColorAlpha(WHITE, a * 1.25f));
+    }
 
     // Health bar
     DrawRectangle((int)(MyPlayer->BoundingBox.x - 20 - h),

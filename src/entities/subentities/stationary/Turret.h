@@ -14,9 +14,9 @@ class Game;
 
 enum TurretState
 {
-    LOOKING,
-    DETECTED,
-    SUSPICIOUS
+    SearchingTurretState,
+    DetectedPlayerTurretState,
+    SuspiciousPlayerTurretState,
 };
 
 class Turret : public Entity

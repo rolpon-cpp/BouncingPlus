@@ -25,7 +25,7 @@ struct Distortion
 
 struct FileEntity
 {
-    EntityType Type = DefaultType;
+    EntityType Type = DefaultEntityType;
     float X = 0;
     float Y = 0;
     float W = 0;
@@ -87,6 +87,7 @@ public:
     int GetTileAtWorldCoords(Vector2 coord);
     void SetTileAt(int x, int y, int id);
     void SetTileAt(Vector2 coord, int id);
+    Vector2 GetWorldCenter();
     void Update();
     CollisionData IsColliding(Rectangle BoundingBox, std::vector<TileType> tile_types = {}, std::vector<Vector2> exclusions = {});
     void DistortArea(Distortion DistortionForArea);

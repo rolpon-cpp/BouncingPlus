@@ -72,18 +72,18 @@ void WeaponsSystem::DisplayWeaponTexture()
     MeleeAnimTexture = &game->GameResources->Textures[CurrentWeapon->texture];
     float width = MeleeAnimTexture->width * CurrentWeapon->WeaponSize;
     float height = MeleeAnimTexture->height * CurrentWeapon->WeaponSize;
-    if (Owner->Type == EnemyType)
+    if (Owner->Type == EnemyEntityType)
     {
         std::shared_ptr<Enemy> ptr = dynamic_pointer_cast<Enemy>(Owner);
-        if (ptr->Behavior == nullptr || ptr->Behavior->BehaviorType != WeaponBehaviorType)
+        if (ptr->Behavior == nullptr || ptr->Behavior->BehaviorType != WeaponEnemyBehaviorType)
             Target = game->MainPlayer->GetCenter();
-        else if (ptr->Behavior != nullptr && ptr->Behavior->BehaviorType == WeaponBehaviorType)
+        else if (ptr->Behavior != nullptr && ptr->Behavior->BehaviorType == WeaponEnemyBehaviorType)
         {
             auto* behaviorPtr = dynamic_cast<WeaponBehavior*>(ptr->Behavior.get());
             Target = behaviorPtr->Target;
         }
     }
-    else if (Owner->Type == TurretType)
+    else if (Owner->Type == TurretEntityType)
     {
         std::shared_ptr<Turret> ptr = dynamic_pointer_cast<Turret>(Owner);
         Target = ptr->Target;
@@ -175,18 +175,18 @@ void WeaponsSystem::DisplayWeaponCone()
 {
     auto Owner = OwnerPtr.lock();
     // Display weapon cone if using melee weapon
-    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) &&
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerEntityType || Owner->Type == EnemyEntityType) &&
         Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter()) < CurrentWeapon->Range + GetRenderWidth() /
         2)
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        if (Owner->Type == PlayerType)
+        if (Owner->Type == PlayerEntityType)
             MeleeDisplayRenderTarget = GetScreenToWorld2D(GetMousePosition(), game->GameCamera->RaylibCamera);
-        else if (Owner->Type == EnemyType)
+        else if (Owner->Type == EnemyEntityType)
         {
             std::shared_ptr<Enemy> ptr = dynamic_pointer_cast<Enemy>(Owner);
-            if (ptr->Behavior != nullptr && ptr->Behavior->BehaviorType == WeaponBehaviorType)
+            if (ptr->Behavior != nullptr && ptr->Behavior->BehaviorType == WeaponEnemyBehaviorType)
             {
                 WeaponBehavior* f = (WeaponBehavior*)ptr->Behavior.get();
                 MeleeDisplayRenderTarget = f->Target;
@@ -210,7 +210,7 @@ void WeaponsSystem::DisplayWeaponCone()
 
         //DrawCircleSector({cx,cy}, Dist, LeftAngle, RightAngle, 40, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         float opti = CurrentWeapon->AngleRange / 18.0f;
-        if (Owner->Type == PlayerType)
+        if (Owner->Type == PlayerEntityType)
             opti = 1.0f;
         for (int i = 0; i < MeleeAnimRange / opti; i++)
         {
@@ -272,7 +272,7 @@ void WeaponsSystem::Update()
         DisplayMeleeAnim();
 
     // display reflect
-    if (CurrentWeapon != nullptr && Owner->Type == PlayerType && !game->MainPlayer->IsPreparingForDash && CurrentWeapon
+    if (CurrentWeapon != nullptr && Owner->Type == PlayerEntityType && !game->MainPlayer->IsPreparingForDash && CurrentWeapon
         ->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
         DisplayWeaponReflectance();
 
@@ -455,11 +455,11 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
                                                             game->GameResources->Textures[BulletTexture], Owner, *game);
             bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
             bullet->HealthGain = CurrentWeapon->HealthGain;
-            if (Owner->Type == PlayerType)
+            if (Owner->Type == PlayerEntityType)
                 bullet->EntityColor = {255, 180, 255, 255};
-            if (Owner->Type == EnemyType)
+            if (Owner->Type == EnemyEntityType)
                 bullet->EntityColor = {255, 182, 217, 255};
-            game->GameEntities->AddEntity(BulletType, bullet);
+            game->GameEntities->AddEntity(BulletEntityType, bullet);
         }
     }
     else
@@ -474,7 +474,7 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
                                                 ColorLerp(RED, ORANGE, GetRandomValue(1, 100) / 100.0f)
                                             }, TargetAngle - 180.0f, CurrentWeapon->AngleRange, CurrentWeapon->Bullets,
                                             {
-                                                BURNING, Owner, CurrentWeapon->Damage, CurrentWeapon->HealthGain,
+                                                BurningEffectType, Owner, CurrentWeapon->Damage, CurrentWeapon->HealthGain,
                                                 CurrentWeapon->BulletLifetime * 2.0f,
                                             });
     }
@@ -548,7 +548,7 @@ void WeaponsSystem::Attack(Vector2 Target)
         }
 
         // Shake camera
-        if (CurrentWeapon->ShakeScreen && Owner->Type == PlayerType && (CurrentWeapon->isMelee || Valid))
+        if (CurrentWeapon->ShakeScreen && Owner->Type == PlayerEntityType && (CurrentWeapon->isMelee || Valid))
             game->GameCamera->ShakeCamera(CurrentWeapon->Intensity);
 
         // Gun attack
@@ -566,14 +566,14 @@ void WeaponsSystem::Attack(Vector2 Target)
             this->MeleeAnimAngle = TargetAngle - 90;
 
             // player attack check
-            if (Owner->Type != PlayerType)
+            if (Owner->Type != PlayerEntityType)
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            if (Owner->Type == PlayerType || game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["game"][
+            if (Owner->Type == PlayerEntityType || game->GameShared->LevelData[game->GameMode->GetCurrentLevelName()]["game"][
                 "friendly_fire"].get<bool>())
             {
-                std::vector<shared_ptr<Entity>>* array = &game->GameEntities->Entities[EnemyType];
+                std::vector<shared_ptr<Entity>>* array = &game->GameEntities->Entities[EnemyEntityType];
                 for (int i = 0; i < array->size(); i++)
                 {
                     if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity

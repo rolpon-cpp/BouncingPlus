@@ -10,29 +10,20 @@ class Game;
 
 class GameplayUI
 {
-public:
-    float StartingBlackScreenTrans = 1.0f;
-    float EndBlackScreenTrans = 0.0f;
 
-    RenderTexture2D WeaponUITexture;
-    RenderTexture2D DeathScreen;
-    RenderTexture2D PauseScreen;
-    RenderTexture2D GameWinScreen;
 
     float CursorMiddleTrans = 0.0f;
     float CursorRotation = 0.0f;
 
-    int WeaponSlotIndex = -1;
-    float WeaponSlotOffset = 0;
-    float WeaponSlotSize = 0;
     float HealthBarSize = 250;
-    float UITransparency = 1.0f;
+    float HealthBarFontSize = 92;
+    float LastHealth = 0;
+
     float DeathTextAnimRot = 0.0f;
     float HealthBarAnimRot = 0.0f;
-    float LastHealth = 0;
-    float FntSize = 92;
+
     int Margin = 15;
-    float Alpha = 0.75f;
+    float PanelAlpha = 0.5f;
 
     Vector2 StressShakePos = {0, 0};
     double LastChangedStressShakePos = 0;
@@ -44,6 +35,11 @@ public:
     bool IsChangingSettings = false;
 
     Game* game;
+public:
+
+    float StartingBlackScreenTrans = 1.0f;
+    float EndBlackScreenTrans = 0.0f;
+
     GameplayUI(Game* game);
     GameplayUI();
 
@@ -54,18 +50,15 @@ public:
 
     // in GameplayUIHeavy
     void DisplayLevelTimer();
-    void DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight);
     void DisplayInventoryIndicator();
     void DisplayRank();
     void DisplayCursor();
 
     // in GameplayUIMeters
-    void DisplayCooldownMeter(float LowestX, float LowestY, float HighestWidth, float HighestHeight);
     void DisplayKillMeter();
     void DisplayPowerupMeter();
     void DisplayHealthMeter();
 
-    void RefreshRenderTextures();
     void GameUI();
     void Clear();
     void Quit();

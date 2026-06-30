@@ -161,31 +161,13 @@ void CameraManager::BackgroundLines()
     {
         Texture& bg = game->GameResources->Textures["bg" + std::to_string(BGTexture)];
 
-        float Size = game->GameTiles->MapWidth * game->GameTiles->TileSize;
-        Size /= 3.5f;
-
-        DrawTexturePro(bg, {0, 0, (float)bg.width, (float)bg.height}, {
-                           (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
-                           RaylibCamera.target.x,
-                           (game->GameTiles->MapHeight * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
-                           RaylibCamera.target.y,
-                           //((game->GameTiles.MapWidth * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamX + RaylibCamera.target.x,
-                           //((game->GameTiles.MapHeight * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamY + RaylibCamera.target.y,
-                           Size, Size
-                       }, {Size / 2.0f, Size / 2.0f}, 0.0f, ColorAlpha(WHITE, 0.5f));
-
-        Size *= 2.0f;
-        DrawTexturePro(bg, {0, 0, (float)bg.width, (float)bg.height}, {
-                           (game->GameTiles->MapWidth * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
-                           RaylibCamera.target.x,
-                           (game->GameTiles->MapHeight * game->GameTiles->TileSize / 2.0f) + (1.0f / BackgroundDepth) *
-                           RaylibCamera.target.y,
-                           //((game->GameTiles.MapWidth * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamX + RaylibCamera.target.x,
-                           //((game->GameTiles.MapHeight * game->GameTiles.TileSize / 2.0f) / BackgroundDepth) - ParallaxCamY + RaylibCamera.target.y,
-                           Size, Size
-                       }, {Size / 2.0f, Size / 2.0f}, 0.0f, ColorAlpha(WHITE, 0.5f));
-
-        //cout << RaylibCamera.target.x << " " << (game->GameTiles.MapWidth * game->GameTiles.TileSize * .5f) << " " << ParallaxCamX << " " << (game->GameTiles.MapWidth * game->GameTiles.TileSize * .5f) / BackgroundDepth << "\n";
+        Vector2 ParallaxCenter = game->GameTiles->GetWorldCenter() / BackgroundDepth;
+        DrawTexturePro(bg, {
+            0, 0, 115, 115
+        }, {
+            -(ParallaxCamX - ParallaxCenter.x), -(ParallaxCamY - ParallaxCenter.y),
+            1150, 1150
+        }, RaylibCamera.target * -1.0f, 0.0f, ColorAlpha(WHITE, 0.5f));
     }
 }
 

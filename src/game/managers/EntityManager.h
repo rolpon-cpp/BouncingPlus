@@ -14,11 +14,17 @@ class Entity;
 
 class EntityManager
 {
+    size_t EntityMemoryUsage;
+
     void EntityUpdate();
     void EntityPhysicsUpdate();
     void EntityClear();
     float PhysicsAccumulator;
     Game* game;
+
+    std::vector<EntityType> EntityPhysicsBlacklist;
+
+    bool EntityFitsPriority(std::shared_ptr<Entity> EntityToCheck);
 
 public:
     std::unordered_map<EntityType, std::vector<std::shared_ptr<Entity>>> Entities;

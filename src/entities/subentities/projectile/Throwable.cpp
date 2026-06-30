@@ -12,7 +12,8 @@ Throwable::Throwable(Vector2 From, Vector2 Direction, std::string Texture, float
                      float CollisionHitWidth, float Height, Game& game) :
     Entity(game.GameResources->Textures[Texture], {0, 0, 10, 10}, 2000, game)
 {
-    Type = ThrowableType;
+    Type = ThrowableEntityType;
+    Priority = LargeAreaNearbyPlayerPriorityType;
     SpawnTime = game.GetGameTime();
     Movement = Vector2Normalize(Direction);
     //BoundingBox.x = From + ()

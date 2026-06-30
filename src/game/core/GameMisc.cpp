@@ -63,14 +63,24 @@ void GameMisc::DisplayProfilerInfo()
 
     if (DisplayProfiler)
     {
+        int lines = times.size();
+        bool LagDetected = AverageDeltaTime > LastAverageDeltaTime && AverageDeltaTime >= LastAverageDeltaTime * 1.25f;
+
+        if (LagDetected)
+            lines += 1;
+
+        DrawRectangle(50, 50, 400, lines * 15, ColorAlpha(BLACK,0.5f));
+        DrawRectangle(500, 50, 400, lines * 15, ColorAlpha(BLACK,0.5f));
+
+        if (LagDetected)
+            DrawText("lag detected", 50, 50.0f + lines * 15, 15, RED);
+
         int i = 0;
         for (auto [name,val] : times)
         {
-            DrawText((name + ", " + std::to_string(val * 1000.0f) + "ms").c_str(), 250, 150 + i * 50, 50, RED);
+            DrawText((name + ", " + std::to_string(val * 1000.0f) + "ms").c_str(), 50.0f, 50.0f + i * 15, 15, RED);
             i++;
         }
-        if (AverageDeltaTime > LastAverageDeltaTime && AverageDeltaTime >= LastAverageDeltaTime * 1.25f)
-            DrawText("lag detected", 600, 600, 50, RED);
     }
 
     if (GetTime() - LastStartedRecordingDelta < 1.0f)

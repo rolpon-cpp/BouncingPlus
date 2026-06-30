@@ -22,7 +22,7 @@ WeaponBehavior::~WeaponBehavior()
 
 WeaponBehavior::WeaponBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner, game)
 {
-    BehaviorType = WeaponBehaviorType;
+    BehaviorType = WeaponEnemyBehaviorType;
     CoverRefreshTimer = 0;
     CoverPosition = {0, 0};
     FoundCover = false;
