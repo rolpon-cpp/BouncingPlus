@@ -265,7 +265,7 @@ void Game::Reload(std::string MapName)
         std::string, std::string>>();
 
     GameTiles->ReadMapDataFile("assets/maps/" + GameMode->GetCurrentLevelName() + "/map_data.csv");
-    if (fs::exists(("assets/maps/" + GameMode->GetCurrentLevelName() + "/entities->csv").c_str()))
+    if (fs::exists(("assets/maps/" + GameMode->GetCurrentLevelName() + "/entities.csv").c_str()))
         GameTiles->ReadEntitiesFile("assets/maps/" + GameMode->GetCurrentLevelName() + "/entities.csv");
 
     MainPlayer = make_shared<Player>(GameTiles->PlayerSpawnPosition.x,

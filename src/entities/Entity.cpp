@@ -142,43 +142,71 @@ void Entity::PhysicsUpdate(float DeltaTime, double time)
     Vector2 EntityMovement = Vector2Normalize(Movement);
     Vector2 EntityVelocityMovement = Vector2Normalize(VelocityMovement);
 
-    Vector2 FinalMovement = Vector2{
-        EntityMovement.x * GetSpeed() + EntityVelocityMovement.x * VelocityPower, EntityMovement.y * GetSpeed() + EntityVelocityMovement.y * VelocityPower
+    Vector2 FinalEntityMovement = Vector2{
+        EntityMovement.x * GetSpeed(), EntityMovement.y * GetSpeed()
     };
 
-    if (Vector2Distance({0, 0}, FinalMovement) > 0)
+    Vector2 FinalVelocityMovement = Vector2{
+        EntityVelocityMovement.x * VelocityPower, EntityVelocityMovement.y * VelocityPower
+    };
+
+    if (!CollisionsEnabled)
     {
-        if (CollisionsEnabled)
+        BoundingBox.x += FinalVelocityMovement.x * DeltaTime;
+        BoundingBox.y += FinalVelocityMovement.y * DeltaTime;
+        BoundingBox.x += EntityMovement.x * DeltaTime;
+        BoundingBox.y += EntityMovement.y * DeltaTime;
+    } else
+    {
+        if (FinalEntityMovement.x != 0.0f || FinalEntityMovement.y != 0.0f)
         {
             auto tile_types = std::vector<TileType>();
             if (Type == EnemyEntityType)
                 tile_types.push_back(EnemyWallTileType);
 
-            BoundingBox.x += FinalMovement.x * DeltaTime;
+            BoundingBox.x += FinalEntityMovement.x * DeltaTime;
             CollisionData XCollision = game->GameTiles->IsColliding(BoundingBox, tile_types);
             if (XCollision.HitWall)
             {
-                BoundingBox.x -= FinalMovement.x * DeltaTime;
+                BoundingBox.x -= FinalEntityMovement.x * DeltaTime;
             }
 
-            BoundingBox.y += FinalMovement.y * DeltaTime;
+            BoundingBox.y += FinalEntityMovement.y * DeltaTime;
             CollisionData YCollision = game->GameTiles->IsColliding(BoundingBox, tile_types);
             if (YCollision.HitWall)
             {
-                BoundingBox.y -= FinalMovement.y * DeltaTime;
+                BoundingBox.y -= FinalEntityMovement.y * DeltaTime;
+            }
+        }
+
+        if (FinalVelocityMovement.x != 0.0f || FinalVelocityMovement.y != 0.0f)
+        {
+            BoundingBox.x += FinalVelocityMovement.x * DeltaTime;
+            CollisionData XCollision = game->GameTiles->IsColliding(BoundingBox, {EnemyWallTileType});
+            if (XCollision.HitWall)
+            {
+                BoundingBox.x -= FinalVelocityMovement.x * DeltaTime;
+            }
+
+            BoundingBox.y += FinalVelocityMovement.y * DeltaTime;
+            CollisionData YCollision = game->GameTiles->IsColliding(BoundingBox, {EnemyWallTileType});
+            if (YCollision.HitWall)
+            {
+                BoundingBox.y -= FinalVelocityMovement.y * DeltaTime;
             }
 
             if (XCollision.Normal.x != 0.0f && XCollision.Normal.y != 0.0f)
             {
                 VelocityMovement = Vector2Reflect(VelocityMovement, XCollision.Normal);
+                VelocityPower -= VelocityPower / 10.0f;
+            } else if (YCollision.Normal.x != 0.0f && YCollision.Normal.y != 0.0f)
+            {
+                VelocityMovement = Vector2Reflect(VelocityMovement, YCollision.Normal);
+                VelocityPower -= VelocityPower / 10.0f;
             }
         }
-        else
-        {
-            BoundingBox.x += FinalMovement.x * DeltaTime;
-            BoundingBox.y += FinalMovement.y * DeltaTime;
-        }
     }
+
     FrameStackSpeed = 0.0f;
 }
 

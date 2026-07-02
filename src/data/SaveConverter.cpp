@@ -63,7 +63,7 @@ SaveData ConvertSave(std::vector<unsigned char> save)
     if (versionId != SAVE_DATA_VERSION)
     {
         std::cout << "Attempting conversion on " << versionId << "...\n";
-        if (ConversionFunctions.contains(versionId))
+        if (ConversionFunctions.count(versionId))
         {
             std::vector<unsigned char> converted = ConversionFunctions[versionId](save);
             uint32_t versionId;

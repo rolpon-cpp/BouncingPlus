@@ -22,9 +22,9 @@ EntityManager::EntityManager(Game* game)
     this->game = game;
 
 #ifndef PLATFORM_WEB
-    PhysicsFPS = 200.0f;
+    PhysicsFPS = 240.0f;
 #else
-    PhysicsFPS = 120.0f;
+    PhysicsFPS = 200.0f;
 #endif
 
     PhysicsAccumulator = 0.0f;

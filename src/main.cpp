@@ -1,13 +1,13 @@
 #include <iostream>
 #include <thread>
-
 #include "raylib.h"
 #include "game/Game.h"
 #include "game/ui/Menu.h"
 #include "globals.h"
 #include "game/core/SharedManager.h"
-#include "game/managers/ResourceManager.h"
 #include "level/LevelLoader.h"
+
+// Human-made game!!
 
 #ifdef PLATFORM_WEB
 #include <emscripten/emscripten.h>
@@ -27,16 +27,23 @@ struct Data
     bool& InGame;
 };
 
+#ifndef PLATFORM_WEB
 void load_game(Game*& g, Menu*& m, SharedManager& s, GLFWwindow*& window, LoadingStage* ld, bool* IsDone)
 {
+#ifndef PLATFORM_WEB
     glfwMakeContextCurrent(window);
+#endif
+
     s.Load();
     ld->stage = -1;
     g = new Game(s,ld);
     m = new Menu(s);
+#ifndef PLATFORM_WEB
     glfwMakeContextCurrent(nullptr);
+#endif
     *IsDone = true;
 }
+#endif
 
 void loop(void* arg)
 {
@@ -90,10 +97,9 @@ void loop(void* arg)
     DrawFPS(0, 0);
 
 #ifdef PLATFORM_WEB
-    // This returns the current size of the WASM heap in bytes
     uint32_t heapSize = EM_ASM_INT({
-            return HEAP8.length;
 
+        return HEAP32.length;
     });
     DrawText(TextFormat("WASM Heap: %u MB", heapSize / (1024 * 1024)), 0, 20, 20, GREEN);
 #endif

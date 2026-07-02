@@ -407,8 +407,10 @@ void Menu::UpdateOffsets()
         ShopButtonOffsetY = Lerp(ShopButtonOffsetY, 624, 9 * GetFrameTime());
     if (abs(ShopButtonOffsetY - 624) <= 45)
         CreditsButtonOffsetY = Lerp(CreditsButtonOffsetY, 698, 9 * GetFrameTime());
+#ifndef PLATFORM_WEB
     if (abs(CreditsButtonOffsetY - 698) <= 45)
         QuitButtonOffsetY = Lerp(QuitButtonOffsetY, 772, 9 * GetFrameTime());
+#endif
     MenuImgOffsetY += GetFrameTime() * 15;
 }
 

@@ -231,18 +231,17 @@ void GameMisc::PlaceWeaponPickup(WeaponPickup Pickup)
 
 void GameMisc::DisplayPickups()
 {
-    std::erase_if(WeaponPickups, [&](WeaponPickup& pickup)
+    (void)std::erase_if(WeaponPickups, [&](WeaponPickup& pickup)
     {
-        return pickup.PickedUp || game->GetGameTime() - pickup.CreationTime >= 45 || !game->GameResources->Weapons.
-            count(pickup.Weapon);
+        return pickup.PickedUp || game->GetGameTime() - pickup.CreationTime >= 45.0f || !game->GameResources->Weapons.count(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
         if (Vector2Distance(pickup.Position, game->MainPlayer->GetCenter()) >= GetRenderWidth())
             continue;
         // get floating offset
-        float AnimationOffset = sin((game->GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.
-            AnimationPower;
+        float AnimationOffset = sin((game->GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
+
         Weapon& PickupWeapon = game->GameResources->Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
         if (game->GameResources->Textures.count(PickupWeapon.texture))
@@ -250,18 +249,36 @@ void GameMisc::DisplayPickups()
 
         DrawCircle(pickup.Position.x, pickup.Position.y, pickup.Radius / 1.125f, ColorAlpha(BLACK, 0.2f));
 
-        float sizeWOutline = game->GameResources->Textures[TexString].width * pickup.Radius * 2.5f;
-        float sizeHOutline = game->GameResources->Textures[TexString].height * pickup.Radius * 2.5f;
-        sizeWOutline *= 1.1f;
-        sizeHOutline *= 1.1f;
-        DrawTextureEx(game->GameResources->Textures[TexString], pickup.Position -
-                      Vector2{sizeWOutline / 2.0f, sizeHOutline / 2.0f}, 0.0f,
-                      pickup.Radius / max(sizeWOutline, sizeHOutline), {255, 0, 0, 255});
+        float scale = max(game->GameResources->Textures[TexString].width,game->GameResources->Textures[TexString].height) / pickup.Radius;
+        scale *= 0.5f;
 
-        float sizeW = game->GameResources->Textures[TexString].width * pickup.Radius * 2.5f;
-        float sizeH = game->GameResources->Textures[TexString].height * pickup.Radius * 2.5f;
-        DrawTextureEx(game->GameResources->Textures[TexString], pickup.Position -
-                      Vector2{sizeW / 2.0f, sizeH / 2.0f}, 0.0f, pickup.Radius / max(sizeW, sizeH), WHITE);
+        float sw = game->GameResources->Textures[TexString].width / scale * 1.1f;
+        float sh = game->GameResources->Textures[TexString].height / scale * 1.1f;
+
+        DrawTexturePro(game->GameResources->Textures[TexString], {0.0f,0.0f,
+            (float)game->GameResources->Textures[TexString].width,(float)game->GameResources->Textures[TexString].height},
+            {
+                pickup.Position.x - sw/2,
+                pickup.Position.y - sh/2 - AnimationOffset,
+                sw,
+                sh
+            }, {
+                0,0
+            }, 0.0f, {255,0,0,255});
+
+        sw /= 1.1f;
+        sh /= 1.1f;
+
+        DrawTexturePro(game->GameResources->Textures[TexString], {0.0f,0.0f,
+            (float)game->GameResources->Textures[TexString].width,(float)game->GameResources->Textures[TexString].height},
+            {
+                pickup.Position.x - sw/2,
+                pickup.Position.y - sh/2 - AnimationOffset,
+                sw,
+                sh
+            }, {
+                0,0
+            }, 0.0f, WHITE);
 
         if (game->DebugDraw)
             DrawCircleV({
@@ -287,9 +304,9 @@ void GameMisc::DisplayPickups()
 
 void GameMisc::ProcessFreezeZones()
 {
-    std::erase_if(FreezeZones, [this](std::pair<Rectangle, double> rec)
+    (void)std::erase_if(FreezeZones, [this](std::pair<Rectangle, double> rec)
     {
-        return game->GetGameTime() - rec.second >= 45;
+        return game->GetGameTime() - rec.second >= 45.0f;
     });
     for (std::pair<Rectangle, double>& rec : FreezeZones)
     {

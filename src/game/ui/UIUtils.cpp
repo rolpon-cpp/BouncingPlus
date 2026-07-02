@@ -3,8 +3,9 @@
 //
 
 #include "raylib.h"
-#include "string"
+#include <string>
 #include "UIUtils.h"
+#include <cstdlib>
 
 Color GetHealthColor(float Percent, float Armor)
 {
